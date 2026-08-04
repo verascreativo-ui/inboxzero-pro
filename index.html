@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InboxZero Pro - Tu Biblioteca Inteligente de Conocimiento</title>
+  
+  <link rel="icon" type="image/png" sizes="32x32" href="genfavicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="genfavicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="genfavicon-180.png">
+  <link rel="shortcut icon" href="genfavicon-48.png">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Cabecera Principal -->
+  <header class="header">
+    <div class="header-left">
+      <img src="logo.png" alt="InboxZero Logo" class="site-logo">
+      <span class="brand-title">InboxZero<span class="brand-domain">.es</span></span>
+      <span class="header-tagline">| Tu biblioteca a 1-clic</span>
+    </div>
+
+    <div class="header-right">
+      <div class="usage-badge">
+        <span>Plan Prueba: <strong>8 / 15 Fichas</strong></span>
+        <div class="progress-bar"><div class="progress-fill"></div></div>
+      </div>
+      
+      <button class="btn-help" onclick="toggleHelpModal()">? ¿Cómo funciona?</button>
+      <a href="#login" class="btn-secondary">Iniciar Sesión</a>
+      <a href="#signup" class="btn-primary">Probar Gratis</a>
+    </div>
+  </header>
+
+  <!-- Modal Guía de 3 Pasos -->
+  <div id="helpModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <button class="modal-close" onclick="toggleHelpModal()">×</button>
+      <h3>¿Cómo funciona InboxZero Pro?</h3>
+      <div class="steps-grid">
+        <div class="step-item">
+          <span class="step-number">1</span>
+          <h4>Pega un Enlace o PDF</h4>
+          <p>Copia cualquier URL de Internet (artículos, vídeos, redes) o sube un archivo.</p>
+        </div>
+        <div class="step-item">
+          <span class="step-number">2</span>
+          <h4>Procesamiento por IA</h4>
+          <p>Nuestra IA analiza, clasifica y genera un resumen automático del contenido.</p>
+        </div>
+        <div class="step-item">
+          <span class="step-number">3</span>
+          <h4>Recupera con 1 Clic</h4>
+          <p>Accede a tu biblioteca organizada por categorías en cualquier momento.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard / Aplicación Principal -->
+  <div class="app-layout">
+    
+    <!-- Barra Lateral Navegación -->
+    <aside class="sidebar">
+      <div class="sidebar-group">
+        <span class="sidebar-title">NAVEGACIÓN</span>
+        <a href="#" class="sidebar-link active">📁 Todas las fichas <span class="badge">8</span></a>
+        <a href="#" class="sidebar-link">⭐ Favoritos <span class="badge">3</span></a>
+        <a href="#" class="sidebar-link">📌 Leer más tarde <span class="badge">2</span></a>
+      </div>
+
+      <div class="sidebar-group">
+        <span class="sidebar-title">CATEGORÍAS</span>
+        <a href="#" class="sidebar-link"><span class="dot dot-green"></span> Mascotas <span class="badge">3</span></a>
+        <a href="#" class="sidebar-link"><span class="dot dot-blue"></span> Deporte <span class="badge">2</span></a>
+        <a href="#" class="sidebar-link"><span class="dot dot-yellow"></span> Alimentación <span class="badge">2</span></a>
+        <a href="#" class="sidebar-link"><span class="dot dot-red"></span> Coches <span class="badge">1</span></a>
+      </div>
+
+      <div class="sidebar-promo">
+        🚀 <strong>Desbloquea Fichas Ilimitadas</strong>
+        <p>Guarda PDFs ilimitados y accesos desde 3,99€/mes.</p>
+      </div>
+    </aside>
+
+    <!-- Contenido Central -->
+    <main class="main-content">
+      
+      <!-- Bloque Capturar Contenido -->
+      <section class="capture-card">
+        <h3>⚡ Capturar URL, Sitio Web o Documento PDF</h3>
+        <div class="capture-input-group">
+          <input type="text" placeholder="Pega un enlace (Instagram, TikTok, YouTube) o sube un PDF..." class="capture-input">
+          <select class="category-select">
+            <option>+ Categoría</option>
+            <option>Mascotas</option>
+            <option>Deporte</option>
+            <option>Alimentación</option>
+          </select>
+          <button class="btn-primary btn-capture">Guardar Ficha</button>
+        </div>
+      </section>
+
+      <!-- Fichas Registradas -->
+      <section class="feed-section">
+        <div class="feed-header">
+          <h3>Tus Fichas Registradas</h3>
+          <span class="feed-counter">Mostrando 3 de 8</span>
+        </div>
+
+        <!-- Ficha Ejemplo Mascotas -->
+        <article class="card-item">
+          <div class="card-media">
+            <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=500" alt="Mascota">
+            <span class="card-tag tag-green">MASCOTAS</span>
+          </div>
+          <div class="card-body">
+            <div class="card-top-bar">
+              <span class="card-url">🔗 instagram.com/p/cuidados-mascotas</span>
+              <div class="card-actions">
+                <button title="Favorito" class="action-btn">⭐</button>
+                <button title="Eliminar" class="action-btn">🗑️</button>
+              </div>
+            </div>
+            <h4>Ficha de Ejemplo: Cuidados y Alimentación de Mascotas en Verano</h4>
+            <p>Guía completa sobre hidratación, alimentación recomendada y prevención de golpes de calor en perros y gatos durante los meses calurosos.</p>
+            <div class="card-note">
+              <strong>Mi Nota Personal:</strong> Comprar el bebedero térmico portátil antes del viaje a la playa.
+            </div>
+          </div>
+        </article>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- Pie de página Ultra-Compacto -->
+  <footer class="site-footer">
+    <div class="footer-inline">
+      <div class="footer-slogan">
+        <img src="logo.png" alt="InboxZero Logo" class="footer-mini-logo">
+        <span>Elimina el desorden digital. Guarda y organiza el contenido de Internet con un solo clic.</span>
+      </div>
+      
+      <div class="footer-legal-bar">
+        <a href="#aviso-legal">Aviso Legal</a> • 
+        <a href="#politica-privacidad">Política de Privacidad</a> • 
+        <a href="#politica-cookies">Política de Cookies</a> • 
+        <a href="#terminos-condiciones">Términos y Condiciones</a>
+      </div>
+
+      <div class="footer-copy">
+        © 2026 InboxZero.es
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
