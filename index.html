@@ -880,7 +880,6 @@
                 
                 const newCat = document.getElementById('edit-new-category-input').value.trim();
                 if (newCat) {
-                    if (!customCategories.includes(newCat)) customCategories.customCategories.push(newCat); // corrección segura
                     if (!customCategories.includes(newCat)) customCategories.push(newCat);
                     card.category = newCat;
                 } else {
