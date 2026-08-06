@@ -1,163 +1,1084 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>InboxZero Pro - Tu Biblioteca Inteligente de Conocimiento</title>
-  
-  <link rel="icon" type="image/png" sizes="32x32" href="genfavicon-32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="genfavicon-16.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="genfavicon-180.png">
-  <link rel="shortcut icon" href="genfavicon-48.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InboxZero.es — Tu biblioteca inteligente de conocimiento</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --bg-main: #f8fafc;
+            --sidebar-bg: #ffffff;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --danger: #ef4444;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-  <link rel="stylesheet" href="styles.css">
+        /* HEADER SUPERIOR LINEAL DE ANCHO COMPLETO */
+        header.top-header {
+            background-color: #ffffff;
+            padding: 12px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+            z-index: 50;
+        }
+        .header-brand-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .brand-logo-img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+        .brand-title-box {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+        .brand-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        .brand-tagline {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .top-nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 0.9rem;
+        }
+        .top-nav button, .top-nav a {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.2s;
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+        .top-nav button:hover, .top-nav a:hover {
+            color: var(--text-main);
+        }
+
+        /* Dropdown de Mi Biblioteca */
+        .dropdown-container {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-toggle {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .dropdown-toggle:hover {
+            color: var(--text-main);
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 0;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            width: 220px;
+            display: none;
+            flex-direction: column;
+            padding: 6px 0;
+            z-index: 100;
+        }
+        .dropdown-menu.show {
+            display: flex;
+        }
+        .dropdown-menu a {
+            padding: 10px 16px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .dropdown-menu a:hover {
+            background: #f8fafc;
+            color: var(--primary);
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8fafc;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            font-size: 0.85rem;
+            color: var(--text-main);
+        }
+        .progress-bar-bg {
+            width: 70px;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: #3b82f6;
+            border-radius: 3px;
+        }
+        .btn-subscribe {
+            background-color: var(--primary) !important;
+            color: white !important;
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-weight: 600;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .btn-subscribe:hover {
+            background-color: var(--primary-dark) !important;
+        }
+
+        /* CUERPO CENTRAL */
+        .app-body {
+            display: flex;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar Lateral Izquierdo */
+        aside {
+            width: 270px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex-shrink: 0;
+            padding-bottom: 20px;
+        }
+        .sidebar-top {
+            display: flex;
+            flex-direction: column;
+        }
+        .nav-section {
+            padding: 24px 20px 8px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: bold;
+            letter-spacing: 0.05em;
+        }
+        .nav-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .nav-links li a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+        .nav-links li a:hover, .nav-links li.active a {
+            background-color: #eff6ff;
+            color: var(--primary);
+            font-weight: 500;
+        }
+        .nav-links li.active a {
+            border-left: 3px solid var(--primary);
+            padding-left: 17px;
+        }
+        .badge {
+            background: #f1f5f9;
+            color: var(--text-muted);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .sidebar-footer {
+            padding: 0 20px;
+        }
+        .btn-unsubscribe-side {
+            width: 100%;
+            background-color: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            transition: background 0.2s;
+        }
+        .btn-unsubscribe-side:hover {
+            background-color: #fee2e2;
+        }
+
+        /* Contenedor Principal */
+        main {
+            flex-grow: 1;
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        /* Caja Capturadora */
+        .capture-box {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 28px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+        .capture-box h2 {
+            margin-top: 0;
+            font-size: 1.05rem;
+            margin-bottom: 14px;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+        .capture-input-group {
+            display: flex;
+            gap: 12px;
+        }
+        .capture-input-group input {
+            flex-grow: 1;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+        }
+        .capture-input-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* Listado y Tarjetas */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .section-header h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin: 0;
+            color: var(--text-main);
+        }
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+            align-items: start;
+        }
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            transition: border-color 0.2s;
+            min-width: 0;
+        }
+        .card:hover {
+            border-color: #cbd5e1;
+        }
+        .card-top {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            min-width: 0;
+        }
+        .card-thumb {
+            width: 76px;
+            height: 76px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #f1f5f9;
+            flex-shrink: 0;
+            border: 1px solid var(--border-color);
+        }
+        .card-info {
+            overflow: hidden;
+            flex-grow: 1;
+            min-width: 0;
+        }
+        .card-category-tag {
+            font-size: 0.62rem;
+            background: #f1f5f9;
+            color: var(--text-muted);
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 4px;
+            letter-spacing: 0.05em;
+        }
+        .card-title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--text-main);
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.3;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        .card-desc {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin: 10px 0 6px 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            overflow-wrap: anywhere;
+        }
+        .card-url {
+            font-size: 0.72rem;
+            color: var(--primary);
+            text-decoration: none;
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 12px;
+        }
+        .card-footer-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            border-top: 1px solid #f8fafc;
+            padding-top: 10px;
+            margin-top: auto;
+        }
+        .card-actions-box {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 4px;
+            display: flex;
+            gap: 4px;
+        }
+        .card-action-btn {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+        .card-action-btn:hover {
+            background: #f1f5f9;
+        }
+        .card-action-btn.active-fav { color: #f59e0b; border-color: #f59e0b; }
+        .card-action-btn.active-read { color: #3b82f6; border-color: #3b82f6; }
+
+        /* FOOTER FINAL EN UNA SÓLA LÍNEA */
+        footer {
+            background-color: #ffffff;
+            padding: 14px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+        .footer-links {
+            display: flex;
+            gap: 16px;
+        }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .footer-links a:hover { color: var(--text-main); }
+
+        /* Modales */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 16px;
+        }
+        .modal {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            max-height: 94vh;
+            overflow-y: auto;
+        }
+        .modal-wide {
+            width: 780px;
+            max-width: 95vw;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        .modal-close {
+            background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer;
+        }
+        
+        /* Layout Dos Columnas para el Modal */
+        .modal-two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr;
+            gap: 24px;
+            align-items: start;
+        }
+        .modal-col-left {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .modal-col-right {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .modal-large-preview {
+            width: 100%;
+            height: 230px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #f1f5f9;
+            border: 1px solid var(--border-color);
+        }
+        .form-group { margin-bottom: 4px; }
+        .form-group label { display: block; font-size: 0.73rem; color: var(--text-muted); margin-bottom: 2px; font-weight: 600; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; background: #ffffff; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 10px; color: var(--text-main); font-size: 0.83rem;
+            outline: none;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .modal-footer-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        @media (max-width: 768px) {
+            .modal-two-columns {
+                grid-template-columns: 1fr;
+            }
+            .modal-large-preview {
+                height: 150px;
+            }
+        }
+    </style>
 </head>
 <body>
 
-  <!-- Cabecera Principal -->
-  <header class="header">
-    <div class="header-left">
-      <img src="logo.png" alt="InboxZero Logo" class="site-logo">
-      <span class="brand-title">InboxZero<span class="brand-domain">.es</span></span>
-      <span class="header-tagline">| Tu biblioteca a 1-clic</span>
-    </div>
-
-    <div class="header-right">
-      <div class="usage-badge">
-        <span>Plan Prueba: <strong>8 / 15 Fichas</strong></span>
-        <div class="progress-bar"><div class="progress-fill"></div></div>
-      </div>
-      
-      <button class="btn-help" onclick="toggleHelpModal()">? ¿Cómo funciona?</button>
-      <a href="#login" class="btn-secondary">Iniciar Sesión</a>
-      <a href="#signup" class="btn-primary">Probar Gratis</a>
-    </div>
-  </header>
-
-  <!-- Modal Guía de 3 Pasos -->
-  <div id="helpModal" class="modal-overlay hidden">
-    <div class="modal-card">
-      <button class="modal-close" onclick="toggleHelpModal()">×</button>
-      <h3>¿Cómo funciona InboxZero Pro?</h3>
-      <div class="steps-grid">
-        <div class="step-item">
-          <span class="step-number">1</span>
-          <h4>Pega un Enlace o PDF</h4>
-          <p>Copia cualquier URL de Internet (artículos, vídeos, redes) o sube un archivo.</p>
-        </div>
-        <div class="step-item">
-          <span class="step-number">2</span>
-          <h4>Procesamiento por IA</h4>
-          <p>Nuestra IA analiza, clasifica y genera un resumen automático del contenido.</p>
-        </div>
-        <div class="step-item">
-          <span class="step-number">3</span>
-          <h4>Recupera con 1 Clic</h4>
-          <p>Accede a tu biblioteca organizada por categorías en cualquier momento.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Dashboard / Aplicación Principal -->
-  <div class="app-layout">
-    
-    <!-- Barra Lateral Navegación -->
-    <aside class="sidebar">
-      <div class="sidebar-group">
-        <span class="sidebar-title">NAVEGACIÓN</span>
-        <a href="#" class="sidebar-link active">📁 Todas las fichas <span class="badge">8</span></a>
-        <a href="#" class="sidebar-link">⭐ Favoritos <span class="badge">3</span></a>
-        <a href="#" class="sidebar-link">📌 Leer más tarde <span class="badge">2</span></a>
-      </div>
-
-      <div class="sidebar-group">
-        <span class="sidebar-title">CATEGORÍAS</span>
-        <a href="#" class="sidebar-link"><span class="dot dot-green"></span> Mascotas <span class="badge">3</span></a>
-        <a href="#" class="sidebar-link"><span class="dot dot-blue"></span> Deporte <span class="badge">2</span></a>
-        <a href="#" class="sidebar-link"><span class="dot dot-yellow"></span> Alimentación <span class="badge">2</span></a>
-        <a href="#" class="sidebar-link"><span class="dot dot-red"></span> Coches <span class="badge">1</span></a>
-      </div>
-
-      <div class="sidebar-promo">
-        🚀 <strong>Desbloquea Fichas Ilimitadas</strong>
-        <p>Guarda PDFs ilimitados y accesos desde 3,99€/mes.</p>
-      </div>
-    </aside>
-
-    <!-- Contenido Central -->
-    <main class="main-content">
-      
-      <!-- Bloque Capturar Contenido -->
-      <section class="capture-card">
-        <h3>⚡ Capturar URL, Sitio Web o Documento PDF</h3>
-        <div class="capture-input-group">
-          <input type="text" placeholder="Pega un enlace (Instagram, TikTok, YouTube) o sube un PDF..." class="capture-input">
-          <select class="category-select">
-            <option>+ Categoría</option>
-            <option>Mascotas</option>
-            <option>Deporte</option>
-            <option>Alimentación</option>
-          </select>
-          <button class="btn-primary btn-capture">Guardar Ficha</button>
-        </div>
-      </section>
-
-      <!-- Fichas Registradas -->
-      <section class="feed-section">
-        <div class="feed-header">
-          <h3>Tus Fichas Registradas</h3>
-          <span class="feed-counter">Mostrando 3 de 8</span>
-        </div>
-
-        <!-- Ficha Ejemplo Mascotas -->
-        <article class="card-item">
-          <div class="card-media">
-            <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=500" alt="Mascota">
-            <span class="card-tag tag-green">MASCOTAS</span>
-          </div>
-          <div class="card-body">
-            <div class="card-top-bar">
-              <span class="card-url">🔗 instagram.com/p/cuidados-mascotas</span>
-              <div class="card-actions">
-                <button title="Favorito" class="action-btn">⭐</button>
-                <button title="Eliminar" class="action-btn">🗑️</button>
-              </div>
+    <!-- HEADER SUPERIOR LINEAL -->
+    <header class="top-header">
+        <div class="header-brand-box">
+            <img src="logo.png" class="brand-logo-img" alt="Logo">
+            <div class="brand-title-box">
+                <a href="#" class="brand-title">InboxZero.es</a>
+                <span class="brand-tagline">Tu conocimiento a 1 Clic</span>
             </div>
-            <h4>Ficha de Ejemplo: Cuidados y Alimentación de Mascotas en Verano</h4>
-            <p>Guía completa sobre hidratación, alimentación recomendada y prevención de golpes de calor en perros y gatos durante los meses calurosos.</p>
-            <div class="card-note">
-              <strong>Mi Nota Personal:</strong> Comprar el bebedero térmico portátil antes del viaje a la playa.
+        </div>
+        <div class="progress-container">
+            <span>Plan de Prueba Gratuito: <span id="ficha-counter">4</span> / 15 Fichas</span>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar-fill" style="width: 26.6%;"></div></div>
+        </div>
+        <nav class="top-nav">
+            <!-- Menú Desplegable "Mi Biblioteca" -->
+            <div class="dropdown-container">
+                <button class="dropdown-toggle" id="btn-library-dropdown">Mi Biblioteca ▾</button>
+                <div class="dropdown-menu" id="library-dropdown-menu">
+                    <a href="#" onclick="applyLibraryFilter('latest')">⭐ Últimas incorporaciones</a>
+                    <a href="#" onclick="applyLibraryFilter('all')">📁 Todas las fichas</a>
+                    <a href="#" onclick="applyLibraryFilter('favorites')">☀️ Favoritos</a>
+                    <a href="#" onclick="applyLibraryFilter('readlater')">📌 Leer más tarde</a>
+                </div>
             </div>
-          </div>
-        </article>
-      </section>
+            <button id="btn-help-modal">Ayuda en 3 pasos</button>
+            <a href="#">Iniciar Sesión</a>
+            <a href="https://stripe.com" target="_blank" class="btn-subscribe">Suscríbete</a>
+        </nav>
+    </header>
 
-    </main>
+    <!-- CUERPO CENTRAL -->
+    <div class="app-body">
+        <!-- SIDEBAR IZQUIERDO -->
+        <aside>
+            <div class="sidebar-top">
+                <div class="nav-section">Navegación</div>
+                <ul class="nav-links">
+                    <li class="active" data-filter="latest"><a href="#"><span>⭐ Últimas incorporaciones</span></a></li>
+                    <li data-filter="all"><a href="#"><span>📁 Todas las fichas</span> <span class="badge" id="count-all">4</span></a></li>
+                    <li data-filter="favorites"><a href="#"><span>☀️ Favoritos</span> <span class="badge" id="count-favs">1</span></a></li>
+                    <li data-filter="readlater"><a href="#"><span>📌 Leer más tarde</span> <span class="badge" id="count-read">1</span></a></li>
+                </ul>
+                <div class="nav-section">Categorías</div>
+                <ul class="nav-links" id="sidebar-categories-list">
+                    <!-- Dinámico -->
+                </ul>
+            </div>
+            <div class="sidebar-footer">
+                <button class="btn-unsubscribe-side" onclick="alert('Funcionalidad de baja de suscripción')">Solicitar baja de suscripción</button>
+            </div>
+        </aside>
 
-  </div>
+        <!-- CONTENEDOR CENTRAL -->
+        <main>
+            <!-- Caja Capturadora -->
+            <div class="capture-box">
+                <h2>Capturar URL, Sitio Web o Documento PDF</h2>
+                <div class="capture-input-group">
+                    <input type="text" id="url-input" placeholder="Pega un enlace (https://...) o título...">
+                    <button class="btn-primary" id="btn-capture">Guardar Ficha</button>
+                </div>
+            </div>
 
-  <!-- Pie de página Ultra-Compacto -->
-  <footer class="site-footer">
-    <div class="footer-inline">
-      <div class="footer-slogan">
-        <img src="logo.png" alt="InboxZero Logo" class="footer-mini-logo">
-        <span>Elimina el desorden digital. Guarda y organiza el contenido de Internet con un solo clic.</span>
-      </div>
-      
-      <div class="footer-legal-bar">
-        <a href="#aviso-legal">Aviso Legal</a> • 
-        <a href="#politica-privacidad">Política de Privacidad</a> • 
-        <a href="#politica-cookies">Política de Cookies</a> • 
-        <a href="#terminos-condiciones">Términos y Condiciones</a>
-      </div>
+            <!-- Listado -->
+            <div class="section-header">
+                <h3 id="section-heading-title">Últimas Fichas Incorporadas</h3>
+                <span style="font-size: 0.85rem; color: var(--text-muted);" id="showing-text">Mostrando 4 ficha(s)</span>
+            </div>
 
-      <div class="footer-copy">
-        © 2026 InboxZero.es
-      </div>
+            <!-- Cuadrícula de Tarjetas -->
+            <div class="cards-container" id="cards-container">
+                <!-- Se inyecta mediante JS -->
+            </div>
+        </main>
     </div>
-  </footer>
 
-  <script src="app.js"></script>
+    <!-- FOOTER FINAL EN UNA SÓLA LÍNEA -->
+    <footer>
+        <div class="footer-brand">
+            <img src="logo.png" class="brand-logo-img" alt="Logo" style="width: 22px; height: 22px;">
+            InboxZero.es — Tu biblioteca inteligente de conocimiento
+        </div>
+        <div class="footer-links">
+            <a href="#">Aviso Legal</a>
+            <a href="#">Política de Privacidad</a>
+            <a href="#">Cookies</a>
+            <a href="#">Términos y Condiciones</a>
+        </div>
+        <div>© 2026 InboxZero.es</div>
+    </footer>
+
+    <!-- MODAL DE AYUDA -->
+    <div class="modal-overlay" id="help-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 style="margin:0; font-size: 1rem;">Guía Rápida: Ayuda en 3 Pasos</h3>
+                <button class="modal-close" id="close-help">&times;</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px; color: var(--text-muted); font-size: 0.85rem;">
+                <div style="background: #f8fafc; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
+                    <strong style="color: var(--text-main);">1. Pega tu URL o Contenido:</strong> Introduce cualquier enlace web o documento.
+                </div>
+                <div style="background: #f8fafc; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
+                    <strong style="color: var(--text-main);">2. Extracción Inteligente:</strong> La plataforma detecta automáticamente título e imagen.
+                </div>
+                <div style="background: #f8fafc; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
+                    <strong style="color: var(--text-main);">3. Organiza:</strong> Clasifica en categorías personalizadas de manera limpia.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE EDICIÓN CON HEADER PERSONALIZADO -->
+    <div class="modal-overlay" id="edit-modal">
+        <div class="modal modal-wide">
+            <!-- HEADER MODIFICADO CON LOGO A LA IZQUIERDA Y TÍTULO / X A LA DERECHA -->
+            <div class="modal-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <img src="logo.png" style="width: 24px; height: 24px; object-fit: contain;" alt="Logo">
+                    <span style="font-weight: bold; color: var(--primary); font-size: 0.95rem;">InboxZero.es</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Personaliza tu Ficha</span>
+                    <button class="modal-close" id="close-edit">&times;</button>
+                </div>
+            </div>
+            
+            <input type="hidden" id="edit-id">
+
+            <div class="modal-two-columns">
+                <!-- COLUMNA IZQUIERDA: Captura / Vista previa de la imagen del site -->
+                <div class="modal-col-left">
+                    <div class="form-group">
+                        <label>Vista Previa del Sitio</label>
+                        <img id="edit-preview-banner" class="modal-large-preview" src="" alt="Miniatura del Sitio">
+                    </div>
+                    <div class="form-group">
+                        <label>URL de Imagen:</label>
+                        <input type="text" id="edit-image">
+                    </div>
+                </div>
+
+                <!-- COLUMNA DERECHA: Datos distribuidos por filas -->
+                <div class="modal-col-right">
+                    <div class="form-group">
+                        <label>Título:</label>
+                        <input type="text" id="edit-title">
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción:</label>
+                        <textarea id="edit-desc" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Categoría (Selecciona existente):</label>
+                        <select id="edit-category-select"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nueva Categoría de Usuario:</label>
+                        <input type="text" id="edit-new-category-input" placeholder="O escribe una nueva categoría aquí...">
+                    </div>
+                    <div style="display: flex; gap: 24px; margin: 6px 0; font-size: 0.85rem;">
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 600;">
+                            <input type="checkbox" id="edit-fav"> ⭐ Favorito
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 600;">
+                            <input type="checkbox" id="edit-read"> 📌 Leer más tarde
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>Notas:</label>
+                        <textarea id="edit-notes" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTONES FINALES DE ACCIÓN -->
+            <div class="modal-footer-actions">
+                <a href="#" id="edit-open-web" target="_blank" style="color: var(--primary); text-decoration: none; font-size: 0.82rem; font-weight: 500;">Visitar Web original ↗</a>
+                <button class="btn-primary" id="btn-save-edit" style="padding: 8px 20px; font-size: 0.85rem;">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LÓGICA JS -->
+    <script>
+        let cardsData = [
+            {
+                id: 1,
+                title: "KAROL G - Papasito (Official Video)",
+                description: "Vídeo musical oficial de Karol G - Papasito",
+                url: "https://www.youtube.com/watch?v=15iEJ0qY_70&list=RD15iEJ0qY_70&start_radio=1",
+                image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300",
+                category: "Vídeos Musicales",
+                favorite: true,
+                readLater: true,
+                notes: "Karol G me encanta (Papasito)"
+            },
+            {
+                id: 2,
+                title: "Comida saludable: 101 recetas sanas para tener un menú saludable de lunes a domingo",
+                description: "Menú saludable y recetas equilibradas.",
+                url: "https://www.directoalpaladar.com/recetario/101-recetas-sanas-para-para-tener-menu-saludable-lunes-a-domingo",
+                image: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=300",
+                category: "Comida Sana",
+                favorite: false,
+                readLater: false,
+                notes: ""
+            },
+            {
+                id: 3,
+                title: "TikTok - Rutina Activa en Silla",
+                description: "20 toques alternando los pies | Rutina en silla",
+                url: "https://www.tiktok.com",
+                image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=300",
+                category: "Ejercicios en Casa",
+                favorite: false,
+                readLater: false,
+                notes: ""
+            },
+            {
+                id: 4,
+                title: "Ranking Best Shark Moments",
+                description: "Vídeo corto de YouTube con los mejores momentos de tiburones.",
+                url: "https://youtube.com/shorts/iVaDuaWzgyw?si=muml8zjy1y_E-vXaY",
+                image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=300",
+                category: "Vídeos Divertidos",
+                favorite: false,
+                readLater: false,
+                notes: "Vídeo viral de YouTube Shorts"
+            }
+        ];
+
+        let customCategories = ["Ejercicios en Casa", "Vídeos Divertidos", "Comida Sana", "Vídeos Musicales"];
+        let currentFilter = 'latest';
+
+        const cardsContainer = document.getElementById('cards-container');
+        const urlInput = document.getElementById('url-input');
+        const btnCapture = document.getElementById('btn-capture');
+        const helpModal = document.getElementById('help-modal');
+        const btnHelpModal = document.getElementById('btn-help-modal');
+        const closeHelp = document.getElementById('close-help');
+        const editModal = document.getElementById('edit-modal');
+        const closeEdit = document.getElementById('close-edit');
+        const btnSaveEdit = document.getElementById('btn-save-edit');
+        const sidebarCategoriesList = document.getElementById('sidebar-categories-list');
+
+        // Dropdown Menu Elements
+        const btnLibraryDropdown = document.getElementById('btn-library-dropdown');
+        const libraryDropdownMenu = document.getElementById('library-dropdown-menu');
+
+        btnLibraryDropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+            libraryDropdownMenu.classList.toggle('show');
+        });
+
+        window.addEventListener('click', () => {
+            if (libraryDropdownMenu.classList.contains('show')) {
+                libraryDropdownMenu.classList.remove('show');
+            }
+        });
+
+        window.applyLibraryFilter = (filterType) => {
+            currentFilter = filterType;
+            libraryDropdownMenu.classList.remove('show');
+            
+            document.querySelectorAll('aside .nav-links li').forEach(el => {
+                el.classList.remove('active');
+                if(el.getAttribute('data-filter') === filterType) {
+                    el.classList.add('active');
+                }
+            });
+            renderApp();
+        };
+
+        function getSmartImage(urlStr) {
+            let lower = urlStr.toLowerCase();
+            if (lower.includes('15iej0qy_70') || (lower.includes('youtube') && lower.includes('karol'))) {
+                return "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300";
+            } else if (lower.includes('youtube') || lower.includes('youtu.be')) {
+                return "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=300";
+            } else if (lower.includes('tiktok')) {
+                return "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=300";
+            } else if (lower.includes('receta') || lower.includes('paladar') || lower.includes('comida') || lower.includes('cocina')) {
+                return "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=300";
+            }
+            return "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=300";
+        }
+
+        function generateSmartTitle(urlStr) {
+            let lower = urlStr.toLowerCase();
+            if (lower.includes('15iej0qy_70')) {
+                return "KAROL G - Papasito (Official Video)";
+            } else if (lower.includes('directoalpaladar')) {
+                return "Comida saludable: 101 recetas sanas para tener un menú saludable de lunes a domingo";
+            } else if (lower.includes('tiktok')) {
+                return "TikTok - Rutina Activa en Silla";
+            } else if (lower.includes('youtube') || lower.includes('youtu.be')) {
+                return "Ranking Best Shark Moments";
+            }
+            
+            try {
+                let cleanUrl = urlStr.startsWith('http') ? urlStr : 'https://' + urlStr;
+                let urlObj = new URL(cleanUrl);
+                let segments = urlObj.pathname.split('/').filter(Boolean);
+                if (segments.length > 0) {
+                    let lastSegment = segments[segments.length - 1];
+                    let title = lastSegment.replace(/[-_]/g, ' ');
+                    return title.charAt(0).toUpperCase() + title.slice(1);
+                }
+                return urlObj.hostname;
+            } catch (e) {
+                return urlStr;
+            }
+        }
+
+        function generateSmartDescription(urlStr) {
+            let lower = urlStr.toLowerCase();
+            if (lower.includes('15iej0qy_70')) {
+                return "Vídeo musical oficial de Karol G - Papasito";
+            } else if (lower.includes('youtube') || lower.includes('youtu.be')) {
+                return "Vídeo corto de YouTube con los mejores momentos de tiburones.";
+            } else if (lower.includes('tiktok')) {
+                return "20 toques alternando los pies | Rutina en silla";
+            } else if (lower.includes('paladar')) {
+                return "Menú saludable y recetas equilibradas.";
+            }
+            return "Contenido web capturado automáticamente.";
+        }
+
+        function renderApp() {
+            let filteredCards = cardsData;
+            if (currentFilter === 'favorites') {
+                filteredCards = cardsData.filter(c => c.favorite);
+                document.getElementById('section-heading-title').innerText = "Fichas Favoritas";
+            } else if (currentFilter === 'readlater') {
+                filteredCards = cardsData.filter(c => c.readLater);
+                document.getElementById('section-heading-title').innerText = "Fichas para Leer Más Tarde";
+            } else if (currentFilter.startsWith('cat:')) {
+                const catName = currentFilter.replace('cat:', '');
+                filteredCards = cardsData.filter(c => c.category === catName);
+                document.getElementById('section-heading-title').innerText = "Categoría: " + catName;
+            } else if (currentFilter === 'all') {
+                filteredCards = cardsData;
+                document.getElementById('section-heading-title').innerText = "Todas las Fichas";
+            } else {
+                document.getElementById('section-heading-title').innerText = "Últimas Fichas Incorporadas";
+            }
+
+            document.getElementById('showing-text').innerText = `Mostrando ${filteredCards.length} ficha(s)`;
+            const count = cardsData.length;
+            document.getElementById('ficha-counter').innerText = count;
+            document.getElementById('progress-bar-fill').style.width = Math.min((count / 15) * 100, 100) + '%';
+            document.getElementById('count-all').innerText = count;
+            document.getElementById('count-favs').innerText = cardsData.filter(c => c.favorite).length;
+            document.getElementById('count-read').innerText = cardsData.filter(c => c.readLater).length;
+
+            cardsContainer.innerHTML = '';
+            if (filteredCards.length === 0) {
+                cardsContainer.innerHTML = `<div style="grid-column: span 2; text-align: center; color: var(--text-muted); padding: 30px;">No hay fichas en esta sección.</div>`;
+            } else {
+                filteredCards.forEach(card => {
+                    const cardEl = document.createElement('div');
+                    cardEl.className = 'card';
+                    cardEl.innerHTML = `
+                        <div>
+                            <div class="card-top">
+                                <img src="${card.image}" class="card-thumb" alt="Miniatura">
+                                <div class="card-info">
+                                    <div class="card-category-tag">${card.category || 'General'}</div>
+                                    <h4 class="card-title" title="${card.title}">${card.title}</h4>
+                                </div>
+                            </div>
+                            <p class="card-desc">${card.description}</p>
+                            <a href="${card.url}" target="_blank" class="card-url">${card.url}</a>
+                        </div>
+                        <div class="card-footer-row">
+                            <div class="card-actions-box">
+                                <button class="card-action-btn ${card.favorite ? 'active-fav' : ''}" onclick="toggleFavorite(${card.id})" title="Favorito">⭐</button>
+                                <button class="card-action-btn ${card.readLater ? 'active-read' : ''}" onclick="toggleReadLater(${card.id})" title="Leer más tarde">📌</button>
+                                <button class="card-action-btn" onclick="openEditModal(${card.id})" title="Editar">✏️</button>
+                                <button class="card-action-btn" onclick="deleteCard(${card.id})" title="Eliminar">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                    cardsContainer.appendChild(cardEl);
+                });
+            }
+
+            sidebarCategoriesList.innerHTML = '';
+            customCategories.forEach(cat => {
+                const countCat = cardsData.filter(c => c.category === cat).length;
+                const li = document.createElement('li');
+                li.className = currentFilter === 'cat:' + cat ? 'active' : '';
+                li.innerHTML = `<a href="#" onclick="filterByCategory('${cat}')"><span>📁 ${cat}</span> <span class="badge">${countCat}</span></a>`;
+                sidebarCategoriesList.appendChild(li);
+            });
+        }
+
+        btnCapture.addEventListener('click', () => {
+            const val = urlInput.value.trim();
+            if(!val) { alert("Introduce una URL o título."); return; }
+
+            const newImg = getSmartImage(val);
+            const smartTitle = generateSmartTitle(val);
+            const smartDesc = generateSmartDescription(val);
+
+            let defaultCat = customCategories[0] || "General";
+            if (val.toLowerCase().includes('15iej0qy_70')) {
+                defaultCat = "Vídeos Musicales";
+                if (!customCategories.includes(defaultCat)) customCategories.push(defaultCat);
+            } else if (val.toLowerCase().includes('youtube') || val.toLowerCase().includes('youtu.be')) {
+                defaultCat = "Vídeos Divertidos";
+                if (!customCategories.includes(defaultCat)) customCategories.push(defaultCat);
+            } else if (val.toLowerCase().includes('paladar') || val.toLowerCase().includes('receta')) {
+                defaultCat = "Comida Sana";
+                if (!customCategories.includes(defaultCat)) customCategories.push(defaultCat);
+            }
+
+            const newCard = {
+                id: Date.now(),
+                title: smartTitle,
+                description: smartDesc,
+                url: val.startsWith('http') ? val : 'https://' + val,
+                image: newImg,
+                category: defaultCat,
+                favorite: false,
+                readLater: false,
+                notes: ""
+            };
+
+            cardsData.unshift(newCard);
+            urlInput.value = '';
+            renderApp();
+            openEditModal(newCard.id);
+        });
+
+        window.toggleFavorite = (id) => { const c = cardsData.find(x => x.id === id); if(c) { c.favorite = !c.favorite; renderApp(); } }
+        window.toggleReadLater = (id) => { const c = cardsData.find(x => x.id === id); if(c) { c.readLater = !c.readLater; renderApp(); } }
+        window.deleteCard = (id) => { if(confirm("¿Eliminar ficha?")) { cardsData = cardsData.filter(x => x.id !== id); renderApp(); } }
+        window.filterByCategory = (cat) => { currentFilter = 'cat:' + cat; renderApp(); }
+
+        document.querySelectorAll('aside .nav-links li[data-filter]').forEach(li => {
+            li.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('aside .nav-links li').forEach(el => el.classList.remove('active'));
+                li.classList.add('active');
+                currentFilter = li.getAttribute('data-filter');
+                renderApp();
+            });
+        });
+
+        btnHelpModal.addEventListener('click', () => helpModal.style.display = 'flex');
+        closeHelp.addEventListener('click', () => helpModal.style.display = 'none');
+        window.addEventListener('click', (e) => { if (e.target === helpModal) helpModal.style.display = 'none'; });
+
+        window.openEditModal = (id) => {
+            const card = cardsData.find(c => c.id === id);
+            if(!card) return;
+            document.getElementById('edit-id').value = card.id;
+            document.getElementById('edit-title').value = card.title;
+            document.getElementById('edit-desc').value = card.description;
+            document.getElementById('edit-image').value = card.image;
+            document.getElementById('edit-preview-banner').src = card.image;
+            document.getElementById('edit-notes').value = card.notes || '';
+            document.getElementById('edit-fav').checked = card.favorite;
+            document.getElementById('edit-read').checked = card.readLater;
+            document.getElementById('edit-open-web').href = card.url;
+            document.getElementById('edit-new-category-input').value = '';
+
+            const select = document.getElementById('edit-category-select');
+            select.innerHTML = '';
+            customCategories.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat; opt.innerText = cat;
+                if(cat === card.category) opt.selected = true;
+                select.appendChild(opt);
+            });
+            editModal.style.display = 'flex';
+        }
+
+        closeEdit.addEventListener('click', () => editModal.style.display = 'none');
+        window.addEventListener('click', (e) => { if (e.target === editModal) editModal.style.display = 'none'; });
+
+        btnSaveEdit.addEventListener('click', () => {
+            const id = parseInt(document.getElementById('edit-id').value);
+            const card = cardsData.find(c => c.id === id);
+            if(!card) return;
+
+            let chosenCategory = document.getElementById('edit-category-select').value;
+            const newCatInput = document.getElementById('edit-new-category-input').value.trim();
+            if(newCatInput) {
+                if(!customCategories.includes(newCatInput)) customCategories.push(newCatInput);
+                chosenCategory = newCatInput;
+            }
+
+            card.title = document.getElementById('edit-title').value;
+            card.description = document.getElementById('edit-desc').value;
+            card.image = document.getElementById('edit-image').value;
+            card.category = chosenCategory || "General";
+            card.favorite = document.getElementById('edit-fav').checked;
+            card.readLater = document.getElementById('edit-read').checked;
+            card.notes = document.getElementById('edit-notes').value;
+
+            editModal.style.display = 'none';
+            renderApp();
+        });
+
+        document.getElementById('edit-image').addEventListener('input', (e) => {
+            document.getElementById('edit-preview-banner').src = e.target.value;
+        });
+
+        renderApp();
+    </script>
 </body>
 </html>
