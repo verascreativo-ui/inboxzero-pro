@@ -90,6 +90,57 @@
             color: var(--text-main);
         }
 
+        /* MENU DESPLEGABLE (PUNTO 1: MI BIBLIOTECA - ADAPTADO AL ESTILO DE LA IZQUIERDA) */
+        .dropdown-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 8px;
+            background: #ffffff;
+            min-width: 250px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            padding: 8px 0;
+        }
+        .dropdown-menu.show {
+            display: block;
+        }
+        .dropdown-header {
+            padding: 10px 16px 6px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+        }
+        .dropdown-menu a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 9px 16px;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .dropdown-menu a:hover {
+            background-color: #eff6ff;
+            color: var(--primary);
+            font-weight: 500;
+        }
+        .dropdown-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 6px 0;
+        }
+
         .progress-container {
             display: flex;
             align-items: center;
@@ -407,7 +458,7 @@
         .footer-links a { color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
         .footer-links a:hover { color: var(--text-main); }
 
-        /* MODAL DE EDICIÓN */
+        /* MODALES */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -503,11 +554,21 @@
         .modal-footer-actions {
             display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-color);
         }
+
+        /* Estilos Pasos de Ayuda */
+        .help-steps { display: flex; flex-direction: column; gap: 16px; margin: 16px 0; }
+        .help-step-item { display: flex; gap: 14px; align-items: flex-start; }
+        .help-step-num { 
+            background: #eff6ff; color: var(--primary); font-weight: bold; width: 32px; height: 32px; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .help-step-text h4 { margin: 0 0 4px 0; font-size: 0.95rem; }
+        .help-step-text p { margin: 0; font-size: 0.85rem; color: var(--text-muted); }
     </style>
 </head>
 <body>
 
-    <!-- HEADER -->
+    <!-- HEADER SUPERIOR -->
     <header class="top-header">
         <div class="header-brand-box">
             <img src="logo.png" class="brand-logo-img" alt="Logo">
@@ -516,15 +577,44 @@
                 <span class="brand-tagline">Tu conocimiento a 1 Clic</span>
             </div>
         </div>
+        
         <div class="progress-container">
-            <span>Plan de Prueba Gratuito: <span id="ficha-counter">4</span> / 15 Fichas</span>
-            <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar-fill" style="width: 26.6%;"></div></div>
+            <span>Plan de Prueba Gratuito: <span id="ficha-counter">3</span> / 15 Fichas</span>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar-fill" style="width: 20%;"></div></div>
         </div>
+
         <nav class="top-nav">
-            <a href="#">Mi Biblioteca</a>
+            <!-- RECURSO 1: MI BIBLIOTECA (DESPLEGABLE REDISEÑADO CON ESTILO MENU IZQUIERDA) -->
+            <div class="dropdown-wrapper">
+                <button id="btn-library-drop">Mi Biblioteca ▾</button>
+                <div class="dropdown-menu" id="dropdown-library-menu">
+                    <div class="dropdown-header">Vistas Principales</div>
+                    <a href="#" onclick="applyLibraryFilter('all'); closeAllDropdowns();">
+                        <span>📁 Todas las fichas</span>
+                        <span class="badge" id="drop-count-all">0</span>
+                    </a>
+                    <a href="#" onclick="applyLibraryFilter('favorites'); closeAllDropdowns();">
+                        <span>☀️ Favoritos</span>
+                        <span class="badge" id="drop-count-favs">0</span>
+                    </a>
+                    <a href="#" onclick="applyLibraryFilter('readlater'); closeAllDropdowns();">
+                        <span>📌 Leer más tarde</span>
+                        <span class="badge" id="drop-count-read">0</span>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-header">Por Categorías</div>
+                    <div id="drop-categories-list"></div>
+                </div>
+            </div>
+
+            <!-- RECURSO 2: AYUDA EN 3 PASOS -->
             <button id="btn-help-modal">Ayuda en 3 pasos</button>
-            <a href="#">Iniciar Sesión</a>
-            <a href="https://stripe.com" target="_blank" class="btn-subscribe">Suscríbete</a>
+
+            <!-- RECURSO 3: INICIAR SESIÓN -->
+            <button id="btn-login-modal">Iniciar Sesión</button>
+
+            <!-- RECURSO 4: SUSCRÍBETE -->
+            <button id="btn-subscribe-modal" class="btn-subscribe">Suscríbete</button>
         </nav>
     </header>
 
@@ -535,7 +625,7 @@
                 <div class="nav-section">Navegación</div>
                 <ul class="nav-links">
                     <li class="active" data-filter="latest" onclick="applyLibraryFilter('latest')"><a href="#"><span>⭐ Últimas incorporaciones</span></a></li>
-                    <li data-filter="all" onclick="applyLibraryFilter('all')"><a href="#"><span>📁 Todas las fichas</span> <span class="badge" id="count-all">4</span></a></li>
+                    <li data-filter="all" onclick="applyLibraryFilter('all')"><a href="#"><span>📁 Todas las fichas</span> <span class="badge" id="count-all">3</span></a></li>
                     <li data-filter="favorites" onclick="applyLibraryFilter('favorites')"><a href="#"><span>☀️ Favoritos</span> <span class="badge" id="count-favs">1</span></a></li>
                     <li data-filter="readlater" onclick="applyLibraryFilter('readlater')"><a href="#"><span>📌 Leer más tarde</span> <span class="badge" id="count-read">1</span></a></li>
                 </ul>
@@ -545,7 +635,7 @@
                 </ul>
             </div>
             <div class="sidebar-footer">
-                <button class="btn-unsubscribe-side" onclick="alert('Solicitud enviada')">Solicitar baja de suscripción</button>
+                <button class="btn-unsubscribe-side" onclick="alert('Solicitud enviada correctamente.')">Solicitar baja de suscripción</button>
             </div>
         </aside>
 
@@ -560,7 +650,7 @@
 
             <div class="section-header">
                 <h3 id="section-heading-title">Últimas Fichas Incorporadas</h3>
-                <span style="font-size: 0.85rem; color: var(--text-muted);" id="showing-text">Mostrando 4 ficha(s)</span>
+                <span style="font-size: 0.85rem; color: var(--text-muted);" id="showing-text">Mostrando 3 ficha(s)</span>
             </div>
 
             <div class="cards-container" id="cards-container">
@@ -584,7 +674,7 @@
         <div>© 2026 InboxZero.es</div>
     </footer>
 
-    <!-- MODAL DE EDICIÓN -->
+    <!-- MODAL DE EDICIÓN DE FICHA -->
     <div class="modal-overlay" id="edit-modal">
         <div class="modal modal-wide">
             <div class="modal-header">
@@ -659,7 +749,112 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT -->
+    <!-- MODAL DE AYUDA EN 3 PASOS (PUNTO 2) -->
+    <div class="modal-overlay" id="help-modal">
+        <div class="modal" style="width: 520px; max-width: 95vw;">
+            <div class="modal-header">
+                <div class="modal-header-left">
+                    <img src="logo.png" class="brand-logo-img" style="width: 28px; height: 28px;" alt="Logo">
+                    <span style="font-size: 1rem; font-weight: bold; color: var(--primary);">Cómo funciona InboxZero</span>
+                </div>
+                <button class="modal-close" id="close-help">&times;</button>
+            </div>
+            <div class="help-steps">
+                <div class="help-step-item">
+                    <div class="help-step-num">1</div>
+                    <div class="help-step-text">
+                        <h4>Guarda tus enlaces o conceptos</h4>
+                        <p>Pega cualquier dirección URL o escribe tu idea en el buscador superior y presiona "Guardar Ficha" para capturarlo al instante.</p>
+                    </div>
+                </div>
+                <div class="help-step-item">
+                    <div class="help-step-num">2</div>
+                    <div class="help-step-text">
+                        <h4>Organiza y Personaliza</h4>
+                        <p>Edita tus fichas haciendo clic en el lápiz: asigna categorías personalizadas, notas privadas, o márcalas como favoritas o pendientes.</p>
+                    </div>
+                </div>
+                <div class="help-step-item">
+                    <div class="help-step-num">3</div>
+                    <div class="help-step-text">
+                        <h4>Filtra y Consulta</h4>
+                        <p>Accede rápidamente a tus fichas desde el menú lateral o desde el desplegable "Mi Biblioteca" en la barra superior sin perder nada.</p>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: right; margin-top: 16px;">
+                <button class="btn-primary" onclick="document.getElementById('help-modal').style.display='none'">¡Entendido!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE INICIAR SESIÓN (PUNTO 3) -->
+    <div class="modal-overlay" id="login-modal">
+        <div class="modal" style="width: 400px; max-width: 95vw;">
+            <div class="modal-header">
+                <div class="modal-header-left">
+                    <img src="logo.png" class="brand-logo-img" style="width: 28px; height: 28px;" alt="Logo">
+                    <span style="font-size: 1rem; font-weight: bold; color: var(--primary);">Iniciar Sesión</span>
+                </div>
+                <button class="modal-close" id="close-login">&times;</button>
+            </div>
+            <form id="login-form" onsubmit="handleLoginSubmit(event)">
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0; margin-bottom: 16px;">
+                    Acceso exclusivo para usuarios suscritos o en periodo de prueba activo.
+                </p>
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label>Correo Electrónico:</label>
+                    <input type="email" id="login-email" required placeholder="tu@email.com">
+                </div>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label>Contraseña:</label>
+                    <input type="password" id="login-password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 10px;">Acceder a mi Biblioteca</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE SUSCRIPCIÓN (PUNTO 4) -->
+    <div class="modal-overlay" id="subscribe-modal">
+        <div class="modal" style="width: 500px; max-width: 95vw;">
+            <div class="modal-header">
+                <div class="modal-header-left">
+                    <img src="logo.png" class="brand-logo-img" style="width: 28px; height: 28px;" alt="Logo">
+                    <span style="font-size: 1rem; font-weight: bold; color: var(--primary);">Registro / Suscripción</span>
+                </div>
+                <button class="modal-close" id="close-subscribe">&times;</button>
+            </div>
+            <form id="subscribe-form" onsubmit="handleSubscribeSubmit(event)">
+                <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px; border-radius: 8px; margin-bottom: 14px; font-size: 0.82rem; color: #1e40af; line-height: 1.4;">
+                    💡 <strong>Periodo de Uso Gratuito Limítado:</strong> Cuentas con un periodo de prueba para guardar hasta 15 fichas. Finalizado el periodo o completado el cupo, deberás suscribirte para continuar disfrutando de la aplicación.
+                </div>
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label>Nombre y Apellidos:</label>
+                    <input type="text" id="sub-name" required placeholder="Ej. Juan Pérez">
+                </div>
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label>Correo Electrónico Válido:</label>
+                    <input type="email" id="sub-email" required placeholder="ejemplo@dominio.com">
+                </div>
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label>Seguridad (Captcha): ¿Cuánto es 3 + 4?</label>
+                    <input type="number" id="sub-captcha" required placeholder="Respuesta numérica (7)">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: flex; align-items: flex-start; gap: 8px; cursor: pointer; font-size: 0.8rem; color: var(--text-main); font-weight: normal;">
+                        <input type="checkbox" id="sub-terms" required style="margin-top: 2px; width: auto;">
+                        <span>He leído y acepto la <a href="#" style="color: var(--primary);">Política de Privacidad</a>, los <a href="#" style="color: var(--primary);">Términos y Condiciones</a> y la autorización de uso.</span>
+                    </label>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 10px; font-size: 0.95rem;">
+                    Continuar a Stripe (Modo Pruebas) 💳
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT COMPLETO -->
     <script>
         let cardsData = [
             {
@@ -700,29 +895,75 @@
         let customCategories = ["Ejercicios en Casa", "Vídeos Divertidos", "Comida Sana"];
         let currentFilter = 'latest';
 
+        // Elementos DOM
         const cardsContainer = document.getElementById('cards-container');
         const urlInput = document.getElementById('url-input');
         const btnCapture = document.getElementById('btn-capture');
-        const editModal = document.getElementById('edit-modal');
-        const closeEdit = document.getElementById('close-edit');
         const sidebarCategoriesList = document.getElementById('sidebar-categories-list');
 
-        function updateSidebarCounters() {
-            document.getElementById('count-all').innerText = cardsData.length;
-            document.getElementById('count-favs').innerText = cardsData.filter(c => c.favorite).length;
-            document.getElementById('count-read').innerText = cardsData.filter(c => c.readLater).length;
+        // Modales
+        const editModal = document.getElementById('edit-modal');
+        const helpModal = document.getElementById('help-modal');
+        const loginModal = document.getElementById('login-modal');
+        const subscribeModal = document.getElementById('subscribe-modal');
 
+        // Botones Header
+        const btnLibraryDrop = document.getElementById('btn-library-drop');
+        const dropdownLibraryMenu = document.getElementById('dropdown-library-menu');
+        const dropCategoriesList = document.getElementById('drop-categories-list');
+        const btnHelpModal = document.getElementById('btn-help-modal');
+        const btnLoginModal = document.getElementById('btn-login-modal');
+        const btnSubscribeModal = document.getElementById('btn-subscribe-modal');
+
+        // Botones Cierre Modales
+        const closeEdit = document.getElementById('close-edit');
+        const closeHelp = document.getElementById('close-help');
+        const closeLogin = document.getElementById('close-login');
+        const closeSubscribe = document.getElementById('close-subscribe');
+
+        // LÓGICA RECURSO 1: Menú Desplegable Mi Biblioteca
+        btnLibraryDrop.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownLibraryMenu.classList.toggle('show');
+        });
+
+        window.closeAllDropdowns = () => {
+            dropdownLibraryMenu.classList.remove('show');
+        };
+
+        // Actualiza contadores del menú lateral, barra de progreso y menú desplegable
+        function updateSidebarCounters() {
+            const totalCount = cardsData.length;
+            const favsCount = cardsData.filter(c => c.favorite).length;
+            const readCount = cardsData.filter(c => c.readLater).length;
+
+            // Contadores en Sidebar
+            document.getElementById('count-all').innerText = totalCount;
+            document.getElementById('count-favs').innerText = favsCount;
+            document.getElementById('count-read').innerText = readCount;
+
+            // Contadores en Desplegable Mi Biblioteca (Pill Badges)
+            document.getElementById('drop-count-all').innerText = totalCount;
+            document.getElementById('drop-count-favs').innerText = favsCount;
+            document.getElementById('drop-count-read').innerText = readCount;
+
+            // Barra de Progreso
             const maxFichas = 15;
-            document.getElementById('ficha-counter').innerText = cardsData.length;
-            const percentage = Math.min((cardsData.length / maxFichas) * 100, 100);
+            document.getElementById('ficha-counter').innerText = totalCount;
+            const percentage = Math.min((totalCount / maxFichas) * 100, 100);
             document.getElementById('progress-bar-fill').style.width = percentage + '%';
 
+            // Lista de Categorías (Sidebar)
             sidebarCategoriesList.innerHTML = '';
+            // Lista de Categorías (Desplegable)
+            dropCategoriesList.innerHTML = '';
+
             customCategories.forEach(cat => {
                 const count = cardsData.filter(c => c.category === cat).length;
+                
+                // Elemento para Sidebar
                 const li = document.createElement('li');
                 if (currentFilter === 'cat-' + cat) li.classList.add('active');
-                
                 li.innerHTML = `
                     <a href="#" onclick="applyLibraryFilter('cat-${cat}')">
                         <span>📁 ${cat}</span>
@@ -730,9 +971,24 @@
                     </a>
                 `;
                 sidebarCategoriesList.appendChild(li);
+
+                // Elemento para Desplegable Header (mismo formato exacto)
+                const dropItem = document.createElement('a');
+                dropItem.href = '#';
+                dropItem.innerHTML = `
+                    <span>📁 ${cat}</span>
+                    <span class="badge">${count}</span>
+                `;
+                dropItem.onclick = (e) => {
+                    e.preventDefault();
+                    applyLibraryFilter('cat-' + cat);
+                    closeAllDropdowns();
+                };
+                dropCategoriesList.appendChild(dropItem);
             });
         }
 
+        // Aplica el filtro seleccionado
         window.applyLibraryFilter = (filterType) => {
             currentFilter = filterType;
             document.querySelectorAll('aside .nav-links li').forEach(el => {
@@ -744,6 +1000,7 @@
             renderApp();
         };
 
+        // Renderizado general de la aplicación
         function renderApp() {
             updateSidebarCounters();
             cardsContainer.innerHTML = '';
@@ -768,6 +1025,11 @@
             document.getElementById('section-heading-title').innerText = title;
             document.getElementById('showing-text').innerText = `Mostrando ${filteredCards.length} ficha(s)`;
 
+            if (filteredCards.length === 0) {
+                cardsContainer.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px;">No hay fichas en esta sección.</div>`;
+                return;
+            }
+
             filteredCards.forEach(card => {
                 const cardEl = document.createElement('div');
                 cardEl.className = 'card';
@@ -777,18 +1039,18 @@
 
                 cardEl.innerHTML = `
                     <div class="card-top">
-                        <img src="${card.image || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=300'}" class="card-thumb" alt="Thumb">
+                        <img src="${card.image || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=300'}" class="card-thumb" alt="Thumb" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=300'">
                         <div class="card-info">
-                            <span class="card-category-tag">${card.category}</span>
+                            <span class="card-category-tag">${card.category || 'General'}</span>
                             <h4 class="card-title">${card.title}</h4>
-                            <p class="card-desc">${card.description}</p>
-                            <a href="${card.url}" class="card-url" target="_blank">${card.url}</a>
+                            <p class="card-desc">${card.description || 'Sin descripción disponible.'}</p>
+                            <a href="${card.url}" target="_blank" class="card-url">${card.url}</a>
                         </div>
                     </div>
                     <div class="card-footer-row">
                         <div class="card-actions-box">
-                            <button class="card-action-btn ${favClass}" onclick="toggleFav(${card.id})" title="Favorito">⭐</button>
-                            <button class="card-action-btn ${readClass}" onclick="toggleRead(${card.id})" title="Leer más tarde">📌</button>
+                            <button class="card-action-btn ${favClass}" onclick="toggleFavorite(${card.id})" title="Marcar Favorito">⭐</button>
+                            <button class="card-action-btn ${readClass}" onclick="toggleReadLater(${card.id})" title="Leer más tarde">📌</button>
                             <button class="card-action-btn" onclick="openEditModal(${card.id})" title="Editar Ficha">✏️</button>
                             <button class="card-action-btn" onclick="deleteCard(${card.id})" title="Eliminar Ficha">🗑️</button>
                         </div>
@@ -798,212 +1060,167 @@
             });
         }
 
-        window.toggleFav = (id) => {
+        // Acciones sobre tarjetas
+        window.toggleFavorite = (id) => {
             const card = cardsData.find(c => c.id === id);
-            if (card) { card.favorite = !card.favorite; renderApp(); }
-        }
-        window.toggleRead = (id) => {
+            if (card) {
+                card.favorite = !card.favorite;
+                renderApp();
+            }
+        };
+
+        window.toggleReadLater = (id) => {
             const card = cardsData.find(c => c.id === id);
-            if (card) { card.readLater = !card.readLater; renderApp(); }
-        }
+            if (card) {
+                card.readLater = !card.readLater;
+                renderApp();
+            }
+        };
+
         window.deleteCard = (id) => {
-            if (confirm("¿Estás seguro de eliminar esta ficha?")) {
+            if (confirm('¿Estás seguro de que deseas eliminar esta ficha?')) {
                 cardsData = cardsData.filter(c => c.id !== id);
                 renderApp();
             }
-        }
+        };
 
-        function setPreviewImage(url) {
-            const img = document.getElementById('edit-preview-banner');
-            const placeholder = document.getElementById('preview-placeholder');
-            
-            if (!url || url.trim() === "") {
-                img.style.display = 'none';
-                placeholder.style.display = 'flex';
-                img.src = "";
-            } else {
-                img.style.display = 'block';
-                placeholder.style.display = 'none';
-                img.src = url;
-            }
-        }
-
-        window.handleImageError = (imgEl) => {
-            imgEl.style.display = 'none';
-            document.getElementById('preview-placeholder').style.display = 'flex';
-        }
-
-        window.updatePreviewFromInput = (val) => {
-            setPreviewImage(val);
-        }
-
-        window.openEditModal = (id) => {
-            const card = cardsData.find(c => c.id === id);
-            if (!card) return;
-
-            document.getElementById('modal-mode-title').innerText = "Personaliza tu Ficha";
-            document.getElementById('edit-id').value = card.id;
-            
-            setPreviewImage(card.image || "");
-            document.getElementById('edit-image').value = card.image || "";
-            document.getElementById('edit-title').value = card.title;
-            document.getElementById('edit-desc').value = card.description;
-            
-            const catSelect = document.getElementById('edit-category-select');
-            catSelect.innerHTML = '';
-            customCategories.forEach(cat => {
-                const option = document.createElement('option');
-                option.value = cat; option.text = cat;
-                if(cat === card.category) option.selected = true;
-                catSelect.appendChild(option);
-            });
-
-            document.getElementById('edit-new-category-input').value = '';
-            document.getElementById('edit-fav').checked = card.favorite;
-            document.getElementById('edit-read').checked = card.readLater;
-            document.getElementById('edit-notes').value = card.notes;
-            document.getElementById('edit-open-web').href = card.url;
-            
-            editModal.style.display = 'flex';
-        }
-
-        closeEdit.addEventListener('click', () => { editModal.style.display = 'none'; });
-
-        document.getElementById('btn-save-edit').addEventListener('click', () => {
-            const id = parseInt(document.getElementById('edit-id').value);
-            const card = cardsData.find(c => c.id === id);
-            
-            if (card) {
-                card.title = document.getElementById('edit-title').value;
-                card.description = document.getElementById('edit-desc').value;
-                card.image = document.getElementById('edit-image').value.trim();
-                
-                const newCat = document.getElementById('edit-new-category-input').value.trim();
-                if (newCat) {
-                    if (!customCategories.includes(newCat)) customCategories.push(newCat);
-                    card.category = newCat;
-                } else {
-                    card.category = document.getElementById('edit-category-select').value;
-                }
-                
-                card.favorite = document.getElementById('edit-fav').checked;
-                card.readLater = document.getElementById('edit-read').checked;
-                card.notes = document.getElementById('edit-notes').value;
-                
-                editModal.style.display = 'none';
-                renderApp();
-            }
-        });
-
-        // Motor de extracción robusto con respaldo de emergencia anti-bloqueo de redes
-        async function fetchRealMetadata(url) {
-            const isRestrictedSite = url.includes('facebook.com') || url.includes('fb.watch') || url.includes('instagram.com') || url.includes('tiktok.com');
-
-            if (isRestrictedSite) {
-                let defaultTitle = "Publicación de Redes Sociales";
-                if (url.includes('/reel/')) defaultTitle = "Reel / Vídeo Corto";
-                
-                return {
-                    needsManualInput: true,
-                    title: defaultTitle,
-                    description: "Plataforma protegida contra extracción automática. Añade el título o descripción deseada.",
-                    image: ""
-                };
-            }
-
-            try {
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-                const response = await fetch(proxyUrl);
-                const data = await response.json();
-
-                if (data.contents) {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(data.contents, "text/html");
-
-                    const getMeta = (property) => {
-                        const tag = doc.querySelector(`meta[property="${property}"], meta[name="${property}"]`);
-                        return tag ? tag.getAttribute("content") : null;
-                    };
-
-                    const rawTitle = getMeta("og:title") || getMeta("twitter:title") || doc.title;
-                    const rawDesc = getMeta("og:description") || getMeta("twitter:description") || doc.description;
-                    const rawImage = getMeta("og:image") || getMeta("twitter:image");
-
-                    if (rawTitle && rawTitle.length > 2) {
-                        return {
-                            needsManualInput: false,
-                            title: rawTitle.trim(),
-                            description: rawDesc ? rawDesc.trim() : "Sin descripción disponible.",
-                            image: rawImage ? rawImage.trim() : ""
-                        };
-                    }
-                }
-            } catch (error) {
-                console.warn("Aviso: Fallo en proxy primario, intentando alternativa...", error);
-            }
-
-            try {
-                const response = await fetch(`https://api.microlink.io?url=${encodeURIComponent(url)}`);
-                const data = await response.json();
-                
-                if (data.status === 'success' && data.data.title) {
-                    return {
-                        needsManualInput: false,
-                        title: data.data.title.trim(),
-                        description: data.data.description ? data.data.description.trim() : "Sin descripción disponible.",
-                        image: data.data.image?.url || ""
-                    };
-                }
-            } catch (error) {
-                console.warn("Aviso: Fallo en API secundaria de metadatos", error);
-            }
-
-            return {
-                needsManualInput: true,
-                title: "Nuevo Enlace Capturado",
-                description: "Completa los detalles de este enlace manualmente.",
-                image: ""
-            };
-        }
-
-        btnCapture.addEventListener('click', async () => {
-            let urlValue = urlInput.value.trim();
-            if (!urlValue) { alert("Por favor, introduce una URL."); return; }
-            if (!urlValue.startsWith('http')) urlValue = `https://${urlValue}`;
-
-            const originalText = btnCapture.innerText;
-            btnCapture.innerText = "Extrayendo...";
-            btnCapture.disabled = true;
-
-            const metadata = await fetchRealMetadata(urlValue);
+        // Captura de nueva ficha
+        btnCapture.addEventListener('click', () => {
+            const val = urlInput.value.trim();
+            if (!val) return;
 
             const newCard = {
                 id: Date.now(),
-                title: metadata.title,
-                description: metadata.description,
-                url: urlValue,
-                image: metadata.image,
-                category: "Sin Categoría",
+                title: val.startsWith('http') ? `Ficha guardada: ${new URL(val).hostname}` : val,
+                description: "Contenido capturado automáticamente.",
+                url: val.startsWith('http') ? val : `https://${val}`,
+                image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=300",
+                category: customCategories[0] || "General",
                 favorite: false,
                 readLater: false,
                 notes: ""
             };
 
-            if (!customCategories.includes("Sin Categoría")) {
-                customCategories.push("Sin Categoría");
-            }
-
             cardsData.unshift(newCard);
-            urlInput.value = "";
-            btnCapture.innerText = originalText;
-            btnCapture.disabled = false;
-            
-            applyLibraryFilter('latest');
-
-            // Abrimos el modal para completar los datos cómodamente
-            openEditModal(newCard.id);
+            urlInput.value = '';
+            renderApp();
         });
 
+        // Edición de Ficha Modal
+        window.openEditModal = (id) => {
+            const card = cardsData.find(c => c.id === id);
+            if (!card) return;
+
+            document.getElementById('edit-id').value = card.id;
+            document.getElementById('edit-title').value = card.title;
+            document.getElementById('edit-desc').value = card.description;
+            document.getElementById('edit-image').value = card.image || '';
+            document.getElementById('edit-fav').checked = card.favorite;
+            document.getElementById('edit-read').checked = card.readLater;
+            document.getElementById('edit-notes').value = card.notes || '';
+            document.getElementById('edit-open-web').href = card.url;
+
+            const selectCat = document.getElementById('edit-category-select');
+            selectCat.innerHTML = '';
+            customCategories.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                opt.innerText = cat;
+                if (cat === card.category) opt.selected = true;
+                selectCat.appendChild(opt);
+            });
+
+            document.getElementById('edit-new-category-input').value = '';
+            updatePreviewFromInput(card.image);
+
+            editModal.style.display = 'flex';
+        };
+
+        window.updatePreviewFromInput = (url) => {
+            const img = document.getElementById('edit-preview-banner');
+            const placeholder = document.getElementById('preview-placeholder');
+
+            if (url && url.trim() !== '') {
+                img.src = url;
+                img.style.display = 'block';
+                placeholder.style.display = 'none';
+            } else {
+                img.style.display = 'none';
+                placeholder.style.display = 'flex';
+            }
+        };
+
+        window.handleImageError = (img) => {
+            img.style.display = 'none';
+            document.getElementById('preview-placeholder').style.display = 'flex';
+        };
+
+        document.getElementById('btn-save-edit').addEventListener('click', () => {
+            const id = parseInt(document.getElementById('edit-id').value);
+            const card = cardsData.find(c => c.id === id);
+            if (!card) return;
+
+            card.title = document.getElementById('edit-title').value;
+            card.description = document.getElementById('edit-desc').value;
+            card.image = document.getElementById('edit-image').value;
+            card.favorite = document.getElementById('edit-fav').checked;
+            card.readLater = document.getElementById('edit-read').checked;
+            card.notes = document.getElementById('edit-notes').value;
+
+            const newCatInput = document.getElementById('edit-new-category-input').value.trim();
+            if (newCatInput !== '') {
+                if (!customCategories.includes(newCatInput)) {
+                    customCategories.push(newCatInput);
+                }
+                card.category = newCatInput;
+            } else {
+                card.category = document.getElementById('edit-category-select').value;
+            }
+
+            editModal.style.display = 'none';
+            renderApp();
+        });
+
+        // MANEJO DE MODALES DEL HEADER (PUNTOS 2, 3 Y 4)
+        btnHelpModal.addEventListener('click', () => helpModal.style.display = 'flex');
+        btnLoginModal.addEventListener('click', () => loginModal.style.display = 'flex');
+        btnSubscribeModal.addEventListener('click', () => subscribeModal.style.display = 'flex');
+
+        // Funciones de Envío de Formulario
+        window.handleLoginSubmit = (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            alert(`Sesión iniciada correctamente para: ${email}`);
+            loginModal.style.display = 'none';
+        };
+
+        window.handleSubscribeSubmit = (e) => {
+            e.preventDefault();
+            const captchaVal = parseInt(document.getElementById('sub-captcha').value);
+            if (captchaVal !== 7) {
+                alert('El resultado de la verificación captcha es incorrecto. Por favor introduce 7.');
+                return;
+            }
+            alert('Registro verificado correctamente. Redirigiendo a la pasarela de pago segura de Stripe (Modo pruebas)...');
+            window.open('https://stripe.com', '_blank');
+            subscribeModal.style.display = 'none';
+        };
+
+        // Eventos para Cierre de Modales
+        closeEdit.addEventListener('click', () => editModal.style.display = 'none');
+        closeHelp.addEventListener('click', () => helpModal.style.display = 'none');
+        closeLogin.addEventListener('click', () => loginModal.style.display = 'none');
+        closeSubscribe.addEventListener('click', () => subscribeModal.style.display = 'none');
+
+        window.addEventListener('click', (e) => {
+            if (e.target === editModal) editModal.style.display = 'none';
+            if (e.target === helpModal) helpModal.style.display = 'none';
+            if (e.target === loginModal) loginModal.style.display = 'none';
+            if (e.target === subscribeModal) subscribeModal.style.display = 'none';
+            closeAllDropdowns();
+        });
+
+        // Inicialización
         renderApp();
     </script>
 </body>
