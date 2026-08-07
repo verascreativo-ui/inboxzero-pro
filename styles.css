@@ -616,3 +616,17 @@ footer {
 }
 .help-step-text h4 { margin: 0 0 4px 0; font-size: 0.95rem; }
 .help-step-text p { margin: 0; font-size: 0.85rem; color: var(--text-muted); }
+/* Botón cancelar */
+.btn-cancel {
+  background-color: #e2e8f0;
+  color: #334155;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-cancel:hover {
+  background-color: #cbd5e1;
+}
