@@ -1,365 +1,292 @@
-let cardsData = [
+document.addEventListener('DOMContentLoaded', () => {
+  // Estado inicial con las fichas y datos completos
+  let cards = [
     {
-        id: 1,
-        title: "Comida saludable: 101 recetas sanas para tener un menú saludable de lunes a domingo",
-        description: "Menú saludable y recetas equilibradas.",
-        url: "https://www.directoalpaladar.com/recetario...",
-        image: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=300",
-        category: "Comida Sana",
-        favorite: true,
-        readLater: false,
-        notes: ""
+      id: 1,
+      title: "Comida saludable: 101 recetas sanas para tener un menú saludable de lunes a domingo",
+      description: "Menú saludable y recetas equilibradas.",
+      url: "https://www.directoalpaladar.com/recetario...",
+      category: "Comida Sana",
+      favorite: true,
+      readLater: false,
+      notes: "Recetas muy útiles para organizar la semana.",
+      image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=150&auto=format&fit=crop&q=80"
     },
     {
-        id: 2,
-        title: "TikTok - Rutina Activa en Silla",
-        description: "20 toques alternando los pies | Rutina en silla",
-        url: "https://www.tiktok.com",
-        image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=300",
-        category: "Ejercicios en Casa",
-        favorite: false,
-        readLater: true,
-        notes: ""
+      id: 2,
+      title: "TikTok - Rutina Activa en Silla",
+      description: "20 toques alternando los pies | Rutina en silla",
+      url: "https://www.tiktok.com",
+      category: "Ejercicios en Casa",
+      favorite: false,
+      readLater: true,
+      notes: "Ejercicios rápidos de movilidad.",
+      image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=150&auto=format&fit=crop&q=80"
     },
     {
-        id: 3,
-        title: "Ranking Best Shark Moments",
-        description: "Vídeo corto de YouTube con los mejores momentos de tiburones.",
-        url: "https://youtube.com/shorts",
-        image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=300",
-        category: "Vídeos Divertidos",
-        favorite: false,
-        readLater: false,
-        notes: ""
+      id: 3,
+      title: "Vídeos Divertidos - Selección Semanal",
+      description: "Recopilación de momentos graciosos para desconectar.",
+      url: "https://www.youtube.com",
+      category: "Vídeos Divertidos",
+      favorite: false,
+      readLater: false,
+      notes: "",
+      image: "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=150&auto=format&fit=crop&q=80"
     }
-];
+  ];
 
-let customCategories = ["Ejercicios en Casa", "Vídeos Divertidos", "Comida Sana"];
-let currentFilter = 'latest';
+  let currentFilter = 'all';
+  let currentCategory = null;
 
-// Elementos DOM
-const cardsContainer = document.getElementById('cards-container');
-const urlInput = document.getElementById('url-input');
-const btnCapture = document.getElementById('btn-capture');
-const sidebarCategoriesList = document.getElementById('sidebar-categories-list');
+  const cardsGrid = document.getElementById('cards-grid');
+  const fichaCounter = document.getElementById('ficha-counter');
+  const progressFill = document.getElementById('progress-fill');
+  const showingCounter = document.getElementById('showing-counter');
+  const sectionTitle = document.getElementById('section-title');
+  const urlInput = document.getElementById('url-input');
+  const btnSave = document.getElementById('btn-save-card');
 
-// Modales
-const editModal = document.getElementById('edit-modal');
-const helpModal = document.getElementById('help-modal');
-const loginModal = document.getElementById('login-modal');
-const subscribeModal = document.getElementById('subscribe-modal');
-
-// Botones Header
-const btnLibraryDrop = document.getElementById('btn-library-drop');
-const dropdownLibraryMenu = document.getElementById('dropdown-library-menu');
-const dropCategoriesList = document.getElementById('drop-categories-list');
-const btnHelpModal = document.getElementById('btn-help-modal');
-const btnLoginModal = document.getElementById('btn-login-modal');
-const btnSubscribeModal = document.getElementById('btn-subscribe-modal');
-
-// Botones Cierre Modales
-const closeEdit = document.getElementById('close-edit');
-const closeHelp = document.getElementById('close-help');
-const closeLogin = document.getElementById('close-login');
-const closeSubscribe = document.getElementById('close-subscribe');
-
-// Desplegable Mi Biblioteca
-btnLibraryDrop.addEventListener('click', (e) => {
-    e.stopPropagation();
-    dropdownLibraryMenu.classList.toggle('show');
-});
-
-window.closeAllDropdowns = () => {
-    dropdownLibraryMenu.classList.remove('show');
-};
-
-// Actualiza contadores del menú lateral, barra de progreso y menú desplegable
-function updateSidebarCounters() {
-    const totalCount = cardsData.length;
-    const favsCount = cardsData.filter(c => c.favorite).length;
-    const readCount = cardsData.filter(c => c.readLater).length;
-
-    // Contadores en Sidebar
-    document.getElementById('count-all').innerText = totalCount;
-    document.getElementById('count-favs').innerText = favsCount;
-    document.getElementById('count-read').innerText = readCount;
-
-    // Contadores en Desplegable Mi Biblioteca
-    document.getElementById('drop-count-all').innerText = totalCount;
-    document.getElementById('drop-count-favs').innerText = favsCount;
-    document.getElementById('drop-count-read').innerText = readCount;
-
-    // Barra de Progreso
-    const maxFichas = 15;
-    document.getElementById('ficha-counter').innerText = totalCount;
-    const percentage = Math.min((totalCount / maxFichas) * 100, 100);
-    document.getElementById('progress-bar-fill').style.width = percentage + '%';
-
-    // Lista de Categorías (Sidebar y Desplegable)
-    sidebarCategoriesList.innerHTML = '';
-    dropCategoriesList.innerHTML = '';
-
-    customCategories.forEach(cat => {
-        const count = cardsData.filter(c => c.category === cat).length;
-        
-        // Elemento para Sidebar
-        const li = document.createElement('li');
-        if (currentFilter === 'cat-' + cat) li.classList.add('active');
-        li.innerHTML = `
-            <a href="#" onclick="applyLibraryFilter('cat-${cat}')">
-                <span>📁 ${cat}</span>
-                <span class="badge">${count}</span>
-            </a>
-        `;
-        sidebarCategoriesList.appendChild(li);
-
-        // Elemento para Desplegable Header
-        const dropItem = document.createElement('a');
-        dropItem.href = '#';
-        dropItem.innerHTML = `
-            <span>📁 ${cat}</span>
-            <span class="badge">${count}</span>
-        `;
-        dropItem.onclick = (e) => {
-            e.preventDefault();
-            applyLibraryFilter('cat-' + cat);
-            closeAllDropdowns();
-        };
-        dropCategoriesList.appendChild(dropItem);
+  function renderCards() {
+    let filtered = cards.filter(card => {
+      if (currentCategory) {
+        return card.category === currentCategory;
+      }
+      if (currentFilter === 'favorites') return card.favorite;
+      if (currentFilter === 'readLater') return card.readLater;
+      return true; // 'all'
     });
-}
 
-// Aplica el filtro seleccionado
-window.applyLibraryFilter = (filterType) => {
-    currentFilter = filterType;
-    document.querySelectorAll('aside .nav-links li').forEach(el => {
-        el.classList.remove('active');
-        if (el.getAttribute('data-filter') === filterType) {
-            el.classList.add('active');
-        }
-    });
-    renderApp();
-};
-
-// Renderizado general de la aplicación
-function renderApp() {
-    updateSidebarCounters();
-    cardsContainer.innerHTML = '';
-
-    let filteredCards = cardsData;
-    let title = "Todas las fichas";
-
-    if (currentFilter === 'latest') {
-        title = "Últimas Fichas Incorporadas";
-    } else if (currentFilter === 'favorites') {
-        filteredCards = cardsData.filter(c => c.favorite);
-        title = "Favoritos";
-    } else if (currentFilter === 'readlater') {
-        filteredCards = cardsData.filter(c => c.readLater);
-        title = "Leer más tarde";
-    } else if (currentFilter.startsWith('cat-')) {
-        const catName = currentFilter.replace('cat-', '');
-        filteredCards = cardsData.filter(c => c.category === catName);
-        title = `Categoría: ${catName}`;
-    }
-
-    document.getElementById('section-heading-title').innerText = title;
-    document.getElementById('showing-text').innerText = `Mostrando ${filteredCards.length} ficha(s)`;
-
-    if (filteredCards.length === 0) {
-        cardsContainer.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px;">No hay fichas en esta sección.</div>`;
-        return;
-    }
-
-    filteredCards.forEach(card => {
+    cardsGrid.innerHTML = '';
+    
+    if (filtered.length === 0) {
+      cardsGrid.innerHTML = '<p style="color: #6b7280; font-size: 14px; grid-column: 1/-1;">No hay fichas en esta vista.</p>';
+    } else {
+      filtered.forEach(card => {
         const cardEl = document.createElement('div');
-        cardEl.className = 'card';
-        
-        const favClass = card.favorite ? 'active-fav' : '';
-        const readClass = card.readLater ? 'active-read' : '';
-
+        cardEl.className = 'card-item';
         cardEl.innerHTML = `
-            <div class="card-top">
-                <img src="${card.image || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=300'}" class="card-thumb" alt="Thumb" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=300'">
-                <div class="card-info">
-                    <span class="card-category-tag">${card.category || 'General'}</span>
-                    <h4 class="card-title">${card.title}</h4>
-                    <p class="card-desc">${card.description || 'Sin descripción disponible.'}</p>
-                    <a href="${card.url}" target="_blank" class="card-url">${card.url}</a>
-                </div>
+          <span class="card-top-tag">${card.category.toUpperCase()}</span>
+          <div class="card-content-box">
+            <img src="${card.image}" class="card-thumb" alt="Miniatura">
+            <div class="card-details">
+              <h3>${card.title}</h3>
+              <p>${card.description}</p>
+              <a href="${card.url}" target="_blank" class="card-link">${card.url}</a>
             </div>
-            <div class="card-footer-row">
-                <div class="card-actions-box">
-                    <button class="card-action-btn ${favClass}" onclick="toggleFavorite(${card.id})" title="Marcar Favorito">⭐</button>
-                    <button class="card-action-btn ${readClass}" onclick="toggleReadLater(${card.id})" title="Leer más tarde">📌</button>
-                    <button class="card-action-btn" onclick="openEditModal(${card.id})" title="Editar Ficha">✏️</button>
-                    <button class="card-action-btn" onclick="deleteCard(${card.id})" title="Eliminar Ficha">🗑️</button>
-                </div>
-            </div>
+          </div>
+          <div class="card-footer-actions">
+            <button class="card-btn-action ${card.favorite ? 'active-fav' : ''}" onclick="toggleFavorite(${card.id})" title="Favorito">⭐</button>
+            <button class="card-btn-action" onclick="toggleReadLater(${card.id})" title="Leer más tarde">📌</button>
+            <button class="card-btn-action" onclick="openEditModal(${card.id})" title="Editar">✏️</button>
+            <button class="card-btn-action" onclick="deleteCard(${card.id})" title="Eliminar">🗑️</button>
+          </div>
         `;
-        cardsContainer.appendChild(cardEl);
-    });
-}
-
-// Acciones sobre tarjetas
-window.toggleFavorite = (id) => {
-    const card = cardsData.find(c => c.id === id);
-    if (card) {
-        card.favorite = !card.favorite;
-        renderApp();
+        cardsGrid.appendChild(cardEl);
+      });
     }
-};
 
-window.toggleReadLater = (id) => {
-    const card = cardsData.find(c => c.id === id);
-    if (card) {
-        card.readLater = !card.readLater;
-        renderApp();
+    // Contadores generales
+    const totalCount = cards.length;
+    fichaCounter.textContent = totalCount;
+    progressFill.style.width = `${Math.min((totalCount / 15) * 100, 100)}%`;
+    showingCounter.textContent = `Mostrando ${filtered.length} ficha(s)`;
+
+    if (currentCategory) {
+      sectionTitle.textContent = `Categoría: ${currentCategory}`;
+    } else if (currentFilter === 'favorites') {
+      sectionTitle.textContent = `Fichas Favoritas`;
+    } else if (currentFilter === 'readLater') {
+      sectionTitle.textContent = `Leer Más Tarde`;
+    } else {
+      sectionTitle.textContent = `Últimas Fichas Incorporadas`;
     }
-};
+  }
 
-window.deleteCard = (id) => {
-    if (confirm('¿Estás seguro de que deseas eliminar esta ficha?')) {
-        cardsData = cardsData.filter(c => c.id !== id);
-        renderApp();
-    }
-};
+ // Guardar nueva ficha desde la barra superior con detección inteligente de URL
+  if (btnSave && urlInput) {
+    btnSave.addEventListener('click', () => {
+      const val = urlInput.value.trim();
+      if (!val) {
+        alert('Por favor, introduce un enlace o título válido.');
+        return;
+      }
 
-// Captura de nueva ficha
-btnCapture.addEventListener('click', () => {
-    const val = urlInput.value.trim();
-    if (!val) return;
+      let finalTitle = val;
+      let finalUrl = val;
+      let finalDesc = 'Ficha añadida manualmente desde el panel principal.';
 
-    const newCard = {
+      // Si el usuario introduce una URL válida
+      if (val.startsWith('http://') || val.startsWith('https://')) {
+        try {
+          const urlObj = new URL(val);
+          finalTitle = `Recursos de ${urlObj.hostname}`;
+          finalDesc = `Enlace directo guardado desde ${urlObj.hostname}`;
+        } catch (e) {
+          finalTitle = val;
+        }
+      } else {
+        finalUrl = 'https://inboxzero.es/recurso/' + encodeURIComponent(val.toLowerCase().replace(/\s+/g, '-'));
+      }
+
+      const newCard = {
         id: Date.now(),
-        title: val.startsWith('http') ? `Ficha guardada: ${new URL(val).hostname}` : val,
-        description: "Contenido capturado automáticamente.",
-        url: val.startsWith('http') ? val : `https://${val}`,
-        image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=300",
-        category: customCategories[0] || "General",
+        title: finalTitle,
+        description: finalDesc,
+        url: finalUrl,
+        category: currentCategory || 'Comida Sana',
         favorite: false,
         readLater: false,
-        notes: ""
-    };
+        notes: '',
+        image: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=150&auto=format&fit=crop&q=80'
+      };
 
-    cardsData.unshift(newCard);
-    urlInput.value = '';
-    renderApp();
-});
-
-// Edición de Ficha Modal
-window.openEditModal = (id) => {
-    const card = cardsData.find(c => c.id === id);
-    if (!card) return;
-
-    document.getElementById('edit-id').value = card.id;
-    document.getElementById('edit-title').value = card.title;
-    document.getElementById('edit-desc').value = card.description;
-    document.getElementById('edit-image').value = card.image || '';
-    document.getElementById('edit-fav').checked = card.favorite;
-    document.getElementById('edit-read').checked = card.readLater;
-    document.getElementById('edit-notes').value = card.notes || '';
-    document.getElementById('edit-open-web').href = card.url;
-
-    const selectCat = document.getElementById('edit-category-select');
-    selectCat.innerHTML = '';
-    customCategories.forEach(cat => {
-        const opt = document.createElement('option');
-        opt.value = cat;
-        opt.innerText = cat;
-        if (cat === card.category) opt.selected = true;
-        selectCat.appendChild(opt);
+      cards.unshift(newCard);
+      urlInput.value = '';
+      currentCategory = null;
+      currentFilter = 'all';
+      renderCards();
     });
 
-    document.getElementById('edit-new-category-input').value = '';
-    updatePreviewFromInput(card.image);
-
-    editModal.style.display = 'flex';
-};
-
-window.updatePreviewFromInput = (url) => {
-    const img = document.getElementById('edit-preview-banner');
-    const placeholder = document.getElementById('preview-placeholder');
-
-    if (url && url.trim() !== '') {
-        img.src = url;
-        img.style.display = 'block';
-        placeholder.style.display = 'none';
-    } else {
-        img.style.display = 'none';
-        placeholder.style.display = 'flex';
+    urlInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') btnSave.click();
+    });
+  }
+  // Funciones globales de acción en tarjetas
+  window.toggleFavorite = (id) => {
+    const card = cards.find(c => c.id === id);
+    if (card) {
+      card.favorite = !card.favorite;
+      renderCards();
     }
-};
+  };
 
-window.handleImageError = (img) => {
-    img.style.display = 'none';
-    document.getElementById('preview-placeholder').style.display = 'flex';
-};
+  window.toggleReadLater = (id) => {
+    const card = cards.find(c => c.id === id);
+    if (card) {
+      card.readLater = !card.readLater;
+      renderCards();
+    }
+  };
 
-document.getElementById('btn-save-edit').addEventListener('click', () => {
-    const id = parseInt(document.getElementById('edit-id').value);
-    const card = cardsData.find(c => c.id === id);
-    if (!card) return;
+  window.deleteCard = (id) => {
+    if (confirm('¿Estás seguro de eliminar esta ficha?')) {
+      cards = cards.filter(c => c.id !== id);
+      renderCards();
+    }
+  };
 
-    card.title = document.getElementById('edit-title').value;
-    card.description = document.getElementById('edit-desc').value;
-    card.image = document.getElementById('edit-image').value;
-    card.favorite = document.getElementById('edit-fav').checked;
-    card.readLater = document.getElementById('edit-read').checked;
-    card.notes = document.getElementById('edit-notes').value;
+  // Apertura del modal de edición completo
+  window.openEditModal = (id) => {
+    const card = cards.find(c => c.id === id);
+    if (card) {
+      document.getElementById('edit-card-id').value = card.id;
+      document.getElementById('edit-title-input').value = card.title;
+      document.getElementById('edit-desc-input').value = card.description;
+      document.getElementById('edit-category-select').value = card.category;
+      document.getElementById('edit-new-category-input').value = '';
+      document.getElementById('edit-image-input').value = card.image;
+      document.getElementById('edit-preview-img').src = card.image;
+      document.getElementById('edit-fav-check').checked = card.favorite;
+      document.getElementById('edit-read-check').checked = card.readLater;
+      document.getElementById('edit-notes-input').value = card.notes || '';
+      document.getElementById('edit-visit-link').href = card.url;
 
-    const newCatInput = document.getElementById('edit-new-category-input').value.trim();
-    if (newCatInput !== '') {
-        if (!customCategories.includes(newCatInput)) {
-            customCategories.push(newCatInput);
+      document.getElementById('modal-edit').classList.add('active');
+    }
+  };
+
+  // Guardar cambios desde el modal de edición
+  const btnSaveEdit = document.getElementById('btn-save-edit');
+  if (btnSaveEdit) {
+    btnSaveEdit.addEventListener('click', () => {
+      const id = parseInt(document.getElementById('edit-card-id').value);
+      const card = cards.find(c => c.id === id);
+      if (card) {
+        card.title = document.getElementById('edit-title-input').value;
+        card.description = document.getElementById('edit-desc-input').value;
+        
+        const newCat = document.getElementById('edit-new-category-input').value.trim();
+        if (newCat) {
+          card.category = newCat;
+        } else {
+          card.category = document.getElementById('edit-category-select').value;
         }
-        card.category = newCatInput;
-    } else {
-        card.category = document.getElementById('edit-category-select').value;
+
+        card.image = document.getElementById('edit-image-input').value;
+        document.getElementById('edit-preview-img').src = card.image;
+
+        card.favorite = document.getElementById('edit-fav-check').checked;
+        card.readLater = document.getElementById('edit-read-check').checked;
+        card.notes = document.getElementById('edit-notes-input').value;
+
+        document.getElementById('modal-edit').classList.remove('active');
+        renderCards();
+      }
+    });
+  }
+
+  // Filtros desde menú lateral y desplegable
+  document.querySelectorAll('.filter-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      currentFilter = link.getAttribute('data-filter');
+      currentCategory = null;
+      renderCards();
+      document.querySelectorAll('.dropdown-wrapper').forEach(w => w.classList.remove('active'));
+    });
+  });
+
+  document.querySelectorAll('.filter-cat').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      currentCategory = link.getAttribute('data-cat');
+      currentFilter = 'all';
+      renderCards();
+      document.querySelectorAll('.dropdown-wrapper').forEach(w => w.classList.remove('active'));
+    });
+  });
+
+  // Control del desplegable "Mi Biblioteca"
+  const btnLibraryDrop = document.getElementById('btn-library-drop');
+  const dropdownWrapper = btnLibraryDrop.closest('.dropdown-wrapper');
+
+  btnLibraryDrop.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdownWrapper.classList.toggle('active');
+  });
+
+  document.addEventListener('click', () => {
+    dropdownWrapper.classList.remove('active');
+  });
+
+  // Control de Modales (Ayuda, Login, Suscribete, Editar)
+  const setupModal = (btnId, modalId) => {
+    const btn = document.getElementById(btnId);
+    const modal = document.getElementById(modalId);
+    if (btn && modal) {
+      btn.addEventListener('click', () => modal.classList.add('active'));
     }
+  };
 
-    editModal.style.display = 'none';
-    renderApp();
+  setupModal('btn-help-modal', 'modal-help');
+  setupModal('btn-login-modal', 'modal-login');
+  setupModal('btn-subscribe-modal', 'modal-subscribe');
+
+  // Cerrar modales
+  document.querySelectorAll('[data-close]').forEach(el => {
+    el.addEventListener('click', () => {
+      const modalId = el.getAttribute('data-close');
+      document.getElementById(modalId).classList.remove('active');
+    });
+  });
+
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) overlay.classList.remove('active');
+    });
+  });
+
+  // Render inicial
+  renderCards();
 });
-
-// MANEJO DE MODALES DEL HEADER
-btnHelpModal.addEventListener('click', () => helpModal.style.display = 'flex');
-btnLoginModal.addEventListener('click', () => loginModal.style.display = 'flex');
-btnSubscribeModal.addEventListener('click', () => subscribeModal.style.display = 'flex');
-
-// Envíos de Formulario
-window.handleLoginSubmit = (e) => {
-    e.preventDefault();
-    const email = document.getElementById('login-email').value;
-    alert(`Sesión iniciada correctamente para: ${email}`);
-    loginModal.style.display = 'none';
-};
-
-window.handleSubscribeSubmit = (e) => {
-    e.preventDefault();
-    const captchaVal = parseInt(document.getElementById('sub-captcha').value);
-    if (captchaVal !== 7) {
-        alert('El resultado de la verificación captcha es incorrecto. Por favor introduce 7.');
-        return;
-    }
-    alert('Registro verificado correctamente. Redirigiendo a la pasarela de pago segura de Stripe (Modo pruebas)...');
-    window.open('https://stripe.com', '_blank');
-    subscribeModal.style.display = 'none';
-};
-
-// Eventos de Cierre
-closeEdit.addEventListener('click', () => editModal.style.display = 'none');
-closeHelp.addEventListener('click', () => helpModal.style.display = 'none');
-closeLogin.addEventListener('click', () => loginModal.style.display = 'none');
-closeSubscribe.addEventListener('click', () => subscribeModal.style.display = 'none');
-
-window.addEventListener('click', (e) => {
-    if (e.target === editModal) editModal.style.display = 'none';
-    if (e.target === helpModal) helpModal.style.display = 'none';
-    if (e.target === loginModal) loginModal.style.display = 'none';
-    if (e.target === subscribeModal) subscribeModal.style.display = 'none';
-    closeAllDropdowns();
-});
-
-// Inicialización
-renderApp();
