@@ -1,0 +1,429 @@
+{
+  "meta": {
+    "pageTitle": "InboxZero: Your smart knowledge library",
+    "logoAlt": "Logo"
+  },
+  "brand": {
+    "name": "InboxZero.es",
+    "tagline": "Your knowledge in 1 click",
+    "footerTagline": "InboxZero.es — Your smart knowledge library"
+  },
+  "welcome": {
+    "title": "🚀 Welcome to Inbox Zero! This is how you organize your knowledge",
+    "description": "This is your model card. Save links above, organize them by category, and mark them as favorites or read later. Your desk starts at 0 cards.",
+    "notes": "System welcome card. It cannot be deleted and does not count toward the free trial.",
+    "category": "Model Card"
+  },
+  "categories": {
+    "health": "Healthy Food",
+    "sports": "Home Workouts",
+    "videos": "Fun Videos",
+    "uncategorized": "Uncategorized"
+  },
+  "header": {
+    "trialPlan": "Free Trial Plan: {{current}} / {{max}} Cards",
+    "libraryDropdown": "My Library ▾",
+    "help": "Help in 3 steps",
+    "login": "Sign In",
+    "subscribe": "Subscribe"
+  },
+  "dropdown": {
+    "mainViews": "MAIN VIEWS",
+    "byCategory": "BY CATEGORY"
+  },
+  "sidebar": {
+    "navigation": "NAVIGATION",
+    "categories": "CATEGORIES",
+    "unsubscribe": "Request subscription cancellation"
+  },
+  "filters": {
+    "latest": "📌 Latest additions",
+    "all": "📁 All cards",
+    "favorites": "⭐ Favorites",
+    "readLater": "⏰ Read later"
+  },
+  "greeting": {
+    "eyebrow": "Your smart library",
+    "morning": "Good morning, {{name}}! ☀️ What do you want to save today?",
+    "afternoon": "Good afternoon, {{name}}! ☕ What do you want to organize now?",
+    "night": "Good evening, {{name}}! 🌙 Shall we get your inbox to zero?"
+  },
+  "main": {
+    "urlPlaceholder": "Paste a link (https://...) or title...",
+    "saveCard": "Save Card",
+    "sectionLatest": "Latest Saved Cards",
+    "showingCards": "Showing {{count}} card(s)",
+    "emptyView": "No cards in this view."
+  },
+  "sections": {
+    "category": "Category: {{name}}",
+    "favorites": "Favorite Cards",
+    "readLater": "Read Later",
+    "latest": "Latest Saved Cards"
+  },
+  "footer": {
+    "legal": "Legal Notice",
+    "privacy": "Privacy Policy",
+    "cookies": "Cookies",
+    "terms": "Terms and Conditions"
+  },
+  "modals": {
+    "close": "✕",
+    "cancel": "Cancel",
+    "understood": "Got it!"
+  },
+  "deleteConfirm": {
+    "title": "Delete this card?",
+    "message": "This action cannot be undone and the card will be permanently removed from your library.",
+    "confirm": "Delete"
+  },
+  "retention": {
+    "title": "Are you sure you want to cancel your premium subscription?",
+    "message": "If you cancel, your limit will go back to a maximum of 20 cards and you will lose advanced automatic link extraction features.",
+    "surveyLegend": "Could you tell us why? It helps us improve:",
+    "reasons": {
+      "price": "The price is too high.",
+      "extract": "It does not extract information from the sites I use.",
+      "ux": "I find the app hard to understand.",
+      "other": "Another reason / I do not use it enough."
+    },
+    "keepPlan": "Keep my Premium Plan",
+    "talkToSupport": "Talk to Support",
+    "confirmCancel": "Confirm subscription cancellation",
+    "successTitle": "Request recorded",
+    "successMessage": "We have recorded your cancellation request. Thank you for your feedback; we will guide you through the process."
+  },
+  "help": {
+    "title": "How InboxZero works",
+    "step1Title": "Save your links or ideas",
+    "step1Body": "Paste any URL or type your idea in the top bar and press \"Save Card\" to capture it instantly.",
+    "step2Title": "Organize and customize",
+    "step2Body": "Edit your cards by clicking the pencil: assign custom categories, private notes, or mark them as favorites or pending.",
+    "step3Title": "Filter and browse",
+    "step3Body": "Quickly access your cards from the sidebar or the \"My Library\" dropdown in the top bar without losing anything."
+  },
+  "login": {
+    "title": "Sign In",
+    "subtitle": "Exclusive access for subscribed users or those on an active trial.",
+    "emailLabel": "Email:",
+    "emailPlaceholder": "you@email.com",
+    "passwordLabel": "Password:",
+    "passwordPlaceholder": "••••••••",
+    "submit": "Access my Library",
+    "registerBtn": "Create account"
+  },
+  "subscribe": {
+    "title": "Register / Subscription",
+    "trialAlert": "💡 <strong>Limited free trial:</strong> You get a trial period to save up to 20 cards. When the period ends or you reach the limit, you must subscribe to keep using the app.",
+    "fullNameLabel": "Full name:",
+    "fullNamePlaceholder": "e.g. John Smith",
+    "emailLabel": "Valid email:",
+    "emailPlaceholder": "example@domain.com",
+    "captchaLabel": "Security (Captcha): What is 3 + 4?",
+    "captchaPlaceholder": "Numeric answer (7)",
+    "termsHtml": "I have read and accept the <a href=\"#\">Privacy Policy</a>, the <a href=\"#\">Terms and Conditions</a>, and the authorization of use.",
+    "stripeButton": "Continue to Stripe (Test Mode) 💳",
+    "captchaError": "Incorrect captcha answer. It must be 7."
+  },
+  "trialLimit": {
+    "title": "Free Trial Limit Reached",
+    "badge": "Free Trial · 20 / 20",
+    "message": "You've reached the limit of your Free Trial Plan! 🚀 If you want to keep saving and organizing all your knowledge in one click with no limits, subscribe to our Pro Plan.",
+    "cta": "Subscribe Now",
+    "later": "Not now"
+  },
+  "edit": {
+    "title": "Customize your Card",
+    "previewLabel": "Site preview",
+    "previewAlt": "Preview",
+    "titleLabel": "Title:",
+    "descriptionLabel": "Description:",
+    "categorySelectLabel": "Category (select existing):",
+    "categoryPlaceholder": "Select a category...",
+    "categoryRequired": "Select or type a category before saving.",
+    "uncategorized": "Uncategorized",
+    "newCategoryLabel": "New user category:",
+    "newCategoryPlaceholder": "Or type a new category here...",
+    "imageUrlLabel": "Image URL:",
+    "favorite": "⭐ Favorite",
+    "readLater": "⏰ Read later",
+    "notesLabel": "Notes:",
+    "notesPlaceholder": "Private notes...",
+    "visitOriginal": "Visit original site ↗",
+    "saveChanges": "Save changes"
+  },
+  "cards": {
+    "favoriteTitle": "Favorite",
+    "readLaterTitle": "Read later",
+    "editTitle": "Edit",
+    "deleteTitle": "Delete",
+    "thumbAlt": "Link preview"
+  },
+  "messages": {
+    "invalidUrlOrTitle": "Please enter a valid link or title.",
+    "confirmDelete": "Are you sure you want to delete this card? This action cannot be undone.",
+    "manualCardDesc": "Card added manually from the main panel.",
+    "linkFromHost": "Direct link saved from {{host}}",
+    "resourcesFromHost": "Resources from {{host}}",
+    "youtubeTempTitle": "YouTube video (ID: {{id}})",
+    "youtubeCardDesc": "Video saved from YouTube",
+    "youtubeFromAuthor": "YouTube · {{author}}"
+  },
+  "social": {
+    "facebook": {
+      "title": "Facebook link",
+      "description": "Facebook content indexed successfully. For privacy and security reasons on the platform, click the link to view the full post in your account.",
+      "smartTitle": "Facebook group and content",
+      "smartDescription": "Link saved and optimized in your Inbox Zero smart library."
+    },
+    "instagram": {
+      "title": "Instagram link",
+      "description": "Content saved from Instagram"
+    },
+    "linkedin": {
+      "title": "LinkedIn link",
+      "description": "Content saved from LinkedIn"
+    },
+    "twitter": {
+      "title": "X (Twitter) link",
+      "description": "Content saved from X (Twitter)"
+    }
+  },
+  "auth": {
+    "logout": "Sign out",
+    "notConfigured": "Supabase is not configured yet. Add your Project URL and anon key in js/supabase-config.js.",
+    "missingCredentials": "Enter your email and password.",
+    "signInSuccess": "Signed in successfully.",
+    "signUpSuccess": "Account created. You are now signed in.",
+    "signUpConfirmEmail": "Account created. Check your email to confirm your address, then sign in."
+  },
+  "legalDocs": {
+    "legal": {
+      "title": "Legal Notice",
+      "intro": "Legal information for the InboxZero.es website. For any enquiry: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>.",
+      "sections": [
+        {
+          "heading": "1. Identifying details",
+          "paragraphs": [
+            "In accordance with applicable law, the owner of the InboxZero.es website (hereinafter “InboxZero”) is the controller of the digital knowledge-library service available at https://inboxzero.es.",
+            "Controller contact details: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        },
+        {
+          "heading": "2. Purpose",
+          "paragraphs": [
+            "This legal notice governs access to, browsing and use of the website, as well as responsibilities arising from the use of its content, products and services, including the InboxZero web application."
+          ]
+        },
+        {
+          "heading": "3. Terms of use",
+          "paragraphs": [
+            "Access to the website confers user status and implies full acceptance of this legal notice and other published policies. You agree to use the platform lawfully and in good faith."
+          ],
+          "list": [
+            "Do not use the service for unlawful purposes or contrary to good faith.",
+            "Do not damage, disable or overload InboxZero systems.",
+            "Do not introduce malware or attempt unauthorised access to third-party accounts or data."
+          ]
+        },
+        {
+          "heading": "4. Intellectual and industrial property",
+          "paragraphs": [
+            "All site content (texts, designs, logos, code, databases and other elements) is protected by intellectual and industrial property laws. Reproduction, distribution or transformation without prior authorisation is prohibited, except where permitted by law."
+          ]
+        },
+        {
+          "heading": "5. Liability",
+          "paragraphs": [
+            "InboxZero endeavours to keep the service available and accurate, but does not guarantee uninterrupted operation or the total absence of errors. You are responsible for the accuracy of information you enter and for how you use saved links and content.",
+            "To report incidents or unlawful content: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        },
+        {
+          "heading": "6. External links",
+          "paragraphs": [
+            "The service lets you save links to third-party sites. InboxZero does not control those sites or their policies. A saved link does not imply endorsement of their content."
+          ]
+        },
+        {
+          "heading": "7. Governing law",
+          "paragraphs": [
+            "This legal notice is governed by applicable Spanish and European law. Disputes shall be submitted to the competent courts, without prejudice to mandatory consumer protection rules.",
+            "Support contact: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        }
+      ]
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "intro": "Personal data processing under Regulation (EU) 2016/679 (GDPR) and applicable national law. Data controller / contact: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>.",
+      "sections": [
+        {
+          "heading": "1. Data controller",
+          "paragraphs": [
+            "The controller of personal data collected through InboxZero.es is InboxZero.",
+            "Data protection and support contact: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        },
+        {
+          "heading": "2. Data we process",
+          "paragraphs": [
+            "Depending on how you use the service, we may process:"
+          ],
+          "list": [
+            "Account data: email address and authentication credentials.",
+            "Profile or billing data linked to a subscription (e.g. name), where applicable.",
+            "Library content (cards, links, notes, categories and preferences).",
+            "Technical usage data (IP address, device/browser type, security logs) as needed to provide and protect the service."
+          ]
+        },
+        {
+          "heading": "3. Purposes and legal bases",
+          "paragraphs": [
+            "We process data in order to:"
+          ],
+          "list": [
+            "Provide InboxZero and manage your account (performance of a contract / pre-contractual steps).",
+            "Manage subscriptions, payments and support (contract and legitimate interests).",
+            "Comply with legal obligations (e.g. tax or security).",
+            "Improve security and prevent abuse (legitimate interests).",
+            "Send essential service communications; marketing only with consent where required."
+          ]
+        },
+        {
+          "heading": "4. Recipients and processors",
+          "paragraphs": [
+            "We do not sell personal data. We may share data with processors (hosting, authentication, payment gateways or other technical providers) under contract with appropriate safeguards, including international transfers where applicable under the GDPR.",
+            "For more information about processors: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        },
+        {
+          "heading": "5. Retention",
+          "paragraphs": [
+            "We retain data while your account is active and for as long as needed to meet legal obligations or handle claims. After account closure we delete or anonymise data when it is no longer required, subject to legal blocking where mandatory."
+          ]
+        },
+        {
+          "heading": "6. Your rights",
+          "paragraphs": [
+            "You may exercise rights of access, rectification, erasure, objection, restriction and portability, and withdraw consent where processing is based on consent, by writing to:",
+            "<a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>",
+            "You may also lodge a complaint with the Spanish Data Protection Agency (AEPD) or another competent supervisory authority."
+          ]
+        },
+        {
+          "heading": "7. Security and minors",
+          "paragraphs": [
+            "We apply appropriate technical and organisational measures to protect data. The service is not directed at children under 14 (or the applicable minimum age). If you become aware of a child’s data processed without authorisation, contact <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        },
+        {
+          "heading": "8. Changes",
+          "paragraphs": [
+            "We may update this policy to reflect legal or service changes. The current version will be published in the app. Enquiries: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        }
+      ]
+    },
+    "cookies": {
+      "title": "Cookie Policy",
+      "intro": "Information about cookies and similar technologies on InboxZero.es. Contact: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>.",
+      "sections": [
+        {
+          "heading": "1. What are cookies?",
+          "paragraphs": [
+            "Cookies are small files stored on your device when you visit a website. They can remember preferences, keep you signed in or help us understand how the service is used."
+          ]
+        },
+        {
+          "heading": "2. Types of cookies we may use",
+          "list": [
+            "Technical/necessary cookies: essential for operation (e.g. session, security, language or local preference storage).",
+            "Preference cookies: remember choices such as interface language.",
+            "Analytics cookies (if enabled): help us understand aggregated usage to improve the service.",
+            "Third-party cookies: set by providers (e.g. authentication or payments) under their own policies."
+          ]
+        },
+        {
+          "heading": "3. Legal basis",
+          "paragraphs": [
+            "Strictly necessary cookies rely on legitimate interests / necessity to provide the requested service. Other cookies, when used, will be placed after consent where required by law."
+          ]
+        },
+        {
+          "heading": "4. Managing cookies",
+          "paragraphs": [
+            "You can configure your browser to refuse or delete cookies. Disabling technical cookies may affect InboxZero (sign-in, language, etc.).",
+            "For help managing cookies or related rights: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        },
+        {
+          "heading": "5. Updates",
+          "paragraphs": [
+            "This policy may be updated. The version published in the app applies. Contact: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "title": "Terms and Conditions",
+      "intro": "Terms of use for the InboxZero service. Support: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>.",
+      "sections": [
+        {
+          "heading": "1. Acceptance",
+          "paragraphs": [
+            "By registering, subscribing or using InboxZero, you accept these Terms and Conditions, the Legal Notice and the Privacy Policy. If you disagree, do not use the service."
+          ]
+        },
+        {
+          "heading": "2. Service description",
+          "paragraphs": [
+            "InboxZero is an application that lets you save, organise and browse links and knowledge as cards. Features may evolve; material changes will be communicated where appropriate."
+          ]
+        },
+        {
+          "heading": "3. User account",
+          "paragraphs": [
+            "You are responsible for keeping your credentials confidential and for activity under your account. Report any unauthorised use immediately to <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        },
+        {
+          "heading": "4. Free trial and subscription",
+          "paragraphs": [
+            "A free trial plan with limits (e.g. number of cards) may apply. After the limit or trial period, saving or premium features may require a paid subscription processed via providers such as Stripe.",
+            "Billing or cancellation enquiries: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        },
+        {
+          "heading": "5. User content",
+          "paragraphs": [
+            "You retain rights to content you save. You grant us a limited licence to host and display it to provide the service. You warrant that you have sufficient rights and that the content does not infringe third-party rights or the law."
+          ]
+        },
+        {
+          "heading": "6. Acceptable use",
+          "paragraphs": [
+            "You must not use the service for unlawful activity, spam, system abuse, harassment or illegal content. InboxZero may suspend or terminate accounts for serious breaches."
+          ]
+        },
+        {
+          "heading": "7. Availability and limitation of liability",
+          "paragraphs": [
+            "The service is provided “as is” within reason. To the extent permitted by law, InboxZero is not liable for indirect damages, lost profits or data loss outside its reasonable control, without prejudice to mandatory consumer rights."
+          ]
+        },
+        {
+          "heading": "8. Changes and contact",
+          "paragraphs": [
+            "We may amend these terms by publishing an updated version in the app. Continued use after the effective date may constitute acceptance where allowed by law.",
+            "Support and complaints: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        }
+      ]
+    }
+  },
+  "support": {
+    "email": "soporte@inboxzero.es",
+    "label": "soporte@inboxzero.es"
+  }
+}
