@@ -1509,13 +1509,42 @@ footer {
   object-fit: contain;
   width: auto;
   height: auto;
+  min-width: 96px;
+  min-height: 96px;
   padding: 20px;
   box-sizing: border-box;
-  min-height: 0;
   border: none;
   border-radius: 0;
   background: transparent;
   display: block;
+}
+
+/* Miniatura fotográfica del sitio: llena el marco (no se colapsa en blanco) */
+.edit-preview-frame--photo {
+  background: #f1f5f9;
+}
+
+.edit-preview-frame--photo #edit-preview-img,
+#edit-preview-img.edit-preview--photo {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  padding: 0 !important;
+  object-fit: cover !important;
+  object-position: center !important;
+}
+
+.edit-preview-frame--logo #edit-preview-img,
+#edit-preview-img.edit-preview-large--logo {
+  width: auto !important;
+  height: auto !important;
+  max-width: 70% !important;
+  max-height: 70% !important;
+  padding: 16px !important;
+  object-fit: contain !important;
 }
 
 .edit-modal-fields {

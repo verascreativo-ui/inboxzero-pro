@@ -23,6 +23,39 @@ function escapeHtmlAttr(value) {
     .replace(/>/g, '&gt;');
 }
 
+/** True si hay una URL de imagen usable (http(s), data: o ruta local). */
+function isUsableImageUrl(value) {
+  const src = String(value || '').trim();
+  if (!src) return false;
+  if (src === CARD_THUMB_PLACEHOLDER) return true;
+  if (/^data:image\//i.test(src)) return true;
+  if (/^https?:\/\//i.test(src)) return true;
+  if (/^[\w./-]+\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(src)) return true;
+  return false;
+}
+
+/** Favicon / icono de respaldo cuando no hay Open Graph. */
+function getFaviconFallback(pageUrl) {
+  try {
+    const host = new URL(pageUrl).hostname;
+    if (!host) return CARD_THUMB_PLACEHOLDER;
+    return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=128`;
+  } catch (_) {
+    return CARD_THUMB_PLACEHOLDER;
+  }
+}
+
+/** Resuelve la mejor imagen disponible para una ficha o URL. */
+function resolveDisplayImage(imageUrl, pageUrl) {
+  if (isUsableImageUrl(imageUrl)) return String(imageUrl).trim();
+  const ytId = extractYoutubeVideoId(pageUrl);
+  if (ytId) return getYoutubeThumbUrl(ytId, 'hqdefault');
+  if (pageUrl && /^https?:\/\//i.test(String(pageUrl))) {
+    return getFaviconFallback(pageUrl);
+  }
+  return CARD_THUMB_PLACEHOLDER;
+}
+
 /**
  * Si la imagen de la tarjeta falla, sustituye por un placeholder limpio
  * y oculta el texto alternativo para no romper el diseño.
@@ -37,6 +70,17 @@ function handleCardThumbError(img) {
     img.dataset.ytHqTried = '1';
     img.src = `https://i.ytimg.com/vi/${ytMax[1]}/hqdefault.jpg`;
     return;
+  }
+
+  // Segundo intento: favicon del sitio (si conocemos la página)
+  const pageUrl = img.dataset.pageUrl || img.getAttribute('data-page-url') || '';
+  if (pageUrl && img.dataset.faviconTried !== '1') {
+    img.dataset.faviconTried = '1';
+    const fav = getFaviconFallback(pageUrl);
+    if (fav && fav !== src) {
+      img.src = fav;
+      return;
+    }
   }
 
   if (img.dataset.fallbackApplied === '1') return;
@@ -809,7 +853,7 @@ document.addEventListener('i18n:ready', () => {
           favorite: Boolean(c.favorite),
           readLater: Boolean(c.readLater),
           notes: String(c.notes || ''),
-          image: String(c.image || 'logo.png'),
+          image: resolveDisplayImage(c.image, c.url),
           youtubeId: c.youtubeId || extractYoutubeVideoId(c.url) || undefined,
           socialBrand: c.socialBrand || detectSocialBrand(c.url) || undefined,
         }));
@@ -1142,7 +1186,11 @@ document.addEventListener('i18n:ready', () => {
           ? ''
           : `<button type="button" class="card-btn-action ${card.readLater ? 'active-read' : ''}" data-action="readLater" data-id="${card.id}" title="${t('cards.readLaterTitle')}">⏰</button>`;
 
-        const thumbSrc = card.image || CARD_THUMB_PLACEHOLDER;
+        const thumbSrc = resolveDisplayImage(card.image, card.url);
+        // Persistir resolución para que el dashboard no se quede en gris
+        if (!guide && isUsableImageUrl(thumbSrc) && !isUsableImageUrl(card.image)) {
+          card.image = thumbSrc;
+        }
         const thumbAlt = escapeHtmlAttr(displayTitle || t('cards.thumbAlt') || 'Vista previa del enlace');
         const brand = card.socialBrand || detectSocialBrand(card.url);
         const brandThumb = Boolean(brand && isBrandLogoImage(thumbSrc));
@@ -1164,8 +1212,10 @@ document.addEventListener('i18n:ready', () => {
               src="${escapeHtmlAttr(thumbSrc)}"
               class="${thumbClass}"
               alt="${thumbAlt}"
+              data-page-url="${escapeHtmlAttr(card.url || '')}"
               loading="lazy"
               decoding="async"
+              referrerpolicy="no-referrer"
               onerror="handleCardThumbError(this)"
             >
             <div class="card-details">
@@ -1275,7 +1325,7 @@ document.addEventListener('i18n:ready', () => {
           }
           if (!finalDesc) finalDesc = '';
           if (!finalImage && youtubeId && socialBrand !== 'facebook') {
-            finalImage = getYoutubeThumbUrl(youtubeId, 'maxresdefault');
+            finalImage = getYoutubeThumbUrl(youtubeId, 'hqdefault');
           }
           // Facebook: nunca YouTube/Unsplash; logo Wikimedia de contingencia
           if (socialBrand === 'facebook' && (!finalImage || isFacebookContingencyImage(finalImage))) {
@@ -1284,11 +1334,18 @@ document.addEventListener('i18n:ready', () => {
               facebookSmart = true;
             }
           }
+          // Último recurso visual: favicon del dominio (evita preview en blanco)
+          if (!isUsableImageUrl(finalImage)) {
+            finalImage = resolveDisplayImage('', finalUrl);
+          }
         } else {
           finalUrl =
             'https://inboxzero.es/recurso/' +
             encodeURIComponent(val.toLowerCase().replace(/\s+/g, '-'));
           finalDesc = t('messages.manualCardDesc');
+          if (!isUsableImageUrl(finalImage)) {
+            finalImage = CARD_THUMB_PLACEHOLDER;
+          }
         }
 
         const newCard = {
@@ -1301,7 +1358,7 @@ document.addEventListener('i18n:ready', () => {
           favorite: false,
           readLater: false,
           notes: '',
-          image: finalImage,
+          image: resolveDisplayImage(finalImage, finalUrl),
           youtubeId: youtubeId || undefined,
           socialBrand: socialBrand || undefined,
           facebookSmart: facebookSmart || undefined,
@@ -1440,6 +1497,67 @@ document.addEventListener('i18n:ready', () => {
     openDeleteConfirmModal(id);
   }
 
+  function updateEditPreview(imageUrl, pageUrl, options = {}) {
+    const preview = document.getElementById('edit-preview-img');
+    const previewFrame = preview?.closest('.edit-preview-frame');
+    if (!preview) return;
+
+    const guide = Boolean(options.guide);
+    const brand = options.brand || detectSocialBrand(pageUrl);
+    const resolved = resolveDisplayImage(imageUrl, pageUrl);
+
+    preview.onerror = function onPreviewError() {
+      handleCardThumbError(this);
+    };
+    preview.referrerPolicy = 'no-referrer';
+    preview.dataset.pageUrl = String(pageUrl || '');
+    preview.removeAttribute('data-fallback-applied');
+    preview.removeAttribute('data-yt-hq-tried');
+    preview.removeAttribute('data-favicon-tried');
+    preview.classList.remove('card-thumb--fallback');
+    preview.removeAttribute('aria-hidden');
+
+    const isBrand = Boolean(brand && isBrandLogoImage(resolved) && brand !== 'facebook');
+    const isFbLogoPreview = Boolean(
+      brand === 'facebook' && isFacebookContingencyImage(resolved)
+    );
+    const isLogo =
+      guide ||
+      /logo\.png$/i.test(String(resolved || '')) ||
+      (isBrandLogoImage(resolved) && !isBrand && !isFbLogoPreview);
+
+    preview.classList.toggle('edit-preview-large--logo', isLogo && !isBrand && !isFbLogoPreview);
+    preview.classList.toggle('edit-preview--brand', isBrand && !isFbLogoPreview);
+    preview.classList.toggle('edit-preview--facebook-smart', isFbLogoPreview);
+    preview.classList.toggle('object-contain', isFbLogoPreview);
+    preview.classList.toggle('edit-preview--photo', !isLogo && !isBrand && !isFbLogoPreview);
+    ['facebook', 'instagram', 'linkedin', 'twitter'].forEach((b) => {
+      preview.classList.toggle(`edit-preview--brand-${b}`, brand === b && isBrand && !isFbLogoPreview);
+    });
+
+    if (previewFrame) {
+      previewFrame.classList.toggle('edit-preview-frame--logo', isLogo && !isBrand && !isFbLogoPreview);
+      previewFrame.classList.toggle('edit-preview-frame--brand', isBrand && !isFbLogoPreview);
+      previewFrame.classList.toggle('edit-preview-frame--facebook-smart', isFbLogoPreview);
+      previewFrame.classList.toggle('edit-preview-frame--photo', !isLogo && !isBrand && !isFbLogoPreview);
+      previewFrame.classList.toggle('bg-blue-50', isFbLogoPreview);
+      previewFrame.classList.toggle('p-4', isFbLogoPreview);
+      ['facebook', 'instagram', 'linkedin', 'twitter'].forEach((b) => {
+        previewFrame.classList.toggle(
+          `edit-preview-frame--brand-${b}`,
+          brand === b && isBrand && !isFbLogoPreview
+        );
+      });
+    }
+
+    // Forzar recarga visual aunque la URL sea la misma
+    if (preview.getAttribute('src') === resolved) {
+      preview.removeAttribute('src');
+    }
+    preview.src = resolved;
+    return resolved;
+  }
+
   function openEditModal(id) {
     const card = cards.find(c => c.id === id);
     const modal = document.getElementById('modal-edit');
@@ -1470,8 +1588,8 @@ document.addEventListener('i18n:ready', () => {
       // Nunca asignar miniatura YouTube a fichas Facebook
       if (ytId && socialForThumb !== 'facebook') {
         card.youtubeId = ytId;
-        if (!card.image || /unsplash\.com/i.test(card.image)) {
-          card.image = getYoutubeThumbUrl(ytId, 'maxresdefault');
+        if (!isUsableImageUrl(card.image) || /unsplash\.com/i.test(String(card.image || ''))) {
+          card.image = getYoutubeThumbUrl(ytId, 'hqdefault');
         }
       }
       card.socialBrand = card.socialBrand || socialForThumb || undefined;
@@ -1502,54 +1620,23 @@ document.addEventListener('i18n:ready', () => {
       }
       setValue('edit-title-input', card.title);
       setValue('edit-desc-input', card.description);
-      const fbImageUrl = card.image || getFacebookContingencyLogo();
-      setValue('edit-image-input', fbImageUrl);
-    } else {
-      setValue('edit-image-input', card.image || '');
     }
+
+    // Siempre una imagen visible en preview + input (nunca src vacío)
+    const previewImage = resolveDisplayImage(
+      isFacebookCard ? (card.image || getFacebookContingencyLogo()) : card.image,
+      card.url
+    );
+    if (!guide && isUsableImageUrl(previewImage)) {
+      card.image = previewImage;
+    }
+    setValue('edit-image-input', previewImage === CARD_THUMB_PLACEHOLDER ? '' : previewImage);
+    updateEditPreview(previewImage, card.url, {
+      guide,
+      brand: card.socialBrand || detectSocialBrand(card.url),
+    });
 
     setValue('edit-notes-input', welcome ? welcome.notes : (card.notes || ''));
-
-    const preview = document.getElementById('edit-preview-img');
-    const previewFrame = preview?.closest('.edit-preview-frame');
-    if (preview) {
-      preview.onerror = function onPreviewError() {
-        handleCardThumbError(this);
-      };
-      preview.removeAttribute('data-fallback-applied');
-      preview.removeAttribute('data-yt-hq-tried');
-      preview.classList.remove('card-thumb--fallback');
-      preview.src = isFacebookCard
-        ? (card.image || getFacebookContingencyLogo())
-        : (card.image || '');
-      const brand = card.socialBrand || detectSocialBrand(card.url);
-      const isLogo = guide || /logo\.png$/i.test(String(card.image || '')) || isBrandLogoImage(card.image);
-      const isBrand = Boolean(brand && isBrandLogoImage(card.image) && brand !== 'facebook');
-      // Logo Wikimedia / SVG: marco azul con la "f" oficial
-      const isFbLogoPreview = Boolean(
-        isFacebookCard && isFacebookContingencyImage(card.image || getFacebookContingencyLogo())
-      );
-      preview.classList.toggle('edit-preview-large--logo', isLogo && !isBrand && !isFbLogoPreview);
-      preview.classList.toggle('edit-preview--brand', isBrand && !isFbLogoPreview);
-      preview.classList.toggle('edit-preview--facebook-smart', isFbLogoPreview);
-      preview.classList.toggle('object-contain', isFbLogoPreview);
-      ['facebook', 'instagram', 'linkedin', 'twitter'].forEach((b) => {
-        preview.classList.toggle(`edit-preview--brand-${b}`, brand === b && isBrand && !isFbLogoPreview);
-      });
-      if (previewFrame) {
-        previewFrame.classList.toggle('edit-preview-frame--logo', isLogo && !isBrand && !isFbLogoPreview);
-        previewFrame.classList.toggle('edit-preview-frame--brand', isBrand && !isFbLogoPreview);
-        previewFrame.classList.toggle('edit-preview-frame--facebook-smart', isFbLogoPreview);
-        previewFrame.classList.toggle('bg-blue-50', isFbLogoPreview);
-        previewFrame.classList.toggle('p-4', isFbLogoPreview);
-        ['facebook', 'instagram', 'linkedin', 'twitter'].forEach((b) => {
-          previewFrame.classList.toggle(
-            `edit-preview-frame--brand-${b}`,
-            brand === b && isBrand && !isFbLogoPreview
-          );
-        });
-      }
-    }
 
     setChecked('edit-fav-check', guide ? false : card.favorite);
     setChecked('edit-read-check', guide ? false : card.readLater);
@@ -1787,10 +1874,12 @@ document.addEventListener('i18n:ready', () => {
           }
         }
       } else {
-        card.image = imageVal;
+        // Mantener imagen previa si el input queda vacío; si no, favicon/placeholder
+        card.image = resolveDisplayImage(imageVal || card.image, card.url);
       }
-      const preview = document.getElementById('edit-preview-img');
-      if (preview) preview.src = card.image || '';
+      updateEditPreview(card.image, card.url, {
+        brand: card.socialBrand || detectSocialBrand(card.url),
+      });
 
       card.favorite = Boolean(document.getElementById('edit-fav-check')?.checked);
       card.readLater = Boolean(document.getElementById('edit-read-check')?.checked);
@@ -1799,6 +1888,23 @@ document.addEventListener('i18n:ready', () => {
       document.getElementById('modal-edit')?.classList.remove('active');
       renderCards();
     });
+  }
+
+  // Vista previa en vivo al editar la URL de imagen
+  const editImageInput = document.getElementById('edit-image-input');
+  if (editImageInput && !editImageInput.dataset.previewBound) {
+    editImageInput.dataset.previewBound = '1';
+    const syncPreviewFromInput = () => {
+      const id = parseInt(document.getElementById('edit-card-id')?.value, 10);
+      const card = cards.find((c) => c.id === id);
+      const pageUrl = card?.url || '';
+      updateEditPreview(editImageInput.value.trim(), pageUrl, {
+        guide: card ? isGuideCard(card) : false,
+        brand: card?.socialBrand || detectSocialBrand(pageUrl),
+      });
+    };
+    editImageInput.addEventListener('input', syncPreviewFromInput);
+    editImageInput.addEventListener('change', syncPreviewFromInput);
   }
 
   // Limpiar error de categoría al elegir/escribir
