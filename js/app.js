@@ -1,0 +1,1995 @@
+const TRIAL_MAX = 20;
+const CARDS_STORAGE_KEY = 'inboxzero_cards';
+
+/** Placeholder SVG elegante cuando falla la miniatura de una ficha */
+const CARD_THUMB_PLACEHOLDER =
+  'data:image/svg+xml,' +
+  encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" width="140" height="140" viewBox="0 0 140 140" role="img" aria-hidden="true">
+      <rect width="140" height="140" rx="12" fill="#eef2f7"/>
+      <rect x="18" y="18" width="104" height="104" rx="10" fill="#e5e7eb"/>
+      <circle cx="52" cy="54" r="10" fill="#cbd5e1"/>
+      <path d="M28 104 L56 72 L74 88 L96 64 L112 104 Z" fill="#94a3b8"/>
+      <rect x="86" y="34" width="28" height="20" rx="4" fill="#64748b"/>
+      <path d="M96 40 L108 44 L96 48 Z" fill="#f8fafc"/>
+    </svg>
+  `.trim());
+
+function escapeHtmlAttr(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+/**
+ * Si la imagen de la tarjeta falla, sustituye por un placeholder limpio
+ * y oculta el texto alternativo para no romper el diseño.
+ * Para miniaturas YouTube maxres inexistentes, degrada a hqdefault.
+ */
+function handleCardThumbError(img) {
+  if (!img) return;
+
+  const src = String(img.currentSrc || img.src || '');
+  const ytMax = src.match(/i\.ytimg\.com\/vi\/([^/]+)\/maxresdefault\.jpg/i);
+  if (ytMax && img.dataset.ytHqTried !== '1') {
+    img.dataset.ytHqTried = '1';
+    img.src = `https://i.ytimg.com/vi/${ytMax[1]}/hqdefault.jpg`;
+    return;
+  }
+
+  if (img.dataset.fallbackApplied === '1') return;
+  img.dataset.fallbackApplied = '1';
+  img.src = CARD_THUMB_PLACEHOLDER;
+  img.alt = '';
+  img.removeAttribute('title');
+  img.classList.add('card-thumb--fallback');
+  img.setAttribute('aria-hidden', 'true');
+}
+
+window.handleCardThumbError = handleCardThumbError;
+
+/** Extrae el ID de un vídeo de YouTube / Shorts / youtu.be */
+function extractYoutubeVideoId(url) {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
+  const match = String(url || '').match(regExp);
+  return match && match[2] && match[2].length === 11 ? match[2] : null;
+}
+
+function getYoutubeThumbUrl(videoId, quality) {
+  const q = quality || 'maxresdefault';
+  return `https://i.ytimg.com/vi/${videoId}/${q}.jpg`;
+}
+
+async function fetchYoutubeOEmbed(pageUrl) {
+  const endpoints = [
+    `https://noembed.com/embed?url=${encodeURIComponent(pageUrl)}`,
+    `https://www.youtube.com/oembed?url=${encodeURIComponent(pageUrl)}&format=json`,
+  ];
+  for (const endpoint of endpoints) {
+    try {
+      const res = await fetch(endpoint);
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (data && !data.error && (data.title || data.thumbnail_url)) {
+        return data;
+      }
+    } catch (_) {
+      /* probar siguiente endpoint */
+    }
+  }
+  return null;
+}
+
+/**
+ * Extracción real de metadatos vía Microlink (API gratuita).
+ * Endpoint: https://api.microlink.io/?url=...
+ */
+async function fetchMicrolinkMetadata(pageUrl, options = {}) {
+  const params = new URLSearchParams({ url: pageUrl });
+  if (options.screenshot) params.set('screenshot', 'true');
+  if (options.palette) params.set('palette', 'true');
+  const endpoint = `https://api.microlink.io/?${params.toString()}`;
+  const res = await fetch(endpoint);
+  if (!res.ok) {
+    throw new Error(`Microlink HTTP ${res.status}`);
+  }
+  const datos = await res.json();
+  if (!datos || datos.status !== 'success' || !datos.data) {
+    throw new Error((datos && datos.message) || 'Microlink no devolvió datos');
+  }
+  const d = datos.data;
+  const imageUrl =
+    (d.image && d.image.url) ||
+    (d.screenshot && d.screenshot.url) ||
+    (d.logo && d.logo.url) ||
+    '';
+  return {
+    title: (d.title && String(d.title).trim()) || '',
+    description: (d.description && String(d.description).trim()) || '',
+    image: imageUrl,
+    canonicalUrl: d.url || pageUrl,
+  };
+}
+
+const FACEBOOK_GENERIC_TITLE_RE =
+  /^(facebook|facebook\s*[-–|]\s*log\s*in|log\s*in\s*to\s*facebook|meta)$/i;
+const FACEBOOK_GENERIC_DESC_RE =
+  /explore the things you love|connect with friends[, ]+family and other people|facebook helps you|log into facebook|crea una cuenta o inicia sesión|see photos and updates/i;
+
+function isGenericFacebookMeta(title, description) {
+  const t = String(title || '').trim();
+  const d = String(description || '').trim();
+  if (!t && !d) return true;
+  if (FACEBOOK_GENERIC_TITLE_RE.test(t)) return true;
+  if (d && FACEBOOK_GENERIC_DESC_RE.test(d)) return true;
+  if (/explore the things you love/i.test(t)) return true;
+  return false;
+}
+
+/** Título por defecto limpio (sin IDs / números de Facebook) */
+function getFacebookDefaultTitle() {
+  return t('social.facebook.title') || 'Enlace de Facebook';
+}
+
+function getFacebookDefaultDescription() {
+  return (
+    t('social.facebook.description') ||
+    'Contenido de Facebook indexado correctamente. Por motivos de privacidad y seguridad de la plataforma, haz clic en el enlace para visualizar la publicación completa en tu cuenta.'
+  );
+}
+
+/**
+ * Logo oficial de Facebook (Wikimedia): "f" blanca sobre azul.
+ * Contingencia cuando falla el scraping — nunca Unsplash ni miniaturas YouTube.
+ */
+const FACEBOOK_CONTINGENCY_LOGO =
+  'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg';
+
+function getFacebookContingencyLogo() {
+  return FACEBOOK_CONTINGENCY_LOGO;
+}
+
+/** Imagen de contingencia / logo de marca Facebook (SVG data o Wikimedia). */
+function isFacebookContingencyImage(src) {
+  const value = String(src || '').trim();
+  if (!value) return false;
+  if (/^data:image\/svg\+xml/i.test(value)) return true;
+  if (value === FACEBOOK_CONTINGENCY_LOGO) return true;
+  if (/upload\.wikimedia\.org\/.*Facebook_f_logo/i.test(value)) return true;
+  // Basura de marca cruzada a eliminar
+  if (/ytimg\.com|youtube\.com\/vi\//i.test(value)) return true;
+  if (/unsplash\.com/i.test(value)) return true;
+  return false;
+}
+
+/** Descripciones antiguas / genéricas → sustituir por el copy profesional actual */
+function isLegacyFacebookDescription(desc) {
+  const d = String(desc || '').trim();
+  if (!d) return true;
+  if (d === getFacebookDefaultDescription()) return false;
+  if (isGenericFacebookMeta('', d)) return true;
+  return (
+    /contenido guardado desde (la plataforma de )?facebook/i.test(d) ||
+    /content saved from facebook/i.test(d) ||
+    /inhalt von facebook gespeichert/i.test(d) ||
+    /contenu enregistré depuis facebook/i.test(d) ||
+    /conteúdo guardado do facebook/i.test(d) ||
+    /enlace guardado y optimizado/i.test(d)
+  );
+}
+
+/** Contingencia instantánea: sin ScrapingBee / Microlink (Facebook bloquea). */
+function getFacebookInstantMetadata(pageUrl) {
+  return {
+    title: getFacebookDefaultTitle(),
+    description: getFacebookDefaultDescription(),
+    image: getFacebookContingencyLogo(),
+    canonicalUrl: pageUrl,
+    facebookSmart: true,
+    authentic: false,
+    skipScrape: true,
+  };
+}
+
+/** Detecta títulos feos con IDs numéricos o basura de scraping */
+function isUglyFacebookTitle(title) {
+  const value = String(title || '').trim();
+  if (!value) return true;
+  if (isGenericFacebookMeta(value, '')) return true;
+  if (/^\d+$/.test(value)) return true;
+  if (/\b\d{5,}\b/.test(value)) return true;
+  if (/facebook\.com|fb\.watch|fb\.com/i.test(value)) return true;
+  if (/^Grupo «|^Página «|^Vídeo o Reel|^Grupo de Recetas|^Contenido de Facebook/i.test(value)) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Imagen usable de Facebook: cover http(s) o screenshot ScrapingBee (data:image).
+ * Se excluye solo el logo SVG corporativo de fallback.
+ */
+function isAuthenticFacebookImage(src) {
+  const value = String(src || '').trim();
+  if (!value) return false;
+  if (isFacebookContingencyImage(value)) return false;
+  if (/ytimg\.com|youtube\.com|unsplash\.com/i.test(value)) return false;
+  if (/^data:image\/svg\+xml/i.test(value)) return false;
+  if (/^data:image\//i.test(value)) return true; // screenshot ScrapingBee
+  return /^https?:\/\//i.test(value);
+}
+
+function isAuthenticFacebookTitle(title) {
+  const value = String(title || '').trim();
+  if (!value) return false;
+  if (isUglyFacebookTitle(value)) return false;
+  if (value === getFacebookDefaultTitle()) return false;
+  return true;
+}
+
+/**
+ * Fallback UX Facebook (sin scraping).
+ */
+function refineFacebookMetadata(pageUrl) {
+  return getFacebookInstantMetadata(pageUrl);
+}
+
+/** Compat: siempre contingencia instantánea (Facebook bloqueado). */
+function mergeFacebookExtraction(pageUrl) {
+  return getFacebookInstantMetadata(pageUrl);
+}
+
+/**
+ * Backend avanzado (ScrapingBee). Facebook / Instagram / LinkedIn / webs.
+ */
+async function fetchAdvancedExtractApi(pageUrl) {
+  const base = String(window.INBOXZERO_EXTRACT_API || 'http://localhost:8787').replace(/\/$/, '');
+  const endpoint = `${base}/api/extract?url=${encodeURIComponent(pageUrl)}`;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 55000);
+  try {
+    const res = await fetch(endpoint, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+      signal: controller.signal,
+    });
+    const payload = await res.json().catch(() => null);
+    if (!payload) return null;
+    if (payload.status === 'success' && payload.data) {
+      const d = payload.data;
+      return {
+        title: (d.title && String(d.title).trim()) || '',
+        description: (d.description && String(d.description).trim()) || '',
+        image: d.image || '',
+        canonicalUrl: d.url || pageUrl,
+        provider: d.provider || 'advanced',
+        generic: Boolean(d.generic),
+        authentic: Boolean(d.authentic),
+        fromAdvancedApi: true,
+      };
+    }
+    return null;
+  } catch (_) {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** Extracción usable de página pública de Facebook (no muro de login / no Unsplash). */
+function isUsableFacebookExtraction(meta) {
+  if (!meta) return false;
+  const title = String(meta.title || '').trim();
+  const desc = String(meta.description || '').trim();
+  const image = String(meta.image || '').trim();
+  if (isGenericFacebookMeta(title, desc) && !isAuthenticFacebookImage(image)) return false;
+  if (/explore the things you love/i.test(title) || /explore the things you love/i.test(desc)) {
+    return false;
+  }
+  const realTitle = Boolean(title && isAuthenticFacebookTitle(title));
+  const realImage =
+    Boolean(image) &&
+    isAuthenticFacebookImage(image) &&
+    !isFacebookContingencyImage(image);
+  const realDesc = Boolean(desc && !isGenericFacebookMeta('', desc) && !isLegacyFacebookDescription(desc));
+  return realTitle || realImage || (realDesc && (realTitle || realImage));
+}
+
+function needsAdvancedScrape(pageUrl) {
+  const brand = detectSocialBrand(pageUrl);
+  return brand === 'facebook' || brand === 'instagram' || brand === 'linkedin';
+}
+
+/**
+ * Extracción: Facebook → ScrapingBee (páginas públicas) → contingencia;
+ * IG/LinkedIn ScrapingBee; resto Microlink.
+ */
+async function extractUrlMetadata(pageUrl) {
+  if (detectSocialBrand(pageUrl) === 'facebook') {
+    try {
+      const advanced = await fetchAdvancedExtractApi(pageUrl);
+      if (isUsableFacebookExtraction(advanced)) {
+        return {
+          ...advanced,
+          facebookSmart: false,
+          authentic: true,
+        };
+      }
+    } catch (_) {
+      /* contingencia */
+    }
+    return getFacebookInstantMetadata(pageUrl);
+  }
+
+  if (needsAdvancedScrape(pageUrl)) {
+    try {
+      const advanced = await fetchAdvancedExtractApi(pageUrl);
+      if (advanced && (advanced.title || advanced.image || advanced.description)) {
+        return { ...advanced, facebookSmart: false, authentic: true };
+      }
+    } catch (_) {
+      /* continuar */
+    }
+  }
+
+  try {
+    let meta = await fetchMicrolinkMetadata(pageUrl);
+    if (meta && !meta.image) {
+      try {
+        const withShot = await fetchMicrolinkMetadata(pageUrl, { screenshot: true });
+        if (withShot) {
+          meta = {
+            title: meta.title || withShot.title,
+            description: meta.description || withShot.description,
+            image: withShot.image || meta.image,
+            canonicalUrl: meta.canonicalUrl || withShot.canonicalUrl,
+          };
+        }
+      } catch (_) {
+        /* screenshot opcional */
+      }
+    }
+    return meta;
+  } catch (_) {
+    return null;
+  }
+}
+
+/** Logos corporativos en SVG (Data URL) para fallbacks de redes sociales */
+const SOCIAL_BRAND_LOGOS = {
+  // Data URL corporativo (azul #1877F2) para vista previa profesional sin Unsplash
+  facebook:
+    'data:image/svg+xml;utf8,' +
+    encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100" height="100"><circle cx="256" cy="256" r="256" fill="#1877F2"/><path d="M504 256C504 119 393 8 256 8S8 119 8 256c0 123.8 90.6 226.4 209.3 245V342.3h-56.5V256h56.5v-65.7c0-55.7 33-86.5 84-86.5 24.4 0 50 4.4 50 4.4v55h-28.1c-27.6 0-36.2 17.1-36.2 34.7V256h62l-9.9 86.3h-52.1V501C413.4 482.4 504 379.8 504 256z" fill="white"/></svg>'
+    ),
+  instagram:
+    'data:image/svg+xml,' +
+    encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100" height="100"><defs><linearGradient id="ig" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f58529"/><stop offset="50%" stop-color="#dd2a7b"/><stop offset="100%" stop-color="#515bd4"/></linearGradient></defs><rect width="512" height="512" rx="64" fill="url(#ig)"/><rect x="120" y="120" width="272" height="272" rx="72" fill="none" stroke="#fff" stroke-width="36"/><circle cx="256" cy="256" r="78" fill="none" stroke="#fff" stroke-width="36"/><circle cx="348" cy="164" r="22" fill="#fff"/></svg>'
+    ),
+  linkedin:
+    'data:image/svg+xml,' +
+    encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100" height="100"><rect width="512" height="512" rx="64" fill="#0A66C2"/><rect x="96" y="196" width="72" height="220" fill="#fff"/><circle cx="132" cy="132" r="40" fill="#fff"/><path d="M244 196h70v34c12-22 38-42 78-42 76 0 90 50 90 116v112h-72V328c0-36-14-60-46-60-34 0-50 24-50 60v88h-70V196z" fill="#fff"/></svg>'
+    ),
+  twitter:
+    'data:image/svg+xml,' +
+    encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100" height="100"><rect width="512" height="512" rx="64" fill="#000"/><path d="M318.6 156H352l-74.2 84.8L364 356h-70.4l-55-72.2L168 356h-34.2l79.4-90.8L148 156h72.2l49.6 66.2L318.6 156zm-12.4 180h21.8L206.6 175.4h-23.4L306.2 336z" fill="#fff"/></svg>'
+    ),
+};
+
+function detectSocialBrand(url) {
+  const raw = String(url || '').toLowerCase();
+  // Detección por contenido de URL (fallback sin metadatos reales)
+  if (raw.includes('facebook.com') || raw.includes('fb.com') || raw.includes('fb.watch')) {
+    return 'facebook';
+  }
+  if (raw.includes('instagram.com')) return 'instagram';
+  if (raw.includes('linkedin.com')) return 'linkedin';
+  if (raw.includes('twitter.com') || /(^|\/\/|\.)x\.com(\/|$|\?|#)/i.test(raw)) {
+    return 'twitter';
+  }
+  try {
+    const host = new URL(url).hostname.replace(/^www\./i, '').toLowerCase();
+    if (host === 'facebook.com' || host.endsWith('.facebook.com') || host === 'fb.com' || host === 'fb.watch' || host.endsWith('.fb.com')) {
+      return 'facebook';
+    }
+    if (host === 'instagram.com' || host.endsWith('.instagram.com')) return 'instagram';
+    if (host === 'linkedin.com' || host.endsWith('.linkedin.com')) return 'linkedin';
+    if (host === 'twitter.com' || host.endsWith('.twitter.com') || host === 'x.com' || host.endsWith('.x.com')) {
+      return 'twitter';
+    }
+  } catch (_) {
+    /* ignore */
+  }
+  return null;
+}
+
+/** Fallback de marca cuando no hay metadatos reales (Facebook, Instagram, LinkedIn, X) */
+function getSocialBrandFallback(brand) {
+  if (!brand || !SOCIAL_BRAND_LOGOS[brand]) return null;
+  return {
+    brand,
+    title: t(`social.${brand}.title`),
+    description: t(`social.${brand}.description`),
+    image: brand === 'facebook' ? getFacebookContingencyLogo() : SOCIAL_BRAND_LOGOS[brand],
+  };
+}
+
+function isBrandLogoImage(src) {
+  const value = String(src || '');
+  if (/^data:image\/svg\+xml/i.test(value)) return true;
+  if (/upload\.wikimedia\.org\/.*Facebook_f_logo/i.test(value)) return true;
+  return false;
+}
+
+function getSupabaseClient() {
+  return window.inboxZeroSupabase || null;
+}
+
+let currentAuthUser = null;
+
+/** Nombre mostrado en el saludo; se sustituye por el del usuario al hacer login real */
+const DEFAULT_GREETING_NAME = 'Creador';
+let greetingDisplayName = DEFAULT_GREETING_NAME;
+
+function escapeHtmlText(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/** Resuelve el nombre a saludar (variable lista para login real) */
+function resolveGreetingDisplayName(user = currentAuthUser) {
+  if (!user) return DEFAULT_GREETING_NAME;
+  const meta = user.user_metadata || {};
+  const fromMeta = meta.full_name || meta.name || meta.display_name || meta.first_name;
+  if (fromMeta && String(fromMeta).trim()) return String(fromMeta).trim();
+  if (user.email) {
+    const local = String(user.email).split('@')[0];
+    if (local) return local;
+  }
+  return DEFAULT_GREETING_NAME;
+}
+
+/** Franja horaria local del sistema del usuario */
+function getGreetingPeriod(date = new Date()) {
+  const hour = date.getHours(); // zona horaria del navegador
+  if (hour >= 6 && hour <= 12) return 'morning';
+  if (hour >= 13 && hour <= 20) return 'afternoon';
+  return 'night'; // 21:00 – 5:59
+}
+
+/**
+ * Saludo dinámico del dashboard según la hora local.
+ * Mañana / tarde / noche + nombre (Creador o usuario registrado).
+ */
+function renderDashboardGreeting(user = currentAuthUser) {
+  const root = document.getElementById('dashboard-greeting');
+  const titleEl = document.getElementById('dashboard-greeting-text');
+  if (!titleEl) return;
+
+  greetingDisplayName = resolveGreetingDisplayName(user);
+  const period = getGreetingPeriod();
+  const safeName = escapeHtmlText(greetingDisplayName);
+  const raw = t(`greeting.${period}`, { name: '[[NAME]]' });
+  let html = escapeHtmlText(raw).replace(
+    '[[NAME]]',
+    `<span class="greeting-name">${safeName}</span>`
+  );
+  // Emojis a escala controlada (☕, ☀️, 🌙, etc.)
+  html = html.replace(
+    /(\p{Extended_Pictographic}\uFE0F?|\p{Emoji_Presentation})/gu,
+    '<span class="greeting-emoji" aria-hidden="true">$1</span>'
+  );
+
+  titleEl.innerHTML = html;
+  if (root) root.dataset.period = period;
+}
+
+function setLoginAuthMessage(text, isError) {
+  const el = document.getElementById('login-auth-message');
+  if (!el) return;
+  el.textContent = text;
+  el.hidden = !text;
+  el.classList.toggle('auth-message--error', Boolean(isError));
+  el.classList.toggle('auth-message--success', Boolean(text && !isError));
+}
+
+function readLoginCredentials() {
+  const email = document.getElementById('login-email')?.value.trim() || '';
+  const password = document.getElementById('login-password')?.value || '';
+  return { email, password };
+}
+
+function updateAuthChrome(user) {
+  currentAuthUser = user || null;
+  const btnLogin = document.getElementById('btn-login-modal');
+  const btnLogout = document.getElementById('btn-logout');
+
+  if (btnLogin) {
+    if (user?.email) {
+      btnLogin.textContent = user.email;
+      btnLogin.title = user.email;
+    } else {
+      btnLogin.textContent = t('header.login');
+      btnLogin.removeAttribute('title');
+    }
+  }
+
+  if (btnLogout) {
+    btnLogout.hidden = !user;
+  }
+
+  renderDashboardGreeting(currentAuthUser);
+}
+
+async function signInWithEmailPassword(email, password) {
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    setLoginAuthMessage(t('auth.notConfigured'), true);
+    return;
+  }
+
+  setLoginAuthMessage('', false);
+  const submitBtn = document.getElementById('btn-submit-login');
+  if (submitBtn) submitBtn.disabled = true;
+
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (submitBtn) submitBtn.disabled = false;
+
+  if (error) {
+    setLoginAuthMessage(error.message, true);
+    return;
+  }
+
+  setLoginAuthMessage(t('auth.signInSuccess'), false);
+  document.getElementById('modal-login')?.classList.remove('active');
+  updateAuthChrome(data.user);
+}
+
+async function signUpWithEmailPassword(email, password) {
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    setLoginAuthMessage(t('auth.notConfigured'), true);
+    return;
+  }
+
+  setLoginAuthMessage('', false);
+  const registerBtn = document.getElementById('btn-register-login');
+  if (registerBtn) registerBtn.disabled = true;
+
+  const redirectTo = `${window.location.origin}${window.location.pathname}`;
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { emailRedirectTo: redirectTo },
+  });
+
+  if (registerBtn) registerBtn.disabled = false;
+
+  if (error) {
+    setLoginAuthMessage(error.message, true);
+    return;
+  }
+
+  if (data.session) {
+    setLoginAuthMessage(t('auth.signUpSuccess'), false);
+    document.getElementById('modal-login')?.classList.remove('active');
+    updateAuthChrome(data.user);
+    return;
+  }
+
+  setLoginAuthMessage(t('auth.signUpConfirmEmail'), false);
+}
+
+async function signOutCurrentUser() {
+  const supabase = getSupabaseClient();
+  if (!supabase) return;
+  await supabase.auth.signOut();
+  updateAuthChrome(null);
+  setLoginAuthMessage('', false);
+}
+
+function setupSupabaseAuth() {
+  const form = document.getElementById('login-form');
+  const registerBtn = document.getElementById('btn-register-login');
+  const logoutBtn = document.getElementById('btn-logout');
+  const supabase = getSupabaseClient();
+
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const { email, password } = readLoginCredentials();
+      if (!email || !password) {
+        setLoginAuthMessage(t('auth.missingCredentials'), true);
+        return;
+      }
+      signInWithEmailPassword(email, password);
+    });
+  }
+
+  if (registerBtn) {
+    registerBtn.addEventListener('click', () => {
+      const { email, password } = readLoginCredentials();
+      if (!email || !password) {
+        setLoginAuthMessage(t('auth.missingCredentials'), true);
+        return;
+      }
+      signUpWithEmailPassword(email, password);
+    });
+  }
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      signOutCurrentUser();
+    });
+  }
+
+  if (!supabase) return;
+
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    updateAuthChrome(session?.user ?? null);
+  });
+
+  supabase.auth.onAuthStateChange((_event, session) => {
+    updateAuthChrome(session?.user ?? null);
+  });
+}
+
+document.addEventListener('i18n:ready', () => {
+  setupSupabaseAuth();
+
+  // Ficha modelo fija: evita el lienzo en blanco y no cuenta en el trial del usuario
+  const WELCOME_CARD_ID = 0;
+  const WELCOME_CARD = Object.freeze({
+    id: WELCOME_CARD_ID,
+    isGuide: true,
+    title: '',
+    description: '',
+    url: 'https://inboxzero.es',
+    category: 'guide',
+    favorite: false,
+    readLater: false,
+    notes: '',
+    image: 'logo.png',
+  });
+
+  const SYSTEM_CATEGORY_KEYS = ['health', 'sports', 'videos', 'guide', 'uncategorized'];
+  const UNCATEGORIZED_ID = 'uncategorized';
+  const LEGACY_CATEGORY_TO_KEY = {
+    'Comida Sana': 'health',
+    'Healthy Food': 'health',
+    'Alimentation saine': 'health',
+    'Gesundes Essen': 'health',
+    'Comida Saudável': 'health',
+    'Ejercicios en Casa': 'sports',
+    'Home Workouts': 'sports',
+    'Exercices à la maison': 'sports',
+    'Übungen zu Hause': 'sports',
+    'Exercícios em Casa': 'sports',
+    'Vídeos Divertidos': 'videos',
+    'Fun Videos': 'videos',
+    'Vidéos amusantes': 'videos',
+    'Lustige Videos': 'videos',
+    'Guía': 'guide',
+    'Guide': 'guide',
+    'Leitfaden': 'guide',
+    'Guia': 'guide',
+    'Ficha Modelo': 'guide',
+    'Model Card': 'guide',
+    'Modellkarte': 'guide',
+    'Fiche modèle': 'guide',
+    'Ficha modelo': 'guide',
+    'Sin categoría': 'uncategorized',
+    'Sin clasificar': 'uncategorized',
+    'Uncategorized': 'uncategorized',
+    'Sans catégorie': 'uncategorized',
+    'Ohne Kategorie': 'uncategorized',
+    'Sem categoria': 'uncategorized',
+  };
+
+  function normalizeCategoryId(raw) {
+    const value = String(raw || '').trim();
+    if (!value) return UNCATEGORIZED_ID;
+    if (SYSTEM_CATEGORY_KEYS.includes(value)) return value;
+    if (LEGACY_CATEGORY_TO_KEY[value]) return LEGACY_CATEGORY_TO_KEY[value];
+    return value;
+  }
+
+  function getCategoryLabel(categoryId) {
+    const id = normalizeCategoryId(categoryId);
+    if (!id) return t('categories.uncategorized');
+    if (id === 'guide') return t('welcome.category');
+    if (id === 'health') return t('categories.health');
+    if (id === 'sports') return t('categories.sports');
+    if (id === 'videos') return t('categories.videos');
+    if (id === 'uncategorized') return t('categories.uncategorized');
+    return id;
+  }
+
+  function getWelcomeTexts() {
+    return {
+      title: t('welcome.title'),
+      description: t('welcome.description'),
+      notes: t('welcome.notes'),
+      category: t('welcome.category'),
+    };
+  }
+
+  let cards = [{ ...WELCOME_CARD }];
+
+  let currentFilter = 'all';
+  let currentCategory = null;
+
+  const cardsGrid = document.getElementById('cards-grid');
+  const trialPlanText = document.getElementById('trial-plan-text');
+  const progressFill = document.getElementById('progress-fill');
+  const showingCounter = document.getElementById('showing-counter');
+  const sectionTitle = document.getElementById('section-title');
+  const urlInput = document.getElementById('url-input');
+  const btnSave = document.getElementById('btn-save-card');
+
+  function isGuideCard(card) {
+    return Boolean(card && (card.isGuide || card.id === WELCOME_CARD_ID));
+  }
+
+  /** Solo fichas reales del usuario (la Guía nunca entra en métricas ni en el trial). */
+  function userCards() {
+    return cards.filter((c) => !isGuideCard(c));
+  }
+
+  /** La Guía queda siempre primera; las fichas nuevas van justo después. */
+  function pinGuideFirst(userList) {
+    const guide = cards.find(isGuideCard) || { ...WELCOME_CARD };
+    const rest = (userList || userCards()).filter((c) => !isGuideCard(c));
+    cards = [guide, ...rest];
+    return cards;
+  }
+
+  function isDemoTestCard(card) {
+    if (!card) return false;
+    const title = String(card.title || '');
+    const description = String(card.description || '');
+    const url = String(card.url || '');
+    return (
+      /^Ficha de prueba #\d+/i.test(title) ||
+      /ficticia generada para simular/i.test(description) ||
+      /inboxzero\.es\/demo\//i.test(url)
+    );
+  }
+
+  function serializeUserCards() {
+    return userCards().map((c) => ({
+      id: c.id,
+      title: c.title,
+      description: c.description,
+      url: c.url,
+      category: c.category,
+      favorite: Boolean(c.favorite),
+      readLater: Boolean(c.readLater),
+      notes: c.notes || '',
+      image: c.image,
+      youtubeId: c.youtubeId || undefined,
+      socialBrand: c.socialBrand || undefined,
+    }));
+  }
+
+  function persistCards() {
+    try {
+      localStorage.setItem(CARDS_STORAGE_KEY, JSON.stringify(serializeUserCards()));
+    } catch (err) {
+      console.warn('[InboxZero] No se pudo guardar en localStorage', err);
+    }
+  }
+
+  function loadCardsFromStorage() {
+    try {
+      const raw = localStorage.getItem(CARDS_STORAGE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return null;
+      return parsed
+        .filter((c) => c && typeof c === 'object' && !c.isGuide && c.id !== WELCOME_CARD_ID)
+        .filter((c) => !isDemoTestCard(c))
+        .map((c) => ({
+          id: Number(c.id) || Date.now(),
+          title: String(c.title || 'Sin título'),
+          description: String(c.description || ''),
+          url: String(c.url || 'https://inboxzero.es'),
+          category: normalizeCategoryId(c.category) || UNCATEGORIZED_ID,
+          favorite: Boolean(c.favorite),
+          readLater: Boolean(c.readLater),
+          notes: String(c.notes || ''),
+          image: String(c.image || 'logo.png'),
+          youtubeId: c.youtubeId || extractYoutubeVideoId(c.url) || undefined,
+          socialBrand: c.socialBrand || detectSocialBrand(c.url) || undefined,
+        }));
+    } catch (err) {
+      console.warn('[InboxZero] No se pudo leer localStorage', err);
+      return null;
+    }
+  }
+
+  function ensureWelcomeCardPresent() {
+    if (!cards.some(isGuideCard)) {
+      cards = [{ ...WELCOME_CARD }, ...cards.filter((c) => !isGuideCard(c))];
+    } else {
+      pinGuideFirst();
+    }
+  }
+
+  // Estado inicial: solo la ficha guía (escritorio del usuario en 0).
+  // Restaura fichas reales desde localStorage y descarta demos "Ficha de prueba #N".
+  const storedUserCards = loadCardsFromStorage() || [];
+  cards = [{ ...WELCOME_CARD }, ...storedUserCards];
+  persistCards();
+
+  function isTrialLimitReached() {
+    return userCards().length >= TRIAL_MAX;
+  }
+
+  function openModal(modalId) {
+    document.getElementById(modalId)?.classList.add('active');
+  }
+
+  function closeModal(modalId) {
+    document.getElementById(modalId)?.classList.remove('active');
+  }
+
+  function openTrialLimitModal() {
+    openModal('modal-trial-limit');
+  }
+
+  function openSubscribeModal() {
+    closeModal('modal-trial-limit');
+    openModal('modal-subscribe');
+  }
+
+  function updateTrialPlanLabel(current) {
+    if (!trialPlanText) return;
+    const vars = { current, max: TRIAL_MAX };
+    trialPlanText.setAttribute('data-i18n-vars', JSON.stringify(vars));
+    trialPlanText.textContent = t('header.trialPlan', vars);
+  }
+
+  function updateShowingCounter(count) {
+    if (!showingCounter) return;
+    const vars = { count };
+    showingCounter.setAttribute('data-i18n-vars', JSON.stringify(vars));
+    showingCounter.textContent = t('main.showingCards', vars);
+  }
+
+  function updateSectionTitle() {
+    if (!sectionTitle) return;
+    if (currentCategory) {
+      sectionTitle.textContent = t('sections.category', { name: getCategoryLabel(currentCategory) });
+    } else if (currentFilter === 'favorites') {
+      sectionTitle.textContent = t('sections.favorites');
+    } else if (currentFilter === 'readLater') {
+      sectionTitle.textContent = t('sections.readLater');
+    } else {
+      sectionTitle.textContent = t('sections.latest');
+    }
+  }
+
+  function setBadgeText(el, value) {
+    if (el) el.textContent = String(value);
+  }
+
+  function getActiveCategories() {
+    const counts = new Map();
+    userCards().forEach((card) => {
+      const id = normalizeCategoryId(card.category);
+      if (!id || id === 'guide') return;
+      counts.set(id, (counts.get(id) || 0) + 1);
+    });
+    return Array.from(counts.entries())
+      .map(([id, count]) => ({
+        id,
+        name: id,
+        label: getCategoryLabel(id),
+        count,
+      }))
+      .sort((a, b) => {
+        // "Sin clasificar" primero; el resto alfabético
+        if (a.id === UNCATEGORIZED_ID) return -1;
+        if (b.id === UNCATEGORIZED_ID) return 1;
+        return a.label.localeCompare(b.label, undefined, { sensitivity: 'base' });
+      });
+  }
+
+  function populateEditCategorySelect(selectedId) {
+    const select = document.getElementById('edit-category-select');
+    if (!select) return;
+
+    const categories = getActiveCategories();
+    const selected = normalizeCategoryId(selectedId) || UNCATEGORIZED_ID;
+    select.replaceChildren();
+
+    // Opción por defecto siempre disponible y seleccionada si no hay otra
+    const uncategorizedOpt = document.createElement('option');
+    uncategorizedOpt.value = UNCATEGORIZED_ID;
+    uncategorizedOpt.textContent = t('categories.uncategorized');
+    select.appendChild(uncategorizedOpt);
+
+    categories.forEach(({ id, label }) => {
+      if (id === UNCATEGORIZED_ID) return; // ya añadida arriba
+      const opt = document.createElement('option');
+      opt.value = id;
+      opt.textContent = label;
+      select.appendChild(opt);
+    });
+
+    // Si la ficha tiene una categoría real aún no listada, incluirla
+    if (selected && selected !== 'guide' && selected !== UNCATEGORIZED_ID
+        && !categories.some((c) => c.id === selected)) {
+      const opt = document.createElement('option');
+      opt.value = selected;
+      opt.textContent = getCategoryLabel(selected);
+      select.appendChild(opt);
+    }
+
+    if (selected && selected !== 'guide' && Array.from(select.options).some((o) => o.value === selected)) {
+      select.value = selected;
+    } else {
+      select.value = UNCATEGORIZED_ID;
+    }
+
+    clearCategoryValidation();
+  }
+
+  function clearCategoryValidation() {
+    const select = document.getElementById('edit-category-select');
+    const newCatInput = document.getElementById('edit-new-category-input');
+    const errorEl = document.getElementById('edit-category-error');
+    const group = document.getElementById('edit-category-group');
+    select?.classList.remove('is-invalid');
+    newCatInput?.classList.remove('is-invalid');
+    group?.classList.remove('has-error');
+    if (errorEl) errorEl.hidden = true;
+  }
+
+  function showCategoryValidation() {
+    const select = document.getElementById('edit-category-select');
+    const newCatInput = document.getElementById('edit-new-category-input');
+    const errorEl = document.getElementById('edit-category-error');
+    const group = document.getElementById('edit-category-group');
+    select?.classList.add('is-invalid');
+    newCatInput?.classList.add('is-invalid');
+    group?.classList.add('has-error');
+    if (errorEl) {
+      errorEl.textContent = t('edit.categoryRequired');
+      errorEl.hidden = false;
+    }
+    select?.focus();
+  }
+
+  function selectCategoryFilter(categoryName) {
+    currentCategory = normalizeCategoryId(categoryName);
+    currentFilter = 'all';
+    renderCards();
+    document.querySelectorAll('.dropdown-wrapper').forEach((w) => w.classList.remove('active'));
+  }
+
+  function renderCategoryMenus() {
+    const categories = getActiveCategories();
+    const hasCategories = categories.length > 0;
+
+    if (currentCategory && !categories.some((c) => c.id === currentCategory)) {
+      currentCategory = null;
+    }
+
+    const sidebarList = document.getElementById('sidebar-category-list');
+    const sidebarHeading = document.getElementById('sidebar-categories-heading');
+    if (sidebarHeading) sidebarHeading.hidden = !hasCategories;
+    if (sidebarList) {
+      sidebarList.replaceChildren();
+      categories.forEach(({ id, label, count }) => {
+        const li = document.createElement('li');
+        const link = document.createElement('a');
+        link.href = '#';
+        link.className = `filter-cat${currentCategory === id ? ' active' : ''}`;
+        link.dataset.cat = id;
+        link.textContent = `📁 ${label}`;
+        const badge = document.createElement('span');
+        badge.className = 'badge';
+        badge.textContent = String(count);
+        li.append(link, ' ', badge);
+        sidebarList.appendChild(li);
+      });
+    }
+
+    const dropdownList = document.getElementById('dropdown-category-list');
+    const dropdownDivider = document.getElementById('dropdown-categories-divider');
+    const dropdownTitle = document.getElementById('dropdown-categories-title');
+    if (dropdownDivider) dropdownDivider.hidden = !hasCategories;
+    if (dropdownTitle) dropdownTitle.hidden = !hasCategories;
+    if (dropdownList) {
+      dropdownList.replaceChildren();
+      categories.forEach(({ id, label, count }) => {
+        const link = document.createElement('a');
+        link.href = '#';
+        link.className = 'filter-cat';
+        link.dataset.cat = id;
+        link.append(`📁 ${label} `);
+        const badge = document.createElement('span');
+        badge.className = 'badge';
+        badge.textContent = String(count);
+        link.appendChild(badge);
+        dropdownList.appendChild(link);
+      });
+    }
+
+    // Mantener el selector del modal sincronizado (vacío si no hay categorías reales)
+    const editModal = document.getElementById('modal-edit');
+    if (editModal?.classList.contains('active')) {
+      const editingId = parseInt(document.getElementById('edit-card-id')?.value, 10);
+      const editingCard = cards.find((c) => c.id === editingId);
+      populateEditCategorySelect(editingCard && !isGuideCard(editingCard) ? editingCard.category : '');
+    } else {
+      populateEditCategorySelect('');
+    }
+  }
+
+  function updateLibraryCounters() {
+    const userOnly = userCards();
+    const totalCount = userOnly.length;
+    const favCount = userOnly.filter((c) => c.favorite).length;
+    const readCount = userOnly.filter((c) => c.readLater).length;
+
+    setBadgeText(document.getElementById('badge-all'), totalCount);
+    setBadgeText(document.getElementById('badge-fav'), favCount);
+    setBadgeText(document.getElementById('badge-read'), readCount);
+
+    document.querySelectorAll('.filter-link[data-filter="all"] .badge').forEach((el) => {
+      setBadgeText(el, totalCount);
+    });
+    document.querySelectorAll('.filter-link[data-filter="favorites"] .badge').forEach((el) => {
+      setBadgeText(el, favCount);
+    });
+    document.querySelectorAll('.filter-link[data-filter="readLater"] .badge').forEach((el) => {
+      setBadgeText(el, readCount);
+    });
+
+    renderCategoryMenus();
+  }
+
+  /** Contingencia solo si la ficha Facebook no tiene datos reales de ScrapingBee. */
+  function normalizeFacebookCards() {
+    userCards().forEach((card) => {
+      if (detectSocialBrand(card.url) !== 'facebook') return;
+      card.socialBrand = 'facebook';
+      // No pisar extracción auténtica (título/portada reales de la página pública)
+      if (card.facebookAuthentic) return;
+      if (!card.title || isUglyFacebookTitle(card.title)) {
+        card.title = getFacebookDefaultTitle();
+      }
+      if (isLegacyFacebookDescription(card.description)) {
+        card.description = getFacebookDefaultDescription();
+      }
+      if (!card.image || isFacebookContingencyImage(card.image)) {
+        card.image = getFacebookContingencyLogo();
+      }
+      card.facebookSmart = true;
+    });
+  }
+
+  function renderCards() {
+    ensureWelcomeCardPresent();
+    normalizeFacebookCards();
+
+    // Si la categoría activa ya no tiene fichas, volver a la vista general
+    const activeCats = getActiveCategories();
+    if (currentCategory && !activeCats.some((c) => c.id === currentCategory)) {
+      currentCategory = null;
+    }
+
+    let filtered = cards.filter((card) => {
+      // Guía fija: visible al inicio de "Últimas / Todas", nunca en fav, later ni categorías
+      if (isGuideCard(card)) {
+        return !currentCategory && currentFilter === 'all';
+      }
+      if (currentCategory) {
+        return normalizeCategoryId(card.category) === currentCategory;
+      }
+      if (currentFilter === 'favorites') return card.favorite;
+      if (currentFilter === 'readLater') return card.readLater;
+      return true; // 'all'
+    });
+
+    // Garantizar que la Guía, si entra en la vista, va siempre la primera
+    const guideInView = filtered.find(isGuideCard);
+    if (guideInView) {
+      filtered = [guideInView, ...filtered.filter((c) => !isGuideCard(c))];
+    }
+
+    cardsGrid.innerHTML = '';
+
+    if (filtered.length === 0) {
+      cardsGrid.innerHTML = `<p style="color: #6b7280; font-size: 14px; grid-column: 1/-1;">${t('main.emptyView')}</p>`;
+    } else {
+      filtered.forEach((card) => {
+        const guide = isGuideCard(card);
+        const welcome = guide ? getWelcomeTexts() : null;
+        const displayTitle = welcome ? welcome.title : card.title;
+        const displayDescription = welcome ? welcome.description : card.description;
+        const displayCategory = welcome
+          ? welcome.category
+          : getCategoryLabel(card.category || UNCATEGORIZED_ID);
+        const cardEl = document.createElement('div');
+        cardEl.className = guide ? 'card-item card-item--guide' : 'card-item';
+        cardEl.dataset.cardId = String(card.id);
+        if (guide) cardEl.dataset.guide = '1';
+
+        const deleteBtn = guide
+          ? `<button type="button" class="card-btn-action card-btn-action--locked" disabled title="Ficha modelo: no se puede borrar">🔒</button>`
+          : `<button type="button" class="card-btn-action" data-action="delete" data-id="${card.id}" title="${t('cards.deleteTitle')}">🗑️</button>`;
+
+        const favBtn = guide
+          ? ''
+          : `<button type="button" class="card-btn-action ${card.favorite ? 'active-fav' : ''}" data-action="favorite" data-id="${card.id}" title="${t('cards.favoriteTitle')}">⭐</button>`;
+
+        const readBtn = guide
+          ? ''
+          : `<button type="button" class="card-btn-action ${card.readLater ? 'active-read' : ''}" data-action="readLater" data-id="${card.id}" title="${t('cards.readLaterTitle')}">⏰</button>`;
+
+        const thumbSrc = card.image || CARD_THUMB_PLACEHOLDER;
+        const thumbAlt = escapeHtmlAttr(displayTitle || t('cards.thumbAlt') || 'Vista previa del enlace');
+        const brand = card.socialBrand || detectSocialBrand(card.url);
+        const brandThumb = Boolean(brand && isBrandLogoImage(thumbSrc));
+        // Logo Wikimedia / SVG de contingencia Facebook (nunca YouTube / Unsplash)
+        const fbLogoThumb = Boolean(
+          brand === 'facebook' && isFacebookContingencyImage(thumbSrc)
+        );
+        const thumbClass = [
+          'card-thumb',
+          guide || (brandThumb && !fbLogoThumb) ? 'card-thumb--logo' : '',
+          brandThumb && !fbLogoThumb ? `card-thumb--brand card-thumb--brand-${brand}` : '',
+          fbLogoThumb ? 'card-thumb--facebook-smart object-contain bg-blue-50 p-4' : '',
+        ].filter(Boolean).join(' ');
+
+        cardEl.innerHTML = `
+          <span class="card-top-tag">${displayCategory.toUpperCase()}</span>
+          <div class="card-content-box">
+            <img
+              src="${escapeHtmlAttr(thumbSrc)}"
+              class="${thumbClass}"
+              alt="${thumbAlt}"
+              loading="lazy"
+              decoding="async"
+              onerror="handleCardThumbError(this)"
+            >
+            <div class="card-details">
+              <h3 class="card-title line-clamp-2">${escapeHtmlText(displayTitle)}</h3>
+              <p class="card-desc line-clamp-3 text-sm text-gray-600">${escapeHtmlText(displayDescription)}</p>
+              <a href="${escapeHtmlAttr(card.url)}" target="_blank" rel="noopener noreferrer" class="card-link">${escapeHtmlText(card.url)}</a>
+            </div>
+          </div>
+          <div class="card-footer-actions">
+            ${favBtn}
+            ${readBtn}
+            <button type="button" class="card-btn-action" data-action="edit" data-id="${card.id}" title="${t('cards.editTitle')}">✏️</button>
+            ${deleteBtn}
+          </div>
+        `;
+        cardsGrid.appendChild(cardEl);
+      });
+    }
+
+    // Métricas: solo fichas reales (la Guía no suma)
+    const trialCount = userCards().length;
+    updateTrialPlanLabel(trialCount);
+    if (progressFill) {
+      progressFill.style.width = `${Math.min((trialCount / TRIAL_MAX) * 100, 100)}%`;
+    }
+    const shownUserCount = filtered.filter((c) => !isGuideCard(c)).length;
+    updateShowingCounter(
+      currentFilter === 'all' && !currentCategory ? trialCount : shownUserCount
+    );
+    updateSectionTitle();
+    updateLibraryCounters();
+    persistCards();
+  }
+
+  // Guardar nueva ficha: extracción inteligente con Microlink + modal editable
+  if (btnSave && urlInput) {
+    btnSave.addEventListener('click', async () => {
+      const val = urlInput.value.trim();
+      if (!val) {
+        alert(t('messages.invalidUrlOrTitle'));
+        return;
+      }
+
+      if (isTrialLimitReached()) {
+        openTrialLimitModal();
+        return;
+      }
+
+      let finalTitle = val;
+      let finalUrl = val;
+      let finalDesc = '';
+      let finalImage = '';
+      let youtubeId = null;
+      let socialBrand = null;
+      let microlinkOk = false;
+      let facebookSmart = false;
+      let facebookAuthentic = false;
+
+      const prevBtnLabel = btnSave.textContent;
+      btnSave.disabled = true;
+      btnSave.setAttribute('aria-busy', 'true');
+
+      try {
+        if (val.startsWith('http://') || val.startsWith('https://')) {
+          try {
+            finalUrl = new URL(val).href;
+          } catch (_) {
+            finalUrl = val;
+          }
+
+          youtubeId = extractYoutubeVideoId(finalUrl);
+          socialBrand = detectSocialBrand(finalUrl) || undefined;
+
+          // Facebook páginas públicas → ScrapingBee (datos reales); si falla, contingencia
+          try {
+            const meta = await extractUrlMetadata(finalUrl);
+            if (meta) {
+              microlinkOk = true;
+              facebookSmart = Boolean(meta.facebookSmart);
+              facebookAuthentic = Boolean(meta.authentic);
+              if (meta.title) finalTitle = meta.title;
+              if (meta.description) finalDesc = meta.description;
+              if (meta.image) finalImage = meta.image;
+              if (meta.canonicalUrl) finalUrl = meta.canonicalUrl;
+            }
+          } catch (_) {
+            microlinkOk = false;
+          }
+
+          if (socialBrand === 'facebook' && !facebookAuthentic) {
+            const instant = getFacebookInstantMetadata(finalUrl);
+            if (!finalTitle || isUglyFacebookTitle(finalTitle)) finalTitle = instant.title;
+            if (!finalDesc || isLegacyFacebookDescription(finalDesc) || isGenericFacebookMeta('', finalDesc)) {
+              finalDesc = instant.description;
+            }
+            if (!finalImage || isBrandLogoImage(finalImage)) finalImage = instant.image;
+            facebookSmart = true;
+            microlinkOk = true;
+          }
+
+          if (!microlinkOk || !finalTitle) {
+            try {
+              finalTitle = finalTitle || new URL(finalUrl).hostname;
+            } catch (_) {
+              finalTitle = finalTitle || finalUrl;
+            }
+          }
+          if (!finalDesc) finalDesc = '';
+          if (!finalImage && youtubeId && socialBrand !== 'facebook') {
+            finalImage = getYoutubeThumbUrl(youtubeId, 'maxresdefault');
+          }
+          // Facebook: nunca YouTube/Unsplash; logo Wikimedia de contingencia
+          if (socialBrand === 'facebook' && (!finalImage || isFacebookContingencyImage(finalImage))) {
+            if (!facebookAuthentic) {
+              finalImage = getFacebookContingencyLogo();
+              facebookSmart = true;
+            }
+          }
+        } else {
+          finalUrl =
+            'https://inboxzero.es/recurso/' +
+            encodeURIComponent(val.toLowerCase().replace(/\s+/g, '-'));
+          finalDesc = t('messages.manualCardDesc');
+        }
+
+        const newCard = {
+          id: Date.now(),
+          title: finalTitle,
+          description: finalDesc,
+          url: finalUrl,
+          // Categoría por defecto: Sin clasificar
+          category: normalizeCategoryId(currentCategory) || UNCATEGORIZED_ID,
+          favorite: false,
+          readLater: false,
+          notes: '',
+          image: finalImage,
+          youtubeId: youtubeId || undefined,
+          socialBrand: socialBrand || undefined,
+          facebookSmart: facebookSmart || undefined,
+          facebookAuthentic: facebookAuthentic || undefined,
+        };
+
+        pinGuideFirst([newCard, ...userCards()]);
+        urlInput.value = '';
+        currentCategory = null;
+        currentFilter = 'all';
+        renderCards();
+
+        // Abrir modal editable siempre (con datos reales o vacíos/editables)
+        openEditModal(newCard.id);
+
+        // YouTube: oEmbed solo si Microlink no trajo título útil
+        if (youtubeId && !microlinkOk) {
+          enrichYoutubeCardMetadata(newCard.id, finalUrl, youtubeId);
+        }
+      } catch (_) {
+        // Último recurso: no bloquear la UI
+        try {
+          const emergencyId = Date.now();
+          pinGuideFirst([
+            {
+              id: emergencyId,
+              title: val,
+              description: '',
+              url: finalUrl || val,
+              category: UNCATEGORIZED_ID,
+              favorite: false,
+              readLater: false,
+              notes: '',
+              image: '',
+            },
+            ...userCards(),
+          ]);
+          urlInput.value = '';
+          renderCards();
+          openEditModal(emergencyId);
+        } catch (__) {
+          /* ignore */
+        }
+      } finally {
+        btnSave.disabled = false;
+        btnSave.removeAttribute('aria-busy');
+        if (prevBtnLabel) btnSave.textContent = prevBtnLabel;
+      }
+    });
+
+    urlInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') btnSave.click();
+    });
+  }
+
+  async function enrichYoutubeCardMetadata(cardId, pageUrl, videoId) {
+    const meta = await fetchYoutubeOEmbed(pageUrl);
+    const card = cards.find((c) => c.id === cardId);
+    if (!card || isGuideCard(card)) return;
+
+    let changed = false;
+
+    if (meta?.title) {
+      card.title = String(meta.title);
+      changed = true;
+    }
+
+    if (meta?.author_name) {
+      card.description = t('messages.youtubeFromAuthor', { author: meta.author_name });
+      changed = true;
+    }
+
+    if (meta?.thumbnail_url) {
+      card.image = String(meta.thumbnail_url);
+      changed = true;
+    } else if (!/i\.ytimg\.com\/vi\//i.test(String(card.image || ''))) {
+      card.image = getYoutubeThumbUrl(videoId, 'maxresdefault');
+      changed = true;
+    }
+
+    card.youtubeId = videoId;
+
+    if (!changed) return;
+
+    persistCards();
+    renderCards();
+
+    // Si el modal de edición está abierto para esta ficha, refrescar con datos reales
+    const editModal = document.getElementById('modal-edit');
+    const editingId = parseInt(document.getElementById('edit-card-id')?.value, 10);
+    if (editModal?.classList.contains('active') && editingId === cardId) {
+      openEditModal(cardId);
+    }
+  }
+
+  function toggleFavorite(id) {
+    const card = cards.find(c => c.id === id);
+    if (!card || isGuideCard(card)) return;
+    card.favorite = !card.favorite;
+    renderCards();
+  }
+
+  function toggleReadLater(id) {
+    const card = cards.find(c => c.id === id);
+    if (!card || isGuideCard(card)) return;
+    card.readLater = !card.readLater;
+    renderCards();
+  }
+
+  let pendingDeleteId = null;
+
+  function closeDeleteConfirmModal() {
+    pendingDeleteId = null;
+    closeModal('modal-confirm-delete');
+  }
+
+  function openDeleteConfirmModal(id) {
+    const card = cards.find((c) => c.id === id);
+    if (!card || isGuideCard(card)) return;
+    pendingDeleteId = id;
+    openModal('modal-confirm-delete');
+  }
+
+  function confirmDeleteCard() {
+    if (pendingDeleteId == null) return;
+    const id = pendingDeleteId;
+    pendingDeleteId = null;
+    cards = cards.filter((c) => c.id !== id);
+    ensureWelcomeCardPresent();
+    closeModal('modal-confirm-delete');
+    renderCards();
+  }
+
+  /** Abre el modal de confirmación (sin confirm() nativo del navegador) */
+  function deleteCard(id) {
+    openDeleteConfirmModal(id);
+  }
+
+  function openEditModal(id) {
+    const card = cards.find(c => c.id === id);
+    const modal = document.getElementById('modal-edit');
+    if (!card || !modal) return;
+
+    const setValue = (elId, value) => {
+      const el = document.getElementById(elId);
+      if (el) el.value = value;
+    };
+    const setChecked = (elId, value) => {
+      const el = document.getElementById(elId);
+      if (el) el.checked = value;
+    };
+
+    const guide = isGuideCard(card);
+    const welcome = guide ? getWelcomeTexts() : null;
+
+    setValue('edit-card-id', card.id);
+    setValue('edit-title-input', welcome ? welcome.title : card.title);
+    setValue('edit-desc-input', welcome ? welcome.description : card.description);
+    populateEditCategorySelect(guide ? UNCATEGORIZED_ID : (card.category || UNCATEGORIZED_ID));
+    setValue('edit-new-category-input', welcome ? welcome.category : '');
+
+    // YouTube: miniatura nativa si aún no hay imagen (Microlink tiene prioridad al guardar)
+    if (!guide) {
+      const ytId = card.youtubeId || extractYoutubeVideoId(card.url);
+      const socialForThumb = detectSocialBrand(card.url);
+      // Nunca asignar miniatura YouTube a fichas Facebook
+      if (ytId && socialForThumb !== 'facebook') {
+        card.youtubeId = ytId;
+        if (!card.image || /unsplash\.com/i.test(card.image)) {
+          card.image = getYoutubeThumbUrl(ytId, 'maxresdefault');
+        }
+      }
+      card.socialBrand = card.socialBrand || socialForThumb || undefined;
+    }
+
+    const isFacebookCard = !guide && detectSocialBrand(card.url) === 'facebook';
+
+    // Facebook: datos reales de ScrapingBee si existen; si no, logo Wikimedia oficial
+    if (isFacebookCard) {
+      card.socialBrand = 'facebook';
+      card.youtubeId = undefined;
+      if (!card.facebookAuthentic || isFacebookContingencyImage(card.image)) {
+        if (!card.title || isUglyFacebookTitle(card.title)) {
+          card.title = getFacebookDefaultTitle();
+        }
+        if (isLegacyFacebookDescription(card.description)) {
+          card.description = getFacebookDefaultDescription();
+        }
+        if (!card.image || isFacebookContingencyImage(card.image)) {
+          card.image = getFacebookContingencyLogo();
+        }
+        if (isFacebookContingencyImage(card.image)) {
+          card.facebookAuthentic = false;
+          card.facebookSmart = true;
+        }
+      } else {
+        card.facebookSmart = false;
+      }
+      setValue('edit-title-input', card.title);
+      setValue('edit-desc-input', card.description);
+      const fbImageUrl = card.image || getFacebookContingencyLogo();
+      setValue('edit-image-input', fbImageUrl);
+    } else {
+      setValue('edit-image-input', card.image || '');
+    }
+
+    setValue('edit-notes-input', welcome ? welcome.notes : (card.notes || ''));
+
+    const preview = document.getElementById('edit-preview-img');
+    const previewFrame = preview?.closest('.edit-preview-frame');
+    if (preview) {
+      preview.onerror = function onPreviewError() {
+        handleCardThumbError(this);
+      };
+      preview.removeAttribute('data-fallback-applied');
+      preview.removeAttribute('data-yt-hq-tried');
+      preview.classList.remove('card-thumb--fallback');
+      preview.src = isFacebookCard
+        ? (card.image || getFacebookContingencyLogo())
+        : (card.image || '');
+      const brand = card.socialBrand || detectSocialBrand(card.url);
+      const isLogo = guide || /logo\.png$/i.test(String(card.image || '')) || isBrandLogoImage(card.image);
+      const isBrand = Boolean(brand && isBrandLogoImage(card.image) && brand !== 'facebook');
+      // Logo Wikimedia / SVG: marco azul con la "f" oficial
+      const isFbLogoPreview = Boolean(
+        isFacebookCard && isFacebookContingencyImage(card.image || getFacebookContingencyLogo())
+      );
+      preview.classList.toggle('edit-preview-large--logo', isLogo && !isBrand && !isFbLogoPreview);
+      preview.classList.toggle('edit-preview--brand', isBrand && !isFbLogoPreview);
+      preview.classList.toggle('edit-preview--facebook-smart', isFbLogoPreview);
+      preview.classList.toggle('object-contain', isFbLogoPreview);
+      ['facebook', 'instagram', 'linkedin', 'twitter'].forEach((b) => {
+        preview.classList.toggle(`edit-preview--brand-${b}`, brand === b && isBrand && !isFbLogoPreview);
+      });
+      if (previewFrame) {
+        previewFrame.classList.toggle('edit-preview-frame--logo', isLogo && !isBrand && !isFbLogoPreview);
+        previewFrame.classList.toggle('edit-preview-frame--brand', isBrand && !isFbLogoPreview);
+        previewFrame.classList.toggle('edit-preview-frame--facebook-smart', isFbLogoPreview);
+        previewFrame.classList.toggle('bg-blue-50', isFbLogoPreview);
+        previewFrame.classList.toggle('p-4', isFbLogoPreview);
+        ['facebook', 'instagram', 'linkedin', 'twitter'].forEach((b) => {
+          previewFrame.classList.toggle(
+            `edit-preview-frame--brand-${b}`,
+            brand === b && isBrand && !isFbLogoPreview
+          );
+        });
+      }
+    }
+
+    setChecked('edit-fav-check', guide ? false : card.favorite);
+    setChecked('edit-read-check', guide ? false : card.readLater);
+
+    const visitLink = document.getElementById('edit-visit-link');
+    if (visitLink) visitLink.href = card.url;
+
+    modal.classList.add('active');
+
+    // Título enfocado y totalmente seleccionado para sobrescribir al instante
+    if (!guide) {
+      const focusTitle = () => {
+        const titleInput = document.getElementById('edit-title-input');
+        if (!titleInput) return;
+        titleInput.focus({ preventScroll: true });
+        titleInput.select();
+      };
+      requestAnimationFrame(() => {
+        focusTitle();
+        setTimeout(focusTitle, 40);
+      });
+    }
+
+    // Si es YouTube y aún tiene título genérico, enriquecer en caliente
+    if (!guide) {
+      const ytId = card.youtubeId || extractYoutubeVideoId(card.url);
+      if (ytId && (!card.title || /Recursos de youtube|Resources from youtube|Video de YouTube \(ID:/i.test(card.title))) {
+        enrichYoutubeCardMetadata(card.id, card.url, ytId);
+      }
+    }
+  }
+
+  // Reconectar acciones de tarjeta por delegación (evita onclick inline rotos)
+  if (cardsGrid && !cardsGrid.dataset.actionsBound) {
+    cardsGrid.dataset.actionsBound = '1';
+    cardsGrid.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-action][data-id]');
+      if (!btn || !cardsGrid.contains(btn)) return;
+
+      const action = btn.getAttribute('data-action');
+      const id = Number(btn.getAttribute('data-id'));
+      if (!Number.isFinite(id)) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (action === 'favorite') toggleFavorite(id);
+      else if (action === 'readLater') toggleReadLater(id);
+      else if (action === 'edit') openEditModal(id);
+      else if (action === 'delete') deleteCard(id);
+    });
+  }
+
+  document.getElementById('btn-confirm-delete')?.addEventListener('click', () => {
+    confirmDeleteCard();
+  });
+
+  document.getElementById('modal-confirm-delete')?.addEventListener('click', (e) => {
+    // Clic fuera del cuadro: cerrar sin borrar
+    if (e.target.id === 'modal-confirm-delete') {
+      closeDeleteConfirmModal();
+    }
+  });
+
+  document.querySelectorAll('[data-close="modal-confirm-delete"]').forEach((el) => {
+    el.addEventListener('click', () => {
+      pendingDeleteId = null;
+    });
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const deleteModal = document.getElementById('modal-confirm-delete');
+    if (deleteModal?.classList.contains('active')) {
+      closeDeleteConfirmModal();
+      return;
+    }
+    const retentionModal = document.getElementById('modal-retention');
+    if (retentionModal?.classList.contains('active')) {
+      closeRetentionModal();
+    }
+  });
+
+  // Modal de retención inteligente (baja de suscripción)
+  function resetRetentionModalView() {
+    const formView = document.getElementById('retention-form-view');
+    const successView = document.getElementById('retention-success-view');
+    if (formView) formView.hidden = false;
+    if (successView) successView.hidden = true;
+    document.querySelectorAll('input[name="retention-reason"]').forEach((input) => {
+      input.checked = false;
+    });
+  }
+
+  function openRetentionModal() {
+    resetRetentionModalView();
+    openModal('modal-retention');
+  }
+
+  function closeRetentionModal() {
+    closeModal('modal-retention');
+    resetRetentionModalView();
+  }
+
+  function getRetentionReasons() {
+    return Array.from(document.querySelectorAll('input[name="retention-reason"]:checked')).map(
+      (el) => el.value
+    );
+  }
+
+  function confirmRetentionCancel() {
+    const reasons = getRetentionReasons();
+    console.log('[InboxZero] Solicitud de baja de suscripción', {
+      reasons,
+      at: new Date().toISOString(),
+    });
+
+    const formView = document.getElementById('retention-form-view');
+    const successView = document.getElementById('retention-success-view');
+    if (formView) formView.hidden = true;
+    if (successView) successView.hidden = false;
+
+    window.setTimeout(() => {
+      closeRetentionModal();
+    }, 2200);
+  }
+
+  document.getElementById('btn-unsubscribe-side')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    openRetentionModal();
+  });
+
+  document.getElementById('btn-retention-keep')?.addEventListener('click', () => {
+    closeRetentionModal();
+  });
+
+  document.getElementById('btn-retention-support')?.addEventListener('click', () => {
+    console.log('[InboxZero] Retención: usuario eligió hablar con soporte');
+    closeRetentionModal();
+  });
+
+  document.getElementById('btn-retention-confirm')?.addEventListener('click', () => {
+    confirmRetentionCancel();
+  });
+
+  document.getElementById('btn-retention-success-close')?.addEventListener('click', () => {
+    closeRetentionModal();
+  });
+
+  document.getElementById('modal-retention')?.addEventListener('click', (e) => {
+    if (e.target.id === 'modal-retention') {
+      closeRetentionModal();
+    }
+  });
+
+  document.querySelectorAll('[data-close="modal-retention"]').forEach((el) => {
+    el.addEventListener('click', () => {
+      closeRetentionModal();
+    });
+  });
+
+  // Compatibilidad por si algún markup antiguo aún usa window.*
+  window.toggleFavorite = toggleFavorite;
+  window.toggleReadLater = toggleReadLater;
+  window.deleteCard = deleteCard;
+  window.openEditModal = openEditModal;
+
+  const btnSaveEdit = document.getElementById('btn-save-edit');
+  if (btnSaveEdit) {
+    btnSaveEdit.addEventListener('click', () => {
+      const id = parseInt(document.getElementById('edit-card-id')?.value, 10);
+      const card = cards.find(c => c.id === id);
+      if (!card) return;
+
+      // La ficha guía permanece blindada: textos viven en i18n (welcome.*), no se fijan en español
+      if (isGuideCard(card)) {
+        const imageVal = document.getElementById('edit-image-input')?.value;
+        if (imageVal !== undefined && imageVal.trim()) {
+          card.image = imageVal.trim();
+          const preview = document.getElementById('edit-preview-img');
+          if (preview) preview.src = card.image;
+        }
+        card.title = '';
+        card.description = '';
+        card.notes = '';
+        card.favorite = false;
+        card.readLater = false;
+        card.isGuide = true;
+        card.category = 'guide';
+        document.getElementById('modal-edit')?.classList.remove('active');
+        renderCards();
+        return;
+      }
+
+      card.title = document.getElementById('edit-title-input')?.value || card.title;
+      card.description = document.getElementById('edit-desc-input')?.value || card.description;
+
+      const newCat = document.getElementById('edit-new-category-input')?.value.trim();
+      const selected = document.getElementById('edit-category-select')?.value;
+      // Por defecto: "Sin clasificar" si no elige ni escribe otra
+      const resolvedCategory = newCat
+        ? (normalizeCategoryId(newCat) || newCat)
+        : (normalizeCategoryId(selected) || UNCATEGORIZED_ID);
+
+      clearCategoryValidation();
+      card.category = resolvedCategory;
+
+      const imageVal = (document.getElementById('edit-image-input')?.value || '').trim();
+      if (detectSocialBrand(card.url) === 'facebook') {
+        card.socialBrand = 'facebook';
+        card.youtubeId = undefined;
+        if (imageVal && !isFacebookContingencyImage(imageVal) && !/ytimg\.com|unsplash\.com/i.test(imageVal)) {
+          card.image = imageVal;
+        } else if (
+          card.facebookAuthentic &&
+          isAuthenticFacebookImage(card.image) &&
+          !isFacebookContingencyImage(card.image)
+        ) {
+          /* conservar portada real extraída */
+        } else {
+          card.image = getFacebookContingencyLogo();
+        }
+        const hasReal =
+          !isFacebookContingencyImage(card.image) &&
+          (card.facebookAuthentic ||
+            (isAuthenticFacebookTitle(card.title) && isAuthenticFacebookImage(card.image)));
+        card.facebookSmart = !hasReal;
+        card.facebookAuthentic = Boolean(hasReal);
+        if (!hasReal) {
+          if (isLegacyFacebookDescription(card.description)) {
+            card.description = getFacebookDefaultDescription();
+          }
+          if (!card.title || isUglyFacebookTitle(card.title)) {
+            card.title = getFacebookDefaultTitle();
+          }
+        }
+      } else {
+        card.image = imageVal;
+      }
+      const preview = document.getElementById('edit-preview-img');
+      if (preview) preview.src = card.image || '';
+
+      card.favorite = Boolean(document.getElementById('edit-fav-check')?.checked);
+      card.readLater = Boolean(document.getElementById('edit-read-check')?.checked);
+      card.notes = document.getElementById('edit-notes-input')?.value || '';
+
+      document.getElementById('modal-edit')?.classList.remove('active');
+      renderCards();
+    });
+  }
+
+  // Limpiar error de categoría al elegir/escribir
+  document.getElementById('edit-category-select')?.addEventListener('change', clearCategoryValidation);
+  document.getElementById('edit-new-category-input')?.addEventListener('input', clearCategoryValidation);
+
+  document.querySelectorAll('.filter-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      currentFilter = link.getAttribute('data-filter');
+      currentCategory = null;
+      renderCards();
+      document.querySelectorAll('.dropdown-wrapper').forEach(w => w.classList.remove('active'));
+    });
+  });
+
+  // Categorías dinámicas: delegación (sidebar + desplegable Mi Biblioteca)
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('.filter-cat[data-cat]');
+    if (!link) return;
+    e.preventDefault();
+    const cat = link.getAttribute('data-cat');
+    if (!cat) return;
+    selectCategoryFilter(cat);
+  });
+
+  const btnLibraryDrop = document.getElementById('btn-library-drop');
+  if (btnLibraryDrop) {
+    const dropdownWrapper = btnLibraryDrop.closest('.dropdown-wrapper');
+
+    btnLibraryDrop.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdownWrapper.classList.toggle('active');
+    });
+
+    document.addEventListener('click', () => {
+      dropdownWrapper.classList.remove('active');
+    });
+  }
+
+  const setupModal = (btnId, modalId) => {
+    const btn = document.getElementById(btnId);
+    const modal = document.getElementById(modalId);
+    if (btn && modal) {
+      btn.addEventListener('click', () => modal.classList.add('active'));
+    }
+  };
+
+  setupModal('btn-help-modal', 'modal-help');
+  setupModal('btn-login-modal', 'modal-login');
+  setupModal('btn-subscribe-modal', 'modal-subscribe');
+
+  const SUPPORT_EMAIL = 'soporte@inboxzero.es';
+  const LEGAL_DOC_KEYS = ['legal', 'privacy', 'cookies', 'terms'];
+  const LEGAL_DOC_ICONS = {
+    legal: '⚖️',
+    privacy: '🔒',
+    cookies: '🍪',
+    terms: '📜',
+  };
+  let activeLegalDocKey = null;
+
+  function buildLegalSectionsHtml(doc) {
+    if (!doc || !Array.isArray(doc.sections)) return '';
+    return doc.sections
+      .map((section) => {
+        const heading = section.heading
+          ? `<h4>${section.heading}</h4>`
+          : '';
+        const paragraphs = Array.isArray(section.paragraphs)
+          ? section.paragraphs.map((p) => `<p>${p}</p>`).join('')
+          : '';
+        const list = Array.isArray(section.list) && section.list.length
+          ? `<ul>${section.list.map((item) => `<li>${item}</li>`).join('')}</ul>`
+          : '';
+        return `<section class="legal-section">${heading}${paragraphs}${list}</section>`;
+      })
+      .join('');
+  }
+
+  function renderLegalModalContent(docKey) {
+    const getMsg = typeof getMessage === 'function' ? getMessage : () => undefined;
+    const doc = getMsg(`legalDocs.${docKey}`);
+    const titleEl = document.getElementById('legal-modal-title');
+    const iconEl = document.getElementById('legal-modal-icon');
+    const bodyEl = document.getElementById('legal-modal-body');
+    const supportLink = document.getElementById('legal-support-link');
+
+    if (!doc || typeof doc !== 'object') {
+      if (titleEl) titleEl.textContent = t(`footer.${docKey}`) || docKey;
+      if (bodyEl) {
+        bodyEl.innerHTML = `<p class="legal-doc-intro"><a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a></p>`;
+      }
+      return;
+    }
+
+    if (iconEl) iconEl.textContent = LEGAL_DOC_ICONS[docKey] || '📄';
+    if (titleEl) titleEl.textContent = doc.title || t(`footer.${docKey}`);
+    if (supportLink) {
+      supportLink.href = `mailto:${SUPPORT_EMAIL}`;
+      supportLink.textContent = SUPPORT_EMAIL;
+      supportLink.setAttribute('aria-label', SUPPORT_EMAIL);
+    }
+    if (bodyEl) {
+      const intro = doc.intro ? `<p class="legal-doc-intro">${doc.intro}</p>` : '';
+      bodyEl.innerHTML = intro + buildLegalSectionsHtml(doc);
+      bodyEl.scrollTop = 0;
+    }
+  }
+
+  function openLegalModal(docKey) {
+    if (!LEGAL_DOC_KEYS.includes(docKey)) return;
+    activeLegalDocKey = docKey;
+    renderLegalModalContent(docKey);
+    openModal('modal-legal');
+  }
+
+  document.querySelectorAll('[data-legal]').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      openLegalModal(link.getAttribute('data-legal'));
+    });
+  });
+
+  // Enlaces legales del formulario de suscripción (delegación; el HTML i18n se regenera)
+  document.getElementById('modal-subscribe')?.addEventListener('click', (e) => {
+    const link = e.target.closest('a');
+    if (!link || !link.closest('.subscribe-terms, .subscribe-trial-alert')) return;
+    e.preventDefault();
+    const text = `${link.textContent || ''} ${link.getAttribute('href') || ''}`.toLowerCase();
+    if (text.includes('cookie')) openLegalModal('cookies');
+    else if (text.includes('priv') || text.includes('confidential') || text.includes('daten')) openLegalModal('privacy');
+    else if (text.includes('térm') || text.includes('term') || text.includes('condition') || text.includes('bedingungen')) openLegalModal('terms');
+    else openLegalModal('privacy');
+  });
+
+  const btnUpsellSubscribe = document.getElementById('btn-upsell-subscribe');
+  if (btnUpsellSubscribe) {
+    btnUpsellSubscribe.addEventListener('click', () => {
+      openSubscribeModal();
+    });
+  }
+
+  const subscribeForm = document.getElementById('subscribe-form');
+  if (subscribeForm) {
+    subscribeForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const captcha = document.getElementById('subscribe-captcha')?.value.trim();
+      if (captcha !== '7') {
+        alert(t('subscribe.captchaError'));
+        return;
+      }
+      // Placeholder Stripe Checkout (modo pruebas) hasta conectar la pasarela real
+      window.open('https://checkout.stripe.com/test', '_blank', 'noopener,noreferrer');
+    });
+  }
+
+  document.querySelectorAll('[data-close]').forEach(el => {
+    el.addEventListener('click', () => {
+      const modalId = el.getAttribute('data-close');
+      document.getElementById(modalId).classList.remove('active');
+    });
+  });
+
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) overlay.classList.remove('active');
+    });
+  });
+
+  window.addEventListener('localechange', () => {
+    renderCards();
+    renderDashboardGreeting(currentAuthUser);
+    const editModal = document.getElementById('modal-edit');
+    if (editModal?.classList.contains('active')) {
+      const editingId = parseInt(document.getElementById('edit-card-id')?.value, 10);
+      const editingCard = cards.find((c) => c.id === editingId);
+      if (editingCard) {
+        openEditModal(editingId);
+      }
+    } else {
+      populateEditCategorySelect('');
+    }
+    if (activeLegalDocKey && document.getElementById('modal-legal')?.classList.contains('active')) {
+      renderLegalModalContent(activeLegalDocKey);
+    }
+    if (!currentAuthUser) {
+      updateAuthChrome(null);
+    }
+  });
+
+  renderDashboardGreeting(currentAuthUser);
+  renderCards();
+});
