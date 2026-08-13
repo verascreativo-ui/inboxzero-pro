@@ -158,7 +158,10 @@
     "notesPlaceholder": "Notas privadas...",
     "visitOriginal": "Visitar site original ↗",
     "saveChanges": "Guardar alterações",
-    "savePending": "Guardar ficha estará disponível no passo seguinte. Este botão ainda não cria a ficha."
+    "savePending": "Guardar ficha estará disponível no passo seguinte. Este botão ainda não cria a ficha.",
+    "saveErrorGeneric": "Não foi possível guardar as alterações. Tente novamente.",
+    "saveErrorNetwork": "Não foi possível ligar. Verifique a ligação e tente novamente.",
+    "saveErrorSession": "A sua sessão não está disponível. Inicie sessão e tente novamente. As alterações não foram guardadas."
   },
   "cards": {
     "favoriteTitle": "Favorito",

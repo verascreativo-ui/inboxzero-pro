@@ -1019,9 +1019,16 @@ async function insertOwnCardRepo(cardFields) {
   }
 }
 
+function classifyCardUpdateError(error) {
+  if (!error) return 'UPDATE_ERROR';
+  const insertCode = classifyCardInsertError(error);
+  if (insertCode === 'INSERT_NETWORK') return 'UPDATE_NETWORK';
+  return 'UPDATE_ERROR';
+}
+
 /**
  * UPDATE de ficha propia por id. No permite cambiar user_id.
- * Preparado para S1.5+; no invocado en S1.1.
+ * S1.5: nunca lanza; éxito solo con fila devuelta e id.
  */
 async function updateOwnCardRepo(cardId, patch) {
   const supabase = getSupabaseClient();
@@ -1031,29 +1038,36 @@ async function updateOwnCardRepo(cardId, patch) {
     return { ok: false, code: 'NO_SESSION', data: null, error: null };
   }
   if (!id) return { ok: false, code: 'INVALID_ID', data: null, error: null };
-  const src = patch && typeof patch === 'object' ? patch : {};
-  const row = {};
-  for (const key of [
-    'title',
-    'description',
-    'url',
-    'category',
-    'favorite',
-    'readLater',
-    'notes',
-    'image',
-  ]) {
-    if (Object.prototype.hasOwnProperty.call(src, key)) row[key] = src[key];
+  try {
+    const src = patch && typeof patch === 'object' ? patch : {};
+    const row = {};
+    for (const key of [
+      'title',
+      'description',
+      'url',
+      'category',
+      'favorite',
+      'readLater',
+      'notes',
+      'image',
+    ]) {
+      if (Object.prototype.hasOwnProperty.call(src, key)) row[key] = src[key];
+    }
+    const { data, error } = await supabase
+      .from('cards')
+      .update(row)
+      .eq('id', id)
+      .eq('user_id', uid)
+      .select()
+      .maybeSingle();
+    if (error) return { ok: false, code: classifyCardUpdateError(error), data: null, error };
+    if (!data || !data.id) {
+      return { ok: false, code: 'UPDATE_ERROR', data: null, error: null };
+    }
+    return { ok: true, code: 'OK', data, error: null };
+  } catch (err) {
+    return { ok: false, code: classifyCardUpdateError(err), data: null, error: err };
   }
-  const { data, error } = await supabase
-    .from('cards')
-    .update(row)
-    .eq('id', id)
-    .eq('user_id', uid)
-    .select()
-    .maybeSingle();
-  if (error) return { ok: false, code: 'UPDATE_ERROR', data: null, error };
-  return { ok: true, code: 'OK', data: data || null, error: null };
 }
 
 /**
@@ -1562,6 +1576,8 @@ document.addEventListener('i18n:ready', () => {
 
   /** true cuando ya se resolvió Guest vs Cloud; bloquea escrituras durante el boot (DP5). */
   let librarySessionReady = false;
+  /** true si la biblioteca en pantalla salió de hidratación Auth/Cloud (nunca Guest). */
+  let libraryHydratedAsAuth = false;
 
   /**
    * S1.3 — persistencia consciente de sesión.
@@ -2065,6 +2081,7 @@ document.addEventListener('i18n:ready', () => {
         currentProfile = null;
         const stored = loadCardsFromStorage() || [];
         if (syncId !== libraryHydrateGeneration) return;
+        libraryHydratedAsAuth = false;
         cards = [{ ...WELCOME_CARD }, ...stored];
         librarySessionReady = true;
         setLibraryBootLoading(false);
@@ -2076,6 +2093,7 @@ document.addEventListener('i18n:ready', () => {
       // S1.4-C: un GET Cloud; reentradas Offline → caché UID, sin nuevo GET.
       if (shouldSkipLibraryCloudFetch()) {
         if (syncId !== libraryHydrateGeneration) return;
+        libraryHydratedAsAuth = true;
         const cached = normalizeStoredCardRows(getUserCardsCache(uid)) || [];
         cards = [{ ...WELCOME_CARD }, ...cached];
         librarySessionReady = true;
@@ -2122,6 +2140,7 @@ document.addEventListener('i18n:ready', () => {
 
       if (syncId !== libraryHydrateGeneration) return;
 
+      libraryHydratedAsAuth = true;
       cards = [{ ...WELCOME_CARD }, ...userRows];
       librarySessionReady = true;
       setLibraryBootLoading(false);
@@ -2136,6 +2155,7 @@ document.addEventListener('i18n:ready', () => {
 
       // Recuperable: con sesión NO escribir Guest; usar caché UID o vacío
       currentProfile = null;
+      libraryHydratedAsAuth = Boolean(uid);
       if (uid) {
         const cached = normalizeStoredCardRows(getUserCardsCache(uid)) || [];
         cards = [{ ...WELCOME_CARD }, ...cached];
@@ -2153,6 +2173,7 @@ document.addEventListener('i18n:ready', () => {
       if (syncId !== libraryHydrateGeneration) return;
       if (!librarySessionReady) {
         librarySessionReady = true;
+        libraryHydratedAsAuth = Boolean(uid);
         setLibraryBootLoading(false);
         ensureWelcomeCardPresent();
         renderCards();
@@ -2549,6 +2570,203 @@ document.addEventListener('i18n:ready', () => {
       return;
     }
     setPreviewSaveError('messages.saveErrorGeneric');
+  }
+
+  function failClosedEditSave(code) {
+    if (code === 'NO_SESSION') {
+      setPreviewSaveError('edit.saveErrorSession');
+      return;
+    }
+    if (code === 'UPDATE_NETWORK') {
+      setPreviewSaveError('edit.saveErrorNetwork');
+      return;
+    }
+    setPreviewSaveError('edit.saveErrorGeneric');
+  }
+
+  /** Lee el formulario de edición sin mutar la ficha. No incluye url. */
+  function readExistingCardEditFields(card) {
+    let title = document.getElementById('edit-title-input')?.value || card.title;
+    let description = document.getElementById('edit-desc-input')?.value || card.description;
+    const newCat = document.getElementById('edit-new-category-input')?.value.trim();
+    const selected = document.getElementById('edit-category-select')?.value;
+    const category = newCat
+      ? (normalizeCategoryId(newCat) || newCat)
+      : (normalizeCategoryId(selected) || UNCATEGORIZED_ID);
+
+    const imageVal = (document.getElementById('edit-image-input')?.value || '').trim();
+    let image = card.image;
+    if (detectSocialBrand(card.url) === 'facebook') {
+      if (imageVal && !isFacebookContingencyImage(imageVal) && !/ytimg\.com|unsplash\.com/i.test(imageVal)) {
+        image = imageVal;
+      } else if (
+        card.facebookAuthentic &&
+        isAuthenticFacebookImage(card.image) &&
+        !isFacebookContingencyImage(card.image)
+      ) {
+        /* conservar portada real extraída */
+      } else {
+        image = getFacebookContingencyLogo();
+      }
+      const hasReal =
+        !isFacebookContingencyImage(image) &&
+        (card.facebookAuthentic ||
+          (isAuthenticFacebookTitle(title) && isAuthenticFacebookImage(image)));
+      if (!hasReal) {
+        if (isLegacyFacebookDescription(description)) {
+          description = getFacebookDefaultDescription();
+        }
+        if (!title || isUglyFacebookTitle(title)) {
+          title = getFacebookDefaultTitle();
+        }
+      }
+    } else {
+      image = resolveDisplayImage(imageVal || card.image, card.url);
+    }
+
+    return {
+      title,
+      description,
+      category,
+      image,
+      favorite: Boolean(document.getElementById('edit-fav-check')?.checked),
+      readLater: Boolean(document.getElementById('edit-read-check')?.checked),
+      notes: document.getElementById('edit-notes-input')?.value || '',
+    };
+  }
+
+  /**
+   * S1.5: UPDATE Cloud de ficha Auth existente. No INSERT, no límite, no duplicados.
+   * FAIL CLOSED: no cierra el modal ni sustituye la ficha hasta respuesta OK.
+   */
+  async function saveExistingAuthCardFromModal(card) {
+    if (previewSaveInFlight) return;
+    previewSaveInFlight = true;
+    const btn = document.getElementById('btn-save-edit');
+    if (btn) {
+      btn.disabled = true;
+      btn.setAttribute('aria-busy', 'true');
+    }
+    clearPreviewSaveError();
+    try {
+      const fields = readExistingCardEditFields(card);
+      clearCategoryValidation();
+      const result = await updateOwnCardRepo(card.id, {
+        title: String(fields.title || ''),
+        description: String(fields.description || ''),
+        category: String(fields.category || UNCATEGORIZED_ID),
+        favorite: Boolean(fields.favorite),
+        readLater: Boolean(fields.readLater),
+        notes: String(fields.notes || ''),
+        image: String(fields.image || ''),
+      });
+      if (!result.ok || !result.data || !result.data.id) {
+        failClosedEditSave(result.code || 'UPDATE_ERROR');
+        return;
+      }
+      const uiCard = mapCloudCardToUi(result.data);
+      if (!uiCard?.id || !cardIdsEqual(uiCard.id, card.id)) {
+        failClosedEditSave('UPDATE_ERROR');
+        return;
+      }
+      const idx = cards.findIndex((c) => cardIdsEqual(c.id, card.id));
+      if (idx < 0) {
+        failClosedEditSave('UPDATE_ERROR');
+        return;
+      }
+      cards[idx] = uiCard;
+      persistCards();
+      renderCards();
+      document.getElementById('modal-edit')?.classList.remove('active');
+      clearPreviewSaveError();
+    } catch (_) {
+      failClosedEditSave('UPDATE_NETWORK');
+    } finally {
+      previewSaveInFlight = false;
+      if (btn) btn.removeAttribute('aria-busy');
+      restoreEditSaveButton();
+    }
+  }
+
+  /** S1.5: persistencia Guest/local de ficha existente. Sin Cloud. */
+  function saveExistingGuestCardFromModal(card) {
+    card.title = document.getElementById('edit-title-input')?.value || card.title;
+    card.description = document.getElementById('edit-desc-input')?.value || card.description;
+
+    const newCat = document.getElementById('edit-new-category-input')?.value.trim();
+    const selected = document.getElementById('edit-category-select')?.value;
+    // Por defecto: "Sin clasificar" si no elige ni escribe otra
+    const resolvedCategory = newCat
+      ? (normalizeCategoryId(newCat) || newCat)
+      : (normalizeCategoryId(selected) || UNCATEGORIZED_ID);
+
+    clearCategoryValidation();
+    card.category = resolvedCategory;
+
+    const imageVal = (document.getElementById('edit-image-input')?.value || '').trim();
+    if (detectSocialBrand(card.url) === 'facebook') {
+      card.socialBrand = 'facebook';
+      card.youtubeId = undefined;
+      if (imageVal && !isFacebookContingencyImage(imageVal) && !/ytimg\.com|unsplash\.com/i.test(imageVal)) {
+        card.image = imageVal;
+      } else if (
+        card.facebookAuthentic &&
+        isAuthenticFacebookImage(card.image) &&
+        !isFacebookContingencyImage(card.image)
+      ) {
+        /* conservar portada real extraída */
+      } else {
+        card.image = getFacebookContingencyLogo();
+      }
+      const hasReal =
+        !isFacebookContingencyImage(card.image) &&
+        (card.facebookAuthentic ||
+          (isAuthenticFacebookTitle(card.title) && isAuthenticFacebookImage(card.image)));
+      card.facebookSmart = !hasReal;
+      card.facebookAuthentic = Boolean(hasReal);
+      if (!hasReal) {
+        if (isLegacyFacebookDescription(card.description)) {
+          card.description = getFacebookDefaultDescription();
+        }
+        if (!card.title || isUglyFacebookTitle(card.title)) {
+          card.title = getFacebookDefaultTitle();
+        }
+      }
+    } else {
+      // Mantener imagen previa si el input queda vacío; si no, favicon/placeholder
+      card.image = resolveDisplayImage(imageVal || card.image, card.url);
+    }
+    updateEditPreview(card.image, card.url, {
+      brand: card.socialBrand || detectSocialBrand(card.url),
+    });
+
+    card.favorite = Boolean(document.getElementById('edit-fav-check')?.checked);
+    card.readLater = Boolean(document.getElementById('edit-read-check')?.checked);
+    card.notes = document.getElementById('edit-notes-input')?.value || '';
+
+    document.getElementById('modal-edit')?.classList.remove('active');
+    renderCards();
+  }
+
+  /**
+   * S1.5: enruta edición de ficha existente.
+   * Sesión JWT o biblioteca Auth/Cloud → UPDATE. Sin sesión en Cloud → FAIL CLOSED.
+   * Solo Guest/local usa mutación in-memory.
+   */
+  async function saveExistingUserCardFromModal(card) {
+    const uid =
+      (currentAuthUser?.id ? String(currentAuthUser.id) : '') ||
+      (await getAuthenticatedUserId()) ||
+      '';
+    if (uid) {
+      await saveExistingAuthCardFromModal(card);
+      return;
+    }
+    if (libraryHydratedAsAuth) {
+      failClosedEditSave('NO_SESSION');
+      return;
+    }
+    saveExistingGuestCardFromModal(card);
   }
 
   function discardPreviewDraft() {
@@ -3055,6 +3273,7 @@ document.addEventListener('i18n:ready', () => {
   const btnSaveEdit = document.getElementById('btn-save-edit');
   if (btnSaveEdit) {
     btnSaveEdit.addEventListener('click', () => {
+      if (previewSaveInFlight) return;
       const id = readDomCardId(document.getElementById('edit-card-id')?.value);
       if (previewDraft || isPreviewDraftToken(id)) {
         savePreviewDraftFromModal();
@@ -3062,7 +3281,7 @@ document.addEventListener('i18n:ready', () => {
       }
       const card = cards.find((c) => cardIdsEqual(c.id, id));
       if (!card) {
-        failClosedPreviewSave(currentAuthUser?.id ? 'INSERT_NETWORK' : 'INSERT_ERROR');
+        failClosedEditSave('UPDATE_ERROR');
         return;
       }
 
@@ -3086,62 +3305,7 @@ document.addEventListener('i18n:ready', () => {
         return;
       }
 
-      card.title = document.getElementById('edit-title-input')?.value || card.title;
-      card.description = document.getElementById('edit-desc-input')?.value || card.description;
-
-      const newCat = document.getElementById('edit-new-category-input')?.value.trim();
-      const selected = document.getElementById('edit-category-select')?.value;
-      // Por defecto: "Sin clasificar" si no elige ni escribe otra
-      const resolvedCategory = newCat
-        ? (normalizeCategoryId(newCat) || newCat)
-        : (normalizeCategoryId(selected) || UNCATEGORIZED_ID);
-
-      clearCategoryValidation();
-      card.category = resolvedCategory;
-
-      const imageVal = (document.getElementById('edit-image-input')?.value || '').trim();
-      if (detectSocialBrand(card.url) === 'facebook') {
-        card.socialBrand = 'facebook';
-        card.youtubeId = undefined;
-        if (imageVal && !isFacebookContingencyImage(imageVal) && !/ytimg\.com|unsplash\.com/i.test(imageVal)) {
-          card.image = imageVal;
-        } else if (
-          card.facebookAuthentic &&
-          isAuthenticFacebookImage(card.image) &&
-          !isFacebookContingencyImage(card.image)
-        ) {
-          /* conservar portada real extraída */
-        } else {
-          card.image = getFacebookContingencyLogo();
-        }
-        const hasReal =
-          !isFacebookContingencyImage(card.image) &&
-          (card.facebookAuthentic ||
-            (isAuthenticFacebookTitle(card.title) && isAuthenticFacebookImage(card.image)));
-        card.facebookSmart = !hasReal;
-        card.facebookAuthentic = Boolean(hasReal);
-        if (!hasReal) {
-          if (isLegacyFacebookDescription(card.description)) {
-            card.description = getFacebookDefaultDescription();
-          }
-          if (!card.title || isUglyFacebookTitle(card.title)) {
-            card.title = getFacebookDefaultTitle();
-          }
-        }
-      } else {
-        // Mantener imagen previa si el input queda vacío; si no, favicon/placeholder
-        card.image = resolveDisplayImage(imageVal || card.image, card.url);
-      }
-      updateEditPreview(card.image, card.url, {
-        brand: card.socialBrand || detectSocialBrand(card.url),
-      });
-
-      card.favorite = Boolean(document.getElementById('edit-fav-check')?.checked);
-      card.readLater = Boolean(document.getElementById('edit-read-check')?.checked);
-      card.notes = document.getElementById('edit-notes-input')?.value || '';
-
-      document.getElementById('modal-edit')?.classList.remove('active');
-      renderCards();
+      saveExistingUserCardFromModal(card);
     });
   }
 

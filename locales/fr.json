@@ -158,7 +158,10 @@
     "notesPlaceholder": "Notes privées...",
     "visitOriginal": "Visiter le site original ↗",
     "saveChanges": "Enregistrer les modifications",
-    "savePending": "Enregistrer la fiche sera disponible à l'étape suivante. Ce bouton ne crée pas encore la fiche."
+    "savePending": "Enregistrer la fiche sera disponible à l'étape suivante. Ce bouton ne crée pas encore la fiche.",
+    "saveErrorGeneric": "Impossible d'enregistrer les modifications. Veuillez réessayer.",
+    "saveErrorNetwork": "Connexion impossible. Vérifiez votre connexion et réessayez.",
+    "saveErrorSession": "Votre session n'est pas disponible. Connectez-vous et réessayez. Les modifications n'ont pas été enregistrées."
   },
   "cards": {
     "favoriteTitle": "Favori",
