@@ -1,5 +1,124 @@
 const TRIAL_MAX = 20;
-const CARDS_STORAGE_KEY = 'inboxzero_cards';
+
+// =============================================================================
+// S1.1 — Storage local (Guest / Legacy / caché por UID)
+// Contrato v1.1 + DP1/DP2. La clave global legacy NO es escritura normal.
+// =============================================================================
+const LEGACY_CARDS_STORAGE_KEY = 'inboxzero_cards';
+const GUEST_CARDS_STORAGE_KEY = 'inboxzero_guest_cards';
+
+/**
+ * Identidad persistente de ficha (S1.2): UUID string.
+ * No usar Date.now() como id.
+ */
+function createCardId() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  // Fallback sin dependencias externas (RFC4122 v4 aproximado)
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (ch) => {
+    const n = (Math.random() * 16) | 0;
+    const v = ch === 'x' ? n : (n & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+/** Comparación estable de ids de card (string/UUID o legacy numérico serializado). */
+function cardIdsEqual(a, b) {
+  return String(a ?? '') === String(b ?? '');
+}
+
+/** Lee id de card desde DOM/atributos sin parseInt/Number. */
+function readDomCardId(value) {
+  const id = String(value ?? '').trim();
+  return id || null;
+}
+
+/**
+ * Normaliza id al cargar storage: string; conserva IDs legacy numéricos como string.
+ * No inventa UUID para sustituir un id histórico existente.
+ */
+function normalizePersistedCardId(rawId) {
+  if (rawId == null || rawId === '') return createCardId();
+  return String(rawId);
+}
+
+/** Clave de caché autenticado: inboxzero_cards_<UID> */
+function getUserCardsCacheKey(uid) {
+  const id = String(uid || '').trim();
+  if (!id) {
+    throw new Error('[InboxZero Storage] UID autenticado requerido para caché de usuario');
+  }
+  return `inboxzero_cards_${id}`;
+}
+
+function readLocalCardsArray(storageKey) {
+  try {
+    const raw = localStorage.getItem(storageKey);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : null;
+  } catch (err) {
+    console.warn('[InboxZero Storage] No se pudo leer', storageKey, err);
+    return null;
+  }
+}
+
+function writeLocalCardsArray(storageKey, cardsArray) {
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(Array.isArray(cardsArray) ? cardsArray : []));
+    return true;
+  } catch (err) {
+    console.warn('[InboxZero Storage] No se pudo guardar', storageKey, err);
+    return false;
+  }
+}
+
+function hasLegacyCardsStorage() {
+  try {
+    return localStorage.getItem(LEGACY_CARDS_STORAGE_KEY) != null;
+  } catch (_) {
+    return false;
+  }
+}
+
+/** Lectura LEGACY solo-lectura. No escribe ni borra inboxzero_cards. */
+function readLegacyCardsStorage() {
+  return readLocalCardsArray(LEGACY_CARDS_STORAGE_KEY);
+}
+
+function getGuestCardsStorage() {
+  return readLocalCardsArray(GUEST_CARDS_STORAGE_KEY);
+}
+
+function saveGuestCardsStorage(cardsArray) {
+  return writeLocalCardsArray(GUEST_CARDS_STORAGE_KEY, cardsArray);
+}
+
+function getUserCardsCache(uid) {
+  return readLocalCardsArray(getUserCardsCacheKey(uid));
+}
+
+function saveUserCardsCache(uid, cardsArray) {
+  return writeLocalCardsArray(getUserCardsCacheKey(uid), cardsArray);
+}
+
+/**
+ * Distingue orígenes locales de fichas (sin mezclar automáticamente).
+ * @returns {{ guest: boolean, legacy: boolean, userCache: boolean, userCacheKey: string|null }}
+ */
+function detectLocalCardsStorageState(uid) {
+  const guest = getGuestCardsStorage() != null;
+  const legacy = hasLegacyCardsStorage();
+  let userCache = false;
+  let userCacheKey = null;
+  const id = String(uid || '').trim();
+  if (id) {
+    userCacheKey = getUserCardsCacheKey(id);
+    userCache = readLocalCardsArray(userCacheKey) != null;
+  }
+  return { guest, legacy, userCache, userCacheKey };
+}
 
 /** Placeholder SVG elegante cuando falla la miniatura de una ficha */
 const CARD_THUMB_PLACEHOLDER =
@@ -127,8 +246,141 @@ async function fetchYoutubeOEmbed(pageUrl) {
 }
 
 /**
+ * Heurística conservadora: ¿esta URL parece logo / icono / asset de marca?
+ * No descarta cualquier imagen cuadrada: combina señales de nombre, tipo y tamaño.
+ * Fase 2 podrá reutilizar esta señal dentro de un score multi-candidato.
+ *
+ * @param {string} imageUrl
+ * @param {{ width?: number, height?: number, logoUrl?: string, type?: string }} [options]
+ */
+function isLikelyBrandOrLogoImage(imageUrl, options = {}) {
+  const url = String(imageUrl || '').trim();
+  if (!url) return false;
+
+  const logoUrl = String(options.logoUrl || '').trim();
+  if (logoUrl) {
+    try {
+      if (new URL(url).href === new URL(logoUrl, url).href) return true;
+    } catch (_) {
+      if (url === logoUrl) return true;
+    }
+  }
+
+  const path = url.split(/[?#]/)[0] || url;
+  const fileName = path.split('/').pop() || '';
+  const typeHint = String(options.type || '').toLowerCase();
+
+  if (/\.ico$/i.test(path) || typeHint === 'ico') return true;
+  if (/favicon|apple-touch-icon|android-chrome|mstile|site-icon/i.test(url)) return true;
+  if (/(^|[/_-])logo([/_.-]|$)/i.test(path) || /\/logos?\//i.test(path)) return true;
+  if (/(^|[/_-])icon([/_.-]|$)/i.test(path) && !/iconic|iconograph/i.test(path)) return true;
+  if (/brand[-_]?logo|site[-_]?logo|company[-_]?logo|brand[-_]?mark/i.test(path)) return true;
+
+  // SVG: solo si el path sugiere icono/logo (no todo SVG de contenido)
+  if (/\.svg$/i.test(path) && /(logo|icon|favicon|brand)/i.test(path)) return true;
+  if (/^data:image\/svg\+xml/i.test(url)) return true;
+
+  let width = Number(options.width) || 0;
+  let height = Number(options.height) || 0;
+  const dimInName = fileName.match(/(?:^|[_-])(\d{2,4})x(\d{2,4})(?:\.[a-z]+)?$/i);
+  if ((!width || !height) && dimInName) {
+    width = width || Number(dimInName[1]);
+    height = height || Number(dimInName[2]);
+  }
+
+  if (width > 0 && height > 0) {
+    const maxSide = Math.max(width, height);
+    const minSide = Math.min(width, height);
+    const nearlySquare = minSide > 0 && maxSide / minSide <= 1.08;
+
+    // Iconos muy pequeños: fuerte señal de marca
+    if (nearlySquare && maxSide <= 256) return true;
+
+    // Cuadrados medianos (p. ej. 274×274): solo con señal de nombre/marca en el archivo
+    if (
+      nearlySquare &&
+      maxSide <= 400 &&
+      (/logo|brand|icon|favicon|apple|touch/i.test(fileName) ||
+        /^[a-z0-9]+-\d{2,4}x\d{2,4}\.(jpe?g|png|webp|gif)$/i.test(fileName))
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Construye candidatos Microlink normalizados (preparado para scoring Fase 2).
+ * @param {{ image?: object, logo?: object, screenshot?: object }} microlink
+ * @returns {Array<{ url: string, source: string, width?: number, height?: number, type?: string }>}
+ */
+function buildMicrolinkImageCandidates(microlink) {
+  const out = [];
+  const push = (obj, source) => {
+    const url = obj && obj.url ? String(obj.url).trim() : '';
+    if (!url || !isUsableImageUrl(url)) return;
+    out.push({
+      url,
+      source,
+      width: Number(obj.width) || undefined,
+      height: Number(obj.height) || undefined,
+      type: obj.type ? String(obj.type) : undefined,
+    });
+  };
+  if (microlink) {
+    push(microlink.image, 'microlink-image');
+    push(microlink.screenshot, 'microlink-screenshot');
+    push(microlink.logo, 'microlink-logo');
+  }
+  return out;
+}
+
+/**
+ * Fase 1: elige imagen Microlink (foto/OG vs screenshot si logo-like).
+ * Fase 2: podrá puntuar `candidates` y devolver otra URL.
+ *
+ * @param {Array<{ url: string, source: string, width?: number, height?: number, type?: string }>} candidates
+ * @param {{ logoUrl?: string }} [options]
+ * @returns {{ url: string, source: string, logoLike: boolean, candidates: typeof candidates }}
+ */
+function selectPreferredMicrolinkImage(candidates, options = {}) {
+  const list = Array.isArray(candidates) ? candidates : [];
+  const logoUrl = String(options.logoUrl || '').trim();
+  const primary = list.find((c) => c.source === 'microlink-image');
+  const screenshot = list.find((c) => c.source === 'microlink-screenshot');
+  const logo = list.find((c) => c.source === 'microlink-logo');
+
+  if (primary) {
+    const logoLike = isLikelyBrandOrLogoImage(primary.url, {
+      width: primary.width,
+      height: primary.height,
+      type: primary.type,
+      logoUrl: logoUrl || logo?.url || '',
+    });
+    if (!logoLike) {
+      return { url: primary.url, source: primary.source, logoLike: false, candidates: list };
+    }
+    if (screenshot?.url) {
+      return { url: screenshot.url, source: screenshot.source, logoLike: true, candidates: list };
+    }
+    // Logo-like sin screenshot disponible: conservar image (fallbacks posteriores intactos)
+    return { url: primary.url, source: primary.source, logoLike: true, candidates: list };
+  }
+
+  if (screenshot?.url) {
+    return { url: screenshot.url, source: screenshot.source, logoLike: false, candidates: list };
+  }
+  if (logo?.url) {
+    return { url: logo.url, source: logo.source, logoLike: true, candidates: list };
+  }
+  return { url: '', source: '', logoLike: false, candidates: list };
+}
+
+/**
  * Extracción real de metadatos vía Microlink (API gratuita).
  * Endpoint: https://api.microlink.io/?url=...
+ * Devuelve también `microlink` crudo para selección inteligente / Fase 2.
  */
 async function fetchMicrolinkMetadata(pageUrl, options = {}) {
   const params = new URLSearchParams({ url: pageUrl });
@@ -144,7 +396,18 @@ async function fetchMicrolinkMetadata(pageUrl, options = {}) {
     throw new Error((datos && datos.message) || 'Microlink no devolvió datos');
   }
   const d = datos.data;
+  const microlink = {
+    image: d.image || null,
+    logo: d.logo || null,
+    screenshot: d.screenshot || null,
+  };
+  const candidates = buildMicrolinkImageCandidates(microlink);
+  const picked = selectPreferredMicrolinkImage(candidates, {
+    logoUrl: (d.logo && d.logo.url) || '',
+  });
+  // Compat: si no hay selección, cadena clásica image → screenshot → logo
   const imageUrl =
+    picked.url ||
     (d.image && d.image.url) ||
     (d.screenshot && d.screenshot.url) ||
     (d.logo && d.logo.url) ||
@@ -154,6 +417,10 @@ async function fetchMicrolinkMetadata(pageUrl, options = {}) {
     description: (d.description && String(d.description).trim()) || '',
     image: imageUrl,
     canonicalUrl: d.url || pageUrl,
+    imageSource: picked.source || '',
+    imageLogoLike: Boolean(picked.logoLike),
+    imageCandidates: candidates,
+    microlink,
   };
 }
 
@@ -322,6 +589,42 @@ async function fetchAdvancedExtractApi(pageUrl) {
   }
 }
 
+/**
+ * Fase 2: candidatos HTML puntuados (backend /api/page-images).
+ * Solo para URLs genéricas cuando Microlink no aporta foto usable.
+ * @returns {Promise<{ url: string, source: string, score: number, candidate: object } | null>}
+ */
+async function fetchPageImagesBest(pageUrl) {
+  const base = String(window.INBOXZERO_EXTRACT_API || 'http://localhost:8787').replace(/\/$/, '');
+  const endpoint = `${base}/api/page-images?url=${encodeURIComponent(pageUrl)}`;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 45000);
+  try {
+    const res = await fetch(endpoint, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+      signal: controller.signal,
+    });
+    const payload = await res.json().catch(() => null);
+    if (!payload || payload.status !== 'success' || !payload.data) return null;
+    const best = payload.data.best;
+    if (best && best.accepted === true && best.url && isUsableImageUrl(best.url)) {
+      return {
+        url: String(best.url).trim(),
+        source: 'page-html',
+        score: Number(best.score) || 0,
+        candidate: best,
+        candidates: Array.isArray(payload.data.candidates) ? payload.data.candidates : [],
+      };
+    }
+    return null;
+  } catch (_) {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /** Extracción usable de página pública de Facebook (no muro de login / no Unsplash). */
 function isUsableFacebookExtraction(meta) {
   if (!meta) return false;
@@ -379,22 +682,93 @@ async function extractUrlMetadata(pageUrl) {
   }
 
   try {
+    // URLs genéricas:
+    // Microlink image → (si falta/logoLike) /api/page-images → (si no) screenshot Fase 1 → fallbacks.
     let meta = await fetchMicrolinkMetadata(pageUrl);
-    if (meta && !meta.image) {
-      try {
-        const withShot = await fetchMicrolinkMetadata(pageUrl, { screenshot: true });
-        if (withShot) {
-          meta = {
-            title: meta.title || withShot.title,
-            description: meta.description || withShot.description,
-            image: withShot.image || meta.image,
-            canonicalUrl: meta.canonicalUrl || withShot.canonicalUrl,
-          };
-        }
-      } catch (_) {
-        /* screenshot opcional */
-      }
+    if (!meta) return null;
+
+    const primary = meta.microlink?.image;
+    const primaryUrl = (primary && primary.url) || '';
+    const logoUrl = (meta.microlink?.logo && meta.microlink.logo.url) || '';
+    const imageMissingOrLogoLike =
+      !primaryUrl ||
+      Boolean(meta.imageLogoLike) ||
+      isLikelyBrandOrLogoImage(primaryUrl, {
+        width: primary?.width,
+        height: primary?.height,
+        type: primary?.type,
+        logoUrl,
+      });
+
+    // Imagen Microlink usable y no logo → conservar (no page-images ni screenshot)
+    if (!imageMissingOrLogoLike) {
+      return meta;
     }
+
+    // Fase 2: candidatos HTML puntuados (solo si falta imagen o es logo-like)
+    try {
+      const pageBest = await fetchPageImagesBest(pageUrl);
+      if (pageBest?.url) {
+        const pageCandidates = Array.isArray(pageBest.candidates) ? pageBest.candidates : [];
+        return {
+          ...meta,
+          image: pageBest.url,
+          imageSource: 'page-html',
+          imageLogoLike: Boolean(primaryUrl),
+          imageCandidates: [
+            ...(Array.isArray(meta.imageCandidates) ? meta.imageCandidates : []),
+            ...pageCandidates,
+          ],
+          pageImageBest: pageBest.candidate || null,
+        };
+      }
+    } catch (_) {
+      /* page-images opcional; continuar a screenshot Fase 1 */
+    }
+
+    // Fase 1: screenshot Microlink como fallback visual
+    try {
+      const withShot = await fetchMicrolinkMetadata(pageUrl, { screenshot: true });
+      const shotUrl =
+        (withShot?.microlink?.screenshot && withShot.microlink.screenshot.url) || '';
+      if (withShot && shotUrl && isUsableImageUrl(shotUrl)) {
+        const mergedCandidates = buildMicrolinkImageCandidates({
+          image: meta.microlink?.image || null,
+          logo: meta.microlink?.logo || withShot.microlink?.logo || null,
+          screenshot: withShot.microlink?.screenshot || null,
+        });
+        meta = {
+          title: meta.title || withShot.title,
+          description: meta.description || withShot.description,
+          image: shotUrl,
+          canonicalUrl: meta.canonicalUrl || withShot.canonicalUrl,
+          imageSource: 'microlink-screenshot',
+          imageLogoLike: Boolean(primaryUrl),
+          imageCandidates: mergedCandidates,
+          microlink: {
+            image: meta.microlink?.image || null,
+            logo: meta.microlink?.logo || withShot.microlink?.logo || null,
+            screenshot: withShot.microlink?.screenshot || null,
+          },
+        };
+      } else if (withShot && !meta.image && withShot.image) {
+        // Sin image primaria: conservar comportamiento previo (screenshot/logo vía picker)
+        meta = {
+          title: meta.title || withShot.title,
+          description: meta.description || withShot.description,
+          image: withShot.image,
+          canonicalUrl: meta.canonicalUrl || withShot.canonicalUrl,
+          imageSource: withShot.imageSource || meta.imageSource,
+          imageLogoLike: withShot.imageLogoLike,
+          imageCandidates: withShot.imageCandidates || meta.imageCandidates,
+          microlink: withShot.microlink || meta.microlink,
+        };
+      }
+      // Si el screenshot falla y había image logo-like, se conserva meta.image (fallbacks actuales)
+    } catch (_) {
+      /* screenshot opcional */
+    }
+
     return meta;
   } catch (_) {
     return null;
@@ -475,7 +849,284 @@ function getSupabaseClient() {
   return window.inboxZeroSupabase || null;
 }
 
+// =============================================================================
+// S1.1 — Capa mínima de acceso a profiles / cards (preparada, no cableada al CRUD)
+// user_id de escritura siempre desde la sesión Auth; nunca desde la UI.
+// =============================================================================
+
+/** UID de la sesión actual (auth.uid() vía JWT). No acepta user_id externo. */
+async function getAuthenticatedUserId() {
+  const supabase = getSupabaseClient();
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    if (error || !data?.session?.user?.id) return null;
+    return String(data.session.user.id);
+  } catch (_) {
+    return null;
+  }
+}
+
+/**
+ * Resuelve UID para repos: prioriza sessionUid conocido (Auth user.id).
+ * Nunca inventa un UID; si no hay argumento, cae a getSession (fuera de onAuthStateChange).
+ */
+async function resolveRepoUserId(sessionUid) {
+  const known = String(sessionUid || '').trim();
+  if (known) return known;
+  return (await getAuthenticatedUserId()) || '';
+}
+
+/**
+ * Lee el perfil propio (nombre, email, tipo_plan).
+ * @param {string} [sessionUid] UID ya conocido del usuario Auth (evita getSession).
+ */
+async function fetchOwnProfileRepo(sessionUid) {
+  const supabase = getSupabaseClient();
+  const uid = await resolveRepoUserId(sessionUid);
+  if (!supabase || !uid) {
+    return { ok: false, code: 'NO_SESSION', data: null, error: null };
+  }
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id,nombre,email,tipo_plan,creado_en')
+    .eq('id', uid)
+    .maybeSingle();
+  if (error) return { ok: false, code: 'PROFILE_ERROR', data: null, error };
+  return { ok: true, code: 'OK', data: data || null, error: null };
+}
+
+/**
+ * Lista fichas Cloud del usuario autenticado.
+ * @param {string} [sessionUid] UID ya conocido del usuario Auth (evita getSession).
+ */
+async function fetchOwnCardsRepo(sessionUid) {
+  const supabase = getSupabaseClient();
+  const uid = await resolveRepoUserId(sessionUid);
+  if (!supabase || !uid) {
+    return { ok: false, code: 'NO_SESSION', data: null, error: null };
+  }
+  const { data, error } = await supabase
+    .from('cards')
+    .select(
+      'id,user_id,title,description,url,category,favorite,readLater,notes,image,creado_en'
+    )
+    .eq('user_id', uid)
+    .order('creado_en', { ascending: false });
+  if (error) return { ok: false, code: 'CARDS_ERROR', data: null, error };
+  return { ok: true, code: 'OK', data: Array.isArray(data) ? data : [], error: null };
+}
+
+/**
+ * Clasifica un fallo de INSERT Cloud sin exponer detalles técnicos al usuario.
+ * S1.4-C: LIMIT solo con texto de cuota; el resto FAIL CLOSED.
+ */
+function classifyCardInsertError(error) {
+  if (!error) return 'INSERT_ERROR';
+  const msg = String(error.message || error.details || error.hint || '');
+  const name = String(error.name || '');
+  const status = Number(error.status || error.statusCode || 0);
+  if (
+    /l[ií]mite del plan gratuito|l[ií]mite del plan de prueba|free plan (card )?limit|maximum of 20 cards|20 fichas/i.test(
+      msg
+    )
+  ) {
+    return 'INSERT_LIMIT';
+  }
+  if (
+    name === 'TypeError' ||
+    name === 'AbortError' ||
+    name === 'AuthRetryableFetchError' ||
+    /RetryableFetchError/i.test(name) ||
+    status === 0 ||
+    status === 408 ||
+    status === 502 ||
+    status === 503 ||
+    status === 504 ||
+    /failed to fetch|networkerror|load failed|network request failed|fetch failed|timeout|timed out|offline|econnreset|enotfound/i.test(
+      msg
+    )
+  ) {
+    return 'INSERT_NETWORK';
+  }
+  return 'INSERT_ERROR';
+}
+
+/**
+ * INSERT de ficha propia. Fuerza user_id = sesión; ignora user_id del payload.
+ * S1.4-C: nunca lanza; errores tipados (NO_SESSION / INSERT_LIMIT / INSERT_NETWORK / INSERT_ERROR).
+ */
+async function insertOwnCardRepo(cardFields) {
+  const supabase = getSupabaseClient();
+  const uid = await getAuthenticatedUserId();
+  if (!supabase || !uid) {
+    return { ok: false, code: 'NO_SESSION', data: null, error: null };
+  }
+  try {
+    const src = cardFields && typeof cardFields === 'object' ? cardFields : {};
+    const row = {
+      user_id: uid,
+      title: src.title != null ? String(src.title) : '',
+      description: src.description != null ? String(src.description) : '',
+      url: src.url != null ? String(src.url) : '',
+      category: src.category != null ? String(src.category) : 'uncategorized',
+      favorite: Boolean(src.favorite),
+      readLater: Boolean(src.readLater),
+      notes: src.notes != null ? String(src.notes) : '',
+      image: src.image != null ? String(src.image) : '',
+    };
+    if (src.id) row.id = String(src.id);
+    const { data, error } = await supabase.from('cards').insert(row).select().maybeSingle();
+    if (error) {
+      return { ok: false, code: classifyCardInsertError(error), data: null, error };
+    }
+    if (!data || !data.id) {
+      return { ok: false, code: 'INSERT_ERROR', data: null, error: null };
+    }
+    return { ok: true, code: 'OK', data, error: null };
+  } catch (err) {
+    return { ok: false, code: classifyCardInsertError(err), data: null, error: err };
+  }
+}
+
+/**
+ * UPDATE de ficha propia por id. No permite cambiar user_id.
+ * Preparado para S1.5+; no invocado en S1.1.
+ */
+async function updateOwnCardRepo(cardId, patch) {
+  const supabase = getSupabaseClient();
+  const uid = await getAuthenticatedUserId();
+  const id = String(cardId || '').trim();
+  if (!supabase || !uid) {
+    return { ok: false, code: 'NO_SESSION', data: null, error: null };
+  }
+  if (!id) return { ok: false, code: 'INVALID_ID', data: null, error: null };
+  const src = patch && typeof patch === 'object' ? patch : {};
+  const row = {};
+  for (const key of [
+    'title',
+    'description',
+    'url',
+    'category',
+    'favorite',
+    'readLater',
+    'notes',
+    'image',
+  ]) {
+    if (Object.prototype.hasOwnProperty.call(src, key)) row[key] = src[key];
+  }
+  const { data, error } = await supabase
+    .from('cards')
+    .update(row)
+    .eq('id', id)
+    .eq('user_id', uid)
+    .select()
+    .maybeSingle();
+  if (error) return { ok: false, code: 'UPDATE_ERROR', data: null, error };
+  return { ok: true, code: 'OK', data: data || null, error: null };
+}
+
+/**
+ * DELETE de ficha propia por id.
+ * Preparado para S1.6+; no invocado en S1.1.
+ */
+async function deleteOwnCardRepo(cardId) {
+  const supabase = getSupabaseClient();
+  const uid = await getAuthenticatedUserId();
+  const id = String(cardId || '').trim();
+  if (!supabase || !uid) {
+    return { ok: false, code: 'NO_SESSION', data: null, error: null };
+  }
+  if (!id) return { ok: false, code: 'INVALID_ID', data: null, error: null };
+  const { error } = await supabase.from('cards').delete().eq('id', id).eq('user_id', uid);
+  if (error) return { ok: false, code: 'DELETE_ERROR', data: null, error };
+  return { ok: true, code: 'OK', data: { id }, error: null };
+}
+
 let currentAuthUser = null;
+/** Perfil Cloud (S1.3); nombre para saludo según DP7. */
+let currentProfile = null;
+/**
+ * Callback registrado desde el closure de la biblioteca (i18n:ready).
+ * Hidrata Guest vs Cloud tras Auth — no cablea INSERT/UPDATE/DELETE.
+ */
+let libraryAuthSyncHandler = null;
+let libraryHydrateGeneration = 0;
+/** Timer para salir del callback Auth antes de hidratar (anti-deadlock supabase-js). */
+let libraryAuthSyncTimer = null;
+let libraryAuthSyncPendingUser = null;
+/** S1.4-C: GET Cloud en vuelo (evita reentrada Offline mientras el primero no termina). */
+let libraryCloudHydrateInFlight = false;
+/** S1.4-C: GET Cloud ya falló por red; no relanzar automáticamente mientras siga Offline. */
+let libraryCloudFetchBlocked = false;
+
+function isBrowserOffline() {
+  try {
+    return typeof navigator !== 'undefined' && navigator.onLine === false;
+  } catch (_) {
+    return false;
+  }
+}
+
+/** Error de red/Offline en lecturas Cloud (no 401/RLS). No usa el clasificador de INSERT. */
+function isLibraryCloudNetworkError(error) {
+  if (!error || typeof error !== 'object') return false;
+  const msg = String(error.message || error.details || error.hint || '');
+  const name = String(error.name || '');
+  const rawStatus = error.status != null ? error.status : error.statusCode;
+  const status = rawStatus != null ? Number(rawStatus) : NaN;
+  if (
+    name === 'TypeError' ||
+    name === 'AbortError' ||
+    name === 'AuthRetryableFetchError' ||
+    /RetryableFetchError/i.test(name) ||
+    status === 0
+  ) {
+    return true;
+  }
+  return /failed to fetch|networkerror|load failed|err_internet_disconnected|network request failed|fetch failed|offline/i.test(
+    msg
+  );
+}
+
+function shouldSkipLibraryCloudFetch() {
+  return isBrowserOffline() && (libraryCloudFetchBlocked || libraryCloudHydrateInFlight);
+}
+
+function shouldBlockLibraryCloudFetch(profileRes, cardsRes) {
+  if (isBrowserOffline()) return true;
+  if (profileRes && !profileRes.ok && isLibraryCloudNetworkError(profileRes.error)) return true;
+  if (cardsRes && !cardsRes.ok && isLibraryCloudNetworkError(cardsRes.error)) return true;
+  return false;
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', () => {
+    libraryCloudFetchBlocked = false;
+  });
+}
+
+/**
+ * Programa hidratación FUERA del stack de onAuthStateChange.
+ * Deduplica getSession + INITIAL_SESSION/SIGNED_IN en el mismo tick.
+ */
+function scheduleLibraryAuthSync(user) {
+  libraryAuthSyncPendingUser = user || null;
+  if (libraryAuthSyncTimer != null) {
+    clearTimeout(libraryAuthSyncTimer);
+  }
+  libraryAuthSyncTimer = setTimeout(() => {
+    libraryAuthSyncTimer = null;
+    const pending = libraryAuthSyncPendingUser;
+    if (typeof libraryAuthSyncHandler === 'function') {
+      libraryAuthSyncHandler(pending);
+    }
+  }, 0);
+}
+
+function notifyLibraryAuthSync(user) {
+  scheduleLibraryAuthSync(user);
+}
 
 /** Nombre mostrado en el saludo; se sustituye por el del usuario al hacer login real */
 const DEFAULT_GREETING_NAME = 'Creador';
@@ -489,8 +1140,11 @@ function escapeHtmlText(value) {
     .replace(/"/g, '&quot;');
 }
 
-/** Resuelve el nombre a saludar (variable lista para login real) */
+/** Resuelve el nombre a saludar (DP7: profiles.nombre → metadata Auth → genérico) */
 function resolveGreetingDisplayName(user = currentAuthUser) {
+  if (currentProfile && String(currentProfile.nombre || '').trim()) {
+    return String(currentProfile.nombre).trim();
+  }
   if (!user) return DEFAULT_GREETING_NAME;
   const meta = user.user_metadata || {};
   const fromMeta = meta.full_name || meta.name || meta.display_name || meta.first_name;
@@ -639,8 +1293,10 @@ async function signOutCurrentUser() {
   const supabase = getSupabaseClient();
   if (!supabase) return;
   await supabase.auth.signOut();
+  currentProfile = null;
   updateAuthChrome(null);
   setLoginAuthMessage('', false);
+  notifyLibraryAuthSync(null);
 }
 
 function setupSupabaseAuth() {
@@ -678,19 +1334,31 @@ function setupSupabaseAuth() {
     });
   }
 
-  if (!supabase) return;
+  if (!supabase) {
+    notifyLibraryAuthSync(null);
+    return;
+  }
 
   supabase.auth.getSession().then(({ data: { session } }) => {
     updateAuthChrome(session?.user ?? null);
+    notifyLibraryAuthSync(session?.user ?? null);
   });
 
-  supabase.auth.onAuthStateChange((_event, session) => {
+  supabase.auth.onAuthStateChange((event, session) => {
     updateAuthChrome(session?.user ?? null);
+    if (
+      event === 'INITIAL_SESSION' ||
+      event === 'SIGNED_IN' ||
+      event === 'SIGNED_OUT' ||
+      event === 'USER_UPDATED'
+    ) {
+      notifyLibraryAuthSync(session?.user ?? null);
+    }
   });
 }
 
 document.addEventListener('i18n:ready', () => {
-  setupSupabaseAuth();
+  // setupSupabaseAuth se registra tras definir hydrateLibraryForAuthUser (S1.3)
 
   // Ficha modelo fija: evita el lienzo en blanco y no cuenta en el trial del usuario
   const WELCOME_CARD_ID = 0;
@@ -771,6 +1439,13 @@ document.addEventListener('i18n:ready', () => {
 
   let cards = [{ ...WELCOME_CARD }];
 
+  /** S1.4-A: borrador de Analyze/Preview. Nunca entra en `cards` ni en storage. */
+  let previewDraft = null;
+  const PREVIEW_DRAFT_TOKEN = '__inboxzero_preview_draft__';
+  let previewSaveInFlight = false;
+  /** Clave i18n del último error de Guardar Ficha (S1.4-C). */
+  let previewSaveErrorKey = null;
+
   let currentFilter = 'all';
   let currentCategory = null;
 
@@ -783,7 +1458,7 @@ document.addEventListener('i18n:ready', () => {
   const btnSave = document.getElementById('btn-save-card');
 
   function isGuideCard(card) {
-    return Boolean(card && (card.isGuide || card.id === WELCOME_CARD_ID));
+    return Boolean(card && (card.isGuide || cardIdsEqual(card.id, WELCOME_CARD_ID)));
   }
 
   /** Solo fichas reales del usuario (la Guía nunca entra en métricas ni en el trial). */
@@ -813,7 +1488,7 @@ document.addEventListener('i18n:ready', () => {
 
   function serializeUserCards() {
     return userCards().map((c) => ({
-      id: c.id,
+      id: String(c.id),
       title: c.title,
       description: c.description,
       url: c.url,
@@ -827,40 +1502,95 @@ document.addEventListener('i18n:ready', () => {
     }));
   }
 
-  function persistCards() {
-    try {
-      localStorage.setItem(CARDS_STORAGE_KEY, JSON.stringify(serializeUserCards()));
-    } catch (err) {
-      console.warn('[InboxZero] No se pudo guardar en localStorage', err);
-    }
+  /** Normaliza filas crudas de storage local (Guest o Legacy) al shape de UI. */
+  function normalizeStoredCardRows(parsed) {
+    if (!Array.isArray(parsed)) return null;
+    return parsed
+      .filter((c) => c && typeof c === 'object' && !c.isGuide && !cardIdsEqual(c.id, WELCOME_CARD_ID))
+      .filter((c) => !isDemoTestCard(c))
+      .map((c) => ({
+        id: normalizePersistedCardId(c.id),
+        title: String(c.title || 'Sin título'),
+        description: String(c.description || ''),
+        url: String(c.url || 'https://inboxzero.es'),
+        category: normalizeCategoryId(c.category) || UNCATEGORIZED_ID,
+        favorite: Boolean(c.favorite),
+        readLater: Boolean(c.readLater),
+        notes: String(c.notes || ''),
+        image: resolveDisplayImage(c.image, c.url),
+        youtubeId: c.youtubeId || extractYoutubeVideoId(c.url) || undefined,
+        socialBrand: c.socialBrand || detectSocialBrand(c.url) || undefined,
+      }));
   }
 
-  function loadCardsFromStorage() {
-    try {
-      const raw = localStorage.getItem(CARDS_STORAGE_KEY);
-      if (!raw) return null;
-      const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed)) return null;
-      return parsed
-        .filter((c) => c && typeof c === 'object' && !c.isGuide && c.id !== WELCOME_CARD_ID)
-        .filter((c) => !isDemoTestCard(c))
-        .map((c) => ({
-          id: Number(c.id) || Date.now(),
-          title: String(c.title || 'Sin título'),
-          description: String(c.description || ''),
-          url: String(c.url || 'https://inboxzero.es'),
-          category: normalizeCategoryId(c.category) || UNCATEGORIZED_ID,
-          favorite: Boolean(c.favorite),
-          readLater: Boolean(c.readLater),
-          notes: String(c.notes || ''),
-          image: resolveDisplayImage(c.image, c.url),
-          youtubeId: c.youtubeId || extractYoutubeVideoId(c.url) || undefined,
-          socialBrand: c.socialBrand || detectSocialBrand(c.url) || undefined,
-        }));
-    } catch (err) {
-      console.warn('[InboxZero] No se pudo leer localStorage', err);
-      return null;
+  /** true cuando ya se resolvió Guest vs Cloud; bloquea escrituras durante el boot (DP5). */
+  let librarySessionReady = false;
+
+  /**
+   * S1.3 — persistencia consciente de sesión.
+   * Sin sesión → Guest. Con sesión → caché UID (nunca Legacy; nunca Guest con sesión).
+   */
+  function persistCards() {
+    if (!librarySessionReady) return;
+    const uid = currentAuthUser?.id ? String(currentAuthUser.id) : '';
+    if (uid) {
+      saveUserCardsCache(uid, serializeUserCards());
+      return;
     }
+    saveGuestCardsStorage(serializeUserCards());
+  }
+
+  /**
+   * Carga local Guest (o Legacy solo-lectura si Guest vacío).
+   * No usa caché UID ni Cloud — eso va por hydrateLibraryForAuthUser.
+   */
+  function loadCardsFromStorage() {
+    const guestRaw = getGuestCardsStorage();
+    const guestNormalized = normalizeStoredCardRows(guestRaw);
+    if (guestNormalized && guestNormalized.length > 0) return guestNormalized;
+
+    if (hasLegacyCardsStorage()) {
+      const legacyNormalized = normalizeStoredCardRows(readLegacyCardsStorage());
+      if (legacyNormalized && legacyNormalized.length > 0) return legacyNormalized;
+    }
+
+    if (guestNormalized) return guestNormalized;
+    return null;
+  }
+
+  /** Mapea fila public.cards → shape UI (derivados FE en hidratación). */
+  function mapCloudCardToUi(row) {
+    const url = String(row?.url || '');
+    return {
+      id: String(row?.id || createCardId()),
+      title: String(row?.title || ''),
+      description: String(row?.description || ''),
+      url,
+      category: normalizeCategoryId(row?.category) || UNCATEGORIZED_ID,
+      favorite: Boolean(row?.favorite),
+      readLater: Boolean(row?.readLater),
+      notes: String(row?.notes || ''),
+      image: resolveDisplayImage(row?.image, url),
+      youtubeId: extractYoutubeVideoId(url) || undefined,
+      socialBrand: detectSocialBrand(url) || undefined,
+      creado_en: row?.creado_en || undefined,
+    };
+  }
+
+  function setLibraryBootLoading(active) {
+    if (active) {
+      if (sectionTitle) {
+        sectionTitle.textContent = 'Cargando tu biblioteca...';
+      }
+      if (cardsGrid) {
+        cardsGrid.innerHTML =
+          '<p class="empty-state library-loading" role="status">Cargando tu biblioteca...</p>';
+      }
+      return;
+    }
+    // El contenido definitivo lo pinta renderCards(); aquí solo limpiamos el marker si quedara.
+    const loadingEl = cardsGrid?.querySelector('.library-loading');
+    if (loadingEl) loadingEl.remove();
   }
 
   function ensureWelcomeCardPresent() {
@@ -871,11 +1601,9 @@ document.addEventListener('i18n:ready', () => {
     }
   }
 
-  // Estado inicial: solo la ficha guía (escritorio del usuario en 0).
-  // Restaura fichas reales desde localStorage y descarta demos "Ficha de prueba #N".
-  const storedUserCards = loadCardsFromStorage() || [];
-  cards = [{ ...WELCOME_CARD }, ...storedUserCards];
-  persistCards();
+  // Boot S1.3 (DP5): solo guía hasta resolver Auth — no hidratar Guest/Legacy todavía.
+  cards = [{ ...WELCOME_CARD }];
+  setLibraryBootLoading(true);
 
   function isTrialLimitReached() {
     return userCards().length >= TRIAL_MAX;
@@ -1076,9 +1804,13 @@ document.addEventListener('i18n:ready', () => {
     // Mantener el selector del modal sincronizado (vacío si no hay categorías reales)
     const editModal = document.getElementById('modal-edit');
     if (editModal?.classList.contains('active')) {
-      const editingId = parseInt(document.getElementById('edit-card-id')?.value, 10);
-      const editingCard = cards.find((c) => c.id === editingId);
-      populateEditCategorySelect(editingCard && !isGuideCard(editingCard) ? editingCard.category : '');
+      const editingId = readDomCardId(document.getElementById('edit-card-id')?.value);
+      if (previewDraft && isPreviewDraftToken(editingId)) {
+        populateEditCategorySelect(previewDraft.category || UNCATEGORIZED_ID);
+      } else {
+        const editingCard = cards.find((c) => cardIdsEqual(c.id, editingId));
+        populateEditCategorySelect(editingCard && !isGuideCard(editingCard) ? editingCard.category : '');
+      }
     } else {
       populateEditCategorySelect('');
     }
@@ -1250,17 +1982,126 @@ document.addEventListener('i18n:ready', () => {
     persistCards();
   }
 
-  // Guardar nueva ficha: extracción inteligente con Microlink + modal editable
+  /**
+   * S1.3-FIX — hidratación tras Auth (fuera del auth lock).
+   * Sesión: profile + cards Cloud (fuente de verdad) + caché UID.
+   * Sin sesión: Guest/Legacy. No INSERT/UPDATE/DELETE Cloud.
+   */
+  async function hydrateLibraryForAuthUser(user) {
+    const syncId = ++libraryHydrateGeneration;
+    const uid = user?.id ? String(user.id) : '';
+
+    try {
+      if (!uid) {
+        libraryCloudFetchBlocked = false;
+        libraryCloudHydrateInFlight = false;
+        currentProfile = null;
+        const stored = loadCardsFromStorage() || [];
+        if (syncId !== libraryHydrateGeneration) return;
+        cards = [{ ...WELCOME_CARD }, ...stored];
+        librarySessionReady = true;
+        setLibraryBootLoading(false);
+        renderCards();
+        renderDashboardGreeting(null);
+        return;
+      }
+
+      // S1.4-C: un GET Cloud; reentradas Offline → caché UID, sin nuevo GET.
+      if (shouldSkipLibraryCloudFetch()) {
+        if (syncId !== libraryHydrateGeneration) return;
+        const cached = normalizeStoredCardRows(getUserCardsCache(uid)) || [];
+        cards = [{ ...WELCOME_CARD }, ...cached];
+        librarySessionReady = true;
+        setLibraryBootLoading(false);
+        renderCards();
+        renderDashboardGreeting(user);
+        return;
+      }
+
+      // Evitar flash Guest y escrituras mientras llega Cloud
+      libraryCloudHydrateInFlight = true;
+      librarySessionReady = false;
+      cards = [{ ...WELCOME_CARD }];
+      setLibraryBootLoading(true);
+
+      // UID pasado explícitamente: no getSession dentro de los repos
+      const [profileRes, cardsRes] = await Promise.all([
+        fetchOwnProfileRepo(uid),
+        fetchOwnCardsRepo(uid),
+      ]);
+
+      if (shouldBlockLibraryCloudFetch(profileRes, cardsRes)) {
+        libraryCloudFetchBlocked = true;
+      }
+
+      if (syncId !== libraryHydrateGeneration) return;
+
+      if (profileRes.ok && profileRes.data) {
+        currentProfile = profileRes.data;
+      } else {
+        currentProfile = null;
+      }
+
+      let userRows = [];
+      if (cardsRes.ok && Array.isArray(cardsRes.data)) {
+        userRows = cardsRes.data.map(mapCloudCardToUi);
+      } else {
+        console.warn(
+          '[InboxZero] No se pudo cargar cards Cloud; usando caché UID si existe.',
+          cardsRes.code || cardsRes.error
+        );
+        userRows = normalizeStoredCardRows(getUserCardsCache(uid)) || [];
+      }
+
+      if (syncId !== libraryHydrateGeneration) return;
+
+      cards = [{ ...WELCOME_CARD }, ...userRows];
+      librarySessionReady = true;
+      setLibraryBootLoading(false);
+      renderCards();
+      renderDashboardGreeting(user);
+    } catch (err) {
+      if (uid && (isBrowserOffline() || isLibraryCloudNetworkError(err))) {
+        libraryCloudFetchBlocked = true;
+      }
+      console.warn('[InboxZero] Error en hidratación de biblioteca:', err);
+      if (syncId !== libraryHydrateGeneration) return;
+
+      // Recuperable: con sesión NO escribir Guest; usar caché UID o vacío
+      currentProfile = null;
+      if (uid) {
+        const cached = normalizeStoredCardRows(getUserCardsCache(uid)) || [];
+        cards = [{ ...WELCOME_CARD }, ...cached];
+      } else {
+        const stored = loadCardsFromStorage() || [];
+        cards = [{ ...WELCOME_CARD }, ...stored];
+      }
+      librarySessionReady = true;
+      setLibraryBootLoading(false);
+      renderCards();
+      renderDashboardGreeting(uid ? user : null);
+    } finally {
+      if (uid) libraryCloudHydrateInFlight = false;
+      // Solo la generación activa puede cerrar loading / forzar ready
+      if (syncId !== libraryHydrateGeneration) return;
+      if (!librarySessionReady) {
+        librarySessionReady = true;
+        setLibraryBootLoading(false);
+        ensureWelcomeCardPresent();
+        renderCards();
+      }
+    }
+  }
+
+  libraryAuthSyncHandler = hydrateLibraryForAuthUser;
+  setupSupabaseAuth();
+
+  // S1.4-A: Analizar URL → Preview (borrador). Sin persistencia.
   if (btnSave && urlInput) {
     btnSave.addEventListener('click', async () => {
       const val = urlInput.value.trim();
       if (!val) {
         alert(t('messages.invalidUrlOrTitle'));
-        return;
-      }
-
-      if (isTrialLimitReached()) {
-        openTrialLimitModal();
         return;
       }
 
@@ -1338,6 +2179,26 @@ document.addEventListener('i18n:ready', () => {
           if (!isUsableImageUrl(finalImage)) {
             finalImage = resolveDisplayImage('', finalUrl);
           }
+
+          // YouTube: oEmbed al draft (antes del Preview). No escribe cards ni Cloud.
+          if (youtubeId && socialBrand !== 'facebook') {
+            try {
+              const ytMeta = await fetchYoutubeOEmbed(finalUrl);
+              if (ytMeta?.title && (!microlinkOk || !finalTitle || /Video de YouTube \(ID:|Recursos de youtube|Resources from youtube/i.test(finalTitle))) {
+                finalTitle = String(ytMeta.title);
+              }
+              if (ytMeta?.author_name && !finalDesc) {
+                finalDesc = t('messages.youtubeFromAuthor', { author: ytMeta.author_name });
+              }
+              if (ytMeta?.thumbnail_url && isUsableImageUrl(ytMeta.thumbnail_url)) {
+                if (!isUsableImageUrl(finalImage) || /ytimg\.com\/vi\//i.test(String(finalImage))) {
+                  finalImage = String(ytMeta.thumbnail_url);
+                }
+              }
+            } catch (_) {
+              /* Preview con lo ya extraído */
+            }
+          }
         } else {
           finalUrl =
             'https://inboxzero.es/recurso/' +
@@ -1348,12 +2209,10 @@ document.addEventListener('i18n:ready', () => {
           }
         }
 
-        const newCard = {
-          id: Date.now(),
+        const draft = {
           title: finalTitle,
           description: finalDesc,
           url: finalUrl,
-          // Categoría por defecto: Sin clasificar
           category: normalizeCategoryId(currentCategory) || UNCATEGORIZED_ID,
           favorite: false,
           readLater: false,
@@ -1365,47 +2224,14 @@ document.addEventListener('i18n:ready', () => {
           facebookAuthentic: facebookAuthentic || undefined,
         };
 
-        pinGuideFirst([newCard, ...userCards()]);
-        urlInput.value = '';
-        currentCategory = null;
-        currentFilter = 'all';
-        renderCards();
-
-        // Abrir modal editable siempre (con datos reales o vacíos/editables)
-        openEditModal(newCard.id);
-
-        // YouTube: oEmbed solo si Microlink no trajo título útil
-        if (youtubeId && !microlinkOk) {
-          enrichYoutubeCardMetadata(newCard.id, finalUrl, youtubeId);
-        }
+        openPreviewModal(draft);
       } catch (_) {
-        // Último recurso: no bloquear la UI
-        try {
-          const emergencyId = Date.now();
-          pinGuideFirst([
-            {
-              id: emergencyId,
-              title: val,
-              description: '',
-              url: finalUrl || val,
-              category: UNCATEGORIZED_ID,
-              favorite: false,
-              readLater: false,
-              notes: '',
-              image: '',
-            },
-            ...userCards(),
-          ]);
-          urlInput.value = '';
-          renderCards();
-          openEditModal(emergencyId);
-        } catch (__) {
-          /* ignore */
-        }
+        /* S1.4-A: no emergency-create; el Analyze no persiste */
       } finally {
         btnSave.disabled = false;
         btnSave.removeAttribute('aria-busy');
-        if (prevBtnLabel) btnSave.textContent = prevBtnLabel;
+        btnSave.textContent = t('main.analyzeUrl');
+        if (prevBtnLabel && !btnSave.textContent) btnSave.textContent = prevBtnLabel;
       }
     });
 
@@ -1416,7 +2242,7 @@ document.addEventListener('i18n:ready', () => {
 
   async function enrichYoutubeCardMetadata(cardId, pageUrl, videoId) {
     const meta = await fetchYoutubeOEmbed(pageUrl);
-    const card = cards.find((c) => c.id === cardId);
+    const card = cards.find((c) => cardIdsEqual(c.id, cardId));
     if (!card || isGuideCard(card)) return;
 
     let changed = false;
@@ -1448,21 +2274,21 @@ document.addEventListener('i18n:ready', () => {
 
     // Si el modal de edición está abierto para esta ficha, refrescar con datos reales
     const editModal = document.getElementById('modal-edit');
-    const editingId = parseInt(document.getElementById('edit-card-id')?.value, 10);
-    if (editModal?.classList.contains('active') && editingId === cardId) {
+    const editingId = readDomCardId(document.getElementById('edit-card-id')?.value);
+    if (editModal?.classList.contains('active') && cardIdsEqual(editingId, cardId)) {
       openEditModal(cardId);
     }
   }
 
   function toggleFavorite(id) {
-    const card = cards.find(c => c.id === id);
+    const card = cards.find((c) => cardIdsEqual(c.id, id));
     if (!card || isGuideCard(card)) return;
     card.favorite = !card.favorite;
     renderCards();
   }
 
   function toggleReadLater(id) {
-    const card = cards.find(c => c.id === id);
+    const card = cards.find((c) => cardIdsEqual(c.id, id));
     if (!card || isGuideCard(card)) return;
     card.readLater = !card.readLater;
     renderCards();
@@ -1476,7 +2302,7 @@ document.addEventListener('i18n:ready', () => {
   }
 
   function openDeleteConfirmModal(id) {
-    const card = cards.find((c) => c.id === id);
+    const card = cards.find((c) => cardIdsEqual(c.id, id));
     if (!card || isGuideCard(card)) return;
     pendingDeleteId = id;
     openModal('modal-confirm-delete');
@@ -1486,7 +2312,7 @@ document.addEventListener('i18n:ready', () => {
     if (pendingDeleteId == null) return;
     const id = pendingDeleteId;
     pendingDeleteId = null;
-    cards = cards.filter((c) => c.id !== id);
+    cards = cards.filter((c) => !cardIdsEqual(c.id, id));
     ensureWelcomeCardPresent();
     closeModal('modal-confirm-delete');
     renderCards();
@@ -1504,7 +2330,16 @@ document.addEventListener('i18n:ready', () => {
 
     const guide = Boolean(options.guide);
     const brand = options.brand || detectSocialBrand(pageUrl);
-    const resolved = resolveDisplayImage(imageUrl, pageUrl);
+    // Modal: vacío → placeholder; URL usable → exactamente esa (sin favicon/YT de pageUrl)
+    const rawImage = String(imageUrl ?? '').trim();
+    let resolved;
+    if (!rawImage) {
+      resolved = CARD_THUMB_PLACEHOLDER;
+    } else if (isUsableImageUrl(rawImage)) {
+      resolved = rawImage;
+    } else {
+      resolved = resolveDisplayImage(rawImage, pageUrl);
+    }
 
     preview.onerror = function onPreviewError() {
       handleCardThumbError(this);
@@ -1558,8 +2393,322 @@ document.addEventListener('i18n:ready', () => {
     return resolved;
   }
 
+  function restoreEditSaveButton() {
+    const btn = document.getElementById('btn-save-edit');
+    if (!btn) return;
+    btn.disabled = false;
+    btn.removeAttribute('aria-disabled');
+    btn.removeAttribute('title');
+    btn.setAttribute('data-i18n', 'edit.saveChanges');
+    btn.removeAttribute('data-i18n-title');
+    btn.textContent = t('edit.saveChanges');
+  }
+
+  function applyPreviewSaveButtonState() {
+    const btn = document.getElementById('btn-save-edit');
+    if (!btn) return;
+    btn.disabled = false;
+    btn.removeAttribute('aria-disabled');
+    btn.removeAttribute('title');
+    btn.removeAttribute('data-i18n-title');
+    btn.setAttribute('data-i18n', 'main.saveCard');
+    btn.textContent = t('main.saveCard');
+  }
+
+  function ensurePreviewSaveErrorEl() {
+    let el = document.getElementById('preview-save-error');
+    if (el) return el;
+    el = document.createElement('p');
+    el.id = 'preview-save-error';
+    el.className = 'field-error preview-save-error';
+    el.setAttribute('role', 'alert');
+    el.setAttribute('aria-live', 'assertive');
+    const actions = document.querySelector('#modal-edit .edit-modal-actions');
+    if (actions?.parentElement) {
+      actions.parentElement.insertBefore(el, actions);
+    } else {
+      document.querySelector('#modal-edit .edit-modal-fields')?.appendChild(el);
+    }
+    return el;
+  }
+
+  function clearPreviewSaveError() {
+    previewSaveErrorKey = null;
+    const el = document.getElementById('preview-save-error');
+    if (!el) return;
+    el.hidden = true;
+    el.setAttribute('hidden', '');
+    el.style.removeProperty('display');
+    el.textContent = '';
+    el.removeAttribute('data-i18n');
+  }
+
+  function setPreviewSaveError(key) {
+    previewSaveErrorKey = key;
+    const el = ensurePreviewSaveErrorEl();
+    if (!el) return;
+    el.removeAttribute('hidden');
+    el.hidden = false;
+    el.style.display = 'block';
+    el.setAttribute('role', 'alert');
+    el.setAttribute('aria-live', 'assertive');
+    el.setAttribute('data-i18n', key);
+    el.textContent = t(key);
+    try {
+      el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    } catch (_) {
+      /* ignore */
+    }
+  }
+
+  function failClosedPreviewSave(code) {
+    if (code === 'INSERT_LIMIT') {
+      setPreviewSaveError('messages.saveErrorLimit');
+      openTrialLimitModal();
+      return;
+    }
+    if (code === 'NO_SESSION') {
+      setPreviewSaveError('messages.saveErrorSession');
+      return;
+    }
+    if (code === 'INSERT_NETWORK') {
+      setPreviewSaveError('messages.saveErrorNetwork');
+      return;
+    }
+    setPreviewSaveError('messages.saveErrorGeneric');
+  }
+
+  function discardPreviewDraft() {
+    previewDraft = null;
+    restoreEditSaveButton();
+    const modal = document.getElementById('modal-edit');
+    if (!modal?.classList.contains('active')) clearPreviewSaveError();
+  }
+
+  function isPreviewDraftToken(id) {
+    return String(id || '') === PREVIEW_DRAFT_TOKEN;
+  }
+
+  function syncPreviewDraftFromForm() {
+    if (!previewDraft) return;
+    previewDraft.title = document.getElementById('edit-title-input')?.value || previewDraft.title;
+    previewDraft.description = document.getElementById('edit-desc-input')?.value || '';
+    const newCat = document.getElementById('edit-new-category-input')?.value.trim();
+    const selected = document.getElementById('edit-category-select')?.value;
+    previewDraft.category = newCat
+      ? (normalizeCategoryId(newCat) || newCat)
+      : (normalizeCategoryId(selected) || previewDraft.category || UNCATEGORIZED_ID);
+    const imageVal = (document.getElementById('edit-image-input')?.value || '').trim();
+    previewDraft.image = resolveDisplayImage(imageVal || previewDraft.image, previewDraft.url);
+    previewDraft.favorite = Boolean(document.getElementById('edit-fav-check')?.checked);
+    previewDraft.readLater = Boolean(document.getElementById('edit-read-check')?.checked);
+    previewDraft.notes = document.getElementById('edit-notes-input')?.value || '';
+  }
+
+  function buildGuestCardFromDraft(draft) {
+    return {
+      id: createCardId(),
+      title: draft.title || '',
+      description: draft.description || '',
+      url: draft.url || '',
+      category: normalizeCategoryId(draft.category) || UNCATEGORIZED_ID,
+      favorite: Boolean(draft.favorite),
+      readLater: Boolean(draft.readLater),
+      notes: draft.notes || '',
+      image: resolveDisplayImage(draft.image, draft.url),
+      youtubeId: draft.youtubeId || extractYoutubeVideoId(draft.url) || undefined,
+      socialBrand: draft.socialBrand || detectSocialBrand(draft.url) || undefined,
+      facebookSmart: draft.facebookSmart || undefined,
+      facebookAuthentic: draft.facebookAuthentic || undefined,
+    };
+  }
+
+  /**
+   * S1.4-B/C: persiste el Preview. Guest → local; Auth → INSERT Cloud.
+   * Fallo → FAIL CLOSED: no ficha fantasma, Preview y draft intactos, reintento.
+   */
+  async function savePreviewDraftFromModal() {
+    if (previewSaveInFlight) return;
+    if (!previewDraft) {
+      failClosedPreviewSave(currentAuthUser?.id ? 'INSERT_NETWORK' : 'INSERT_ERROR');
+      return;
+    }
+    previewSaveInFlight = true;
+    const btn = document.getElementById('btn-save-edit');
+    if (btn) {
+      btn.disabled = true;
+      btn.setAttribute('aria-busy', 'true');
+    }
+    clearPreviewSaveError();
+    try {
+      syncPreviewDraftFromForm();
+      const draft = previewDraft;
+      if (!draft) {
+        failClosedPreviewSave('INSERT_ERROR');
+        return;
+      }
+      const uid = currentAuthUser?.id ? String(currentAuthUser.id) : '';
+
+      if (uid) {
+        const result = await insertOwnCardRepo({
+          title: draft.title || '',
+          description: draft.description || '',
+          url: draft.url || '',
+          category: draft.category || UNCATEGORIZED_ID,
+          favorite: Boolean(draft.favorite),
+          readLater: Boolean(draft.readLater),
+          notes: draft.notes || '',
+          image: draft.image || '',
+        });
+        if (!result.ok || !result.data || !result.data.id) {
+          failClosedPreviewSave(result.code || 'INSERT_ERROR');
+          return;
+        }
+        try {
+          const uiCard = mapCloudCardToUi(result.data);
+          pinGuideFirst([uiCard, ...userCards()]);
+          renderCards();
+        } finally {
+          document.getElementById('modal-edit')?.classList.remove('active');
+          discardPreviewDraft();
+        }
+        return;
+      }
+
+      const newCard = buildGuestCardFromDraft(draft);
+      const stored = serializeUserCards().concat([
+        {
+          id: String(newCard.id),
+          title: newCard.title,
+          description: newCard.description,
+          url: newCard.url,
+          category: newCard.category,
+          favorite: Boolean(newCard.favorite),
+          readLater: Boolean(newCard.readLater),
+          notes: newCard.notes || '',
+          image: newCard.image,
+          youtubeId: newCard.youtubeId,
+          socialBrand: newCard.socialBrand,
+        },
+      ]);
+      const written = saveGuestCardsStorage(stored);
+      if (!written) {
+        failClosedPreviewSave('INSERT_ERROR');
+        return;
+      }
+      try {
+        pinGuideFirst([newCard, ...userCards()]);
+        renderCards();
+      } finally {
+        document.getElementById('modal-edit')?.classList.remove('active');
+        discardPreviewDraft();
+      }
+    } catch (_) {
+      if (previewDraft) {
+        failClosedPreviewSave(currentAuthUser?.id ? 'INSERT_NETWORK' : 'INSERT_ERROR');
+      }
+    } finally {
+      previewSaveInFlight = false;
+      if (btn) btn.removeAttribute('aria-busy');
+      if (previewDraft) applyPreviewSaveButtonState();
+    }
+  }
+
+  /** S1.4-A: Preview editable desde draft. No toca `cards` ni storage. */
+  function openPreviewModal(draft, options) {
+    const modal = document.getElementById('modal-edit');
+    if (!modal || !draft) return;
+
+    previewDraft = draft;
+    if (!options?.keepError) clearPreviewSaveError();
+
+    const setValue = (elId, value) => {
+      const el = document.getElementById(elId);
+      if (el) el.value = value;
+    };
+    const setChecked = (elId, value) => {
+      const el = document.getElementById(elId);
+      if (el) el.checked = value;
+    };
+
+    const pageUrl = String(previewDraft.url || '');
+    const ytId = previewDraft.youtubeId || extractYoutubeVideoId(pageUrl);
+    const socialForThumb = detectSocialBrand(pageUrl);
+    if (ytId && socialForThumb !== 'facebook') {
+      previewDraft.youtubeId = ytId;
+      if (!isUsableImageUrl(previewDraft.image) || /unsplash\.com/i.test(String(previewDraft.image || ''))) {
+        previewDraft.image = getYoutubeThumbUrl(ytId, 'hqdefault');
+      }
+    }
+    previewDraft.socialBrand = previewDraft.socialBrand || socialForThumb || undefined;
+
+    const isFacebookCard = detectSocialBrand(pageUrl) === 'facebook';
+    if (isFacebookCard) {
+      previewDraft.socialBrand = 'facebook';
+      previewDraft.youtubeId = undefined;
+      if (!previewDraft.facebookAuthentic || isFacebookContingencyImage(previewDraft.image)) {
+        if (!previewDraft.title || isUglyFacebookTitle(previewDraft.title)) {
+          previewDraft.title = getFacebookDefaultTitle();
+        }
+        if (isLegacyFacebookDescription(previewDraft.description)) {
+          previewDraft.description = getFacebookDefaultDescription();
+        }
+        if (!previewDraft.image || isFacebookContingencyImage(previewDraft.image)) {
+          previewDraft.image = getFacebookContingencyLogo();
+        }
+        if (isFacebookContingencyImage(previewDraft.image)) {
+          previewDraft.facebookAuthentic = false;
+          previewDraft.facebookSmart = true;
+        }
+      } else {
+        previewDraft.facebookSmart = false;
+      }
+    }
+
+    const previewImage = resolveDisplayImage(
+      isFacebookCard ? (previewDraft.image || getFacebookContingencyLogo()) : previewDraft.image,
+      pageUrl
+    );
+    if (isUsableImageUrl(previewImage)) {
+      previewDraft.image = previewImage;
+    }
+
+    setValue('edit-card-id', PREVIEW_DRAFT_TOKEN);
+    setValue('edit-title-input', previewDraft.title || '');
+    setValue('edit-desc-input', previewDraft.description || '');
+    populateEditCategorySelect(previewDraft.category || UNCATEGORIZED_ID);
+    setValue('edit-new-category-input', '');
+    setValue('edit-image-input', previewImage === CARD_THUMB_PLACEHOLDER ? '' : previewImage);
+    updateEditPreview(previewImage, pageUrl, {
+      guide: false,
+      brand: previewDraft.socialBrand || socialForThumb,
+    });
+    setValue('edit-notes-input', previewDraft.notes || '');
+    setChecked('edit-fav-check', Boolean(previewDraft.favorite));
+    setChecked('edit-read-check', Boolean(previewDraft.readLater));
+
+    const visitLink = document.getElementById('edit-visit-link');
+    if (visitLink) visitLink.href = pageUrl || '#';
+
+    applyPreviewSaveButtonState();
+    modal.classList.add('active');
+
+    const focusTitle = () => {
+      const titleInput = document.getElementById('edit-title-input');
+      if (!titleInput) return;
+      titleInput.focus({ preventScroll: true });
+      titleInput.select();
+    };
+    requestAnimationFrame(() => {
+      focusTitle();
+      setTimeout(focusTitle, 40);
+    });
+  }
+
   function openEditModal(id) {
-    const card = cards.find(c => c.id === id);
+    discardPreviewDraft();
+    clearPreviewSaveError();
+    const card = cards.find((c) => cardIdsEqual(c.id, id));
     const modal = document.getElementById('modal-edit');
     if (!card || !modal) return;
 
@@ -1677,8 +2826,8 @@ document.addEventListener('i18n:ready', () => {
       if (!btn || !cardsGrid.contains(btn)) return;
 
       const action = btn.getAttribute('data-action');
-      const id = Number(btn.getAttribute('data-id'));
-      if (!Number.isFinite(id)) return;
+      const id = readDomCardId(btn.getAttribute('data-id'));
+      if (!id) return;
 
       e.preventDefault();
       e.stopPropagation();
@@ -1717,6 +2866,12 @@ document.addEventListener('i18n:ready', () => {
     const retentionModal = document.getElementById('modal-retention');
     if (retentionModal?.classList.contains('active')) {
       closeRetentionModal();
+      return;
+    }
+    const editModalEsc = document.getElementById('modal-edit');
+    if (editModalEsc?.classList.contains('active')) {
+      editModalEsc.classList.remove('active');
+      discardPreviewDraft();
     }
   });
 
@@ -1807,9 +2962,16 @@ document.addEventListener('i18n:ready', () => {
   const btnSaveEdit = document.getElementById('btn-save-edit');
   if (btnSaveEdit) {
     btnSaveEdit.addEventListener('click', () => {
-      const id = parseInt(document.getElementById('edit-card-id')?.value, 10);
-      const card = cards.find(c => c.id === id);
-      if (!card) return;
+      const id = readDomCardId(document.getElementById('edit-card-id')?.value);
+      if (previewDraft || isPreviewDraftToken(id)) {
+        savePreviewDraftFromModal();
+        return;
+      }
+      const card = cards.find((c) => cardIdsEqual(c.id, id));
+      if (!card) {
+        failClosedPreviewSave(currentAuthUser?.id ? 'INSERT_NETWORK' : 'INSERT_ERROR');
+        return;
+      }
 
       // La ficha guía permanece blindada: textos viven en i18n (welcome.*), no se fijan en español
       if (isGuideCard(card)) {
@@ -1890,13 +3052,31 @@ document.addEventListener('i18n:ready', () => {
     });
   }
 
+  const editModalEl = document.getElementById('modal-edit');
+  if (editModalEl && !editModalEl.dataset.draftSyncBound) {
+    editModalEl.dataset.draftSyncBound = '1';
+    const syncDraftFields = () => {
+      if (previewDraft) syncPreviewDraftFromForm();
+    };
+    editModalEl.addEventListener('input', syncDraftFields);
+    editModalEl.addEventListener('change', syncDraftFields);
+  }
+
   // Vista previa en vivo al editar la URL de imagen
   const editImageInput = document.getElementById('edit-image-input');
   if (editImageInput && !editImageInput.dataset.previewBound) {
     editImageInput.dataset.previewBound = '1';
     const syncPreviewFromInput = () => {
-      const id = parseInt(document.getElementById('edit-card-id')?.value, 10);
-      const card = cards.find((c) => c.id === id);
+      const id = readDomCardId(document.getElementById('edit-card-id')?.value);
+      if (previewDraft && isPreviewDraftToken(id)) {
+        syncPreviewDraftFromForm();
+        updateEditPreview(editImageInput.value.trim(), previewDraft.url || '', {
+          guide: false,
+          brand: previewDraft.socialBrand || detectSocialBrand(previewDraft.url || ''),
+        });
+        return;
+      }
+      const card = cards.find((c) => cardIdsEqual(c.id, id));
       const pageUrl = card?.url || '';
       updateEditPreview(editImageInput.value.trim(), pageUrl, {
         guide: card ? isGuideCard(card) : false,
@@ -2066,12 +3246,16 @@ document.addEventListener('i18n:ready', () => {
     el.addEventListener('click', () => {
       const modalId = el.getAttribute('data-close');
       document.getElementById(modalId).classList.remove('active');
+      if (modalId === 'modal-edit') discardPreviewDraft();
     });
   });
 
   document.querySelectorAll('.modal-overlay').forEach(overlay => {
     overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) overlay.classList.remove('active');
+      if (e.target === overlay) {
+        overlay.classList.remove('active');
+        if (overlay.id === 'modal-edit') discardPreviewDraft();
+      }
     });
   });
 
@@ -2080,10 +3264,17 @@ document.addEventListener('i18n:ready', () => {
     renderDashboardGreeting(currentAuthUser);
     const editModal = document.getElementById('modal-edit');
     if (editModal?.classList.contains('active')) {
-      const editingId = parseInt(document.getElementById('edit-card-id')?.value, 10);
-      const editingCard = cards.find((c) => c.id === editingId);
-      if (editingCard) {
-        openEditModal(editingId);
+      const editingId = readDomCardId(document.getElementById('edit-card-id')?.value);
+      if (previewDraft && isPreviewDraftToken(editingId)) {
+        syncPreviewDraftFromForm();
+        const errorKey = previewSaveErrorKey;
+        openPreviewModal(previewDraft, { keepError: true });
+        if (errorKey) setPreviewSaveError(errorKey);
+      } else {
+        const editingCard = cards.find((c) => cardIdsEqual(c.id, editingId));
+        if (editingCard) {
+          openEditModal(editingId);
+        }
       }
     } else {
       populateEditCategorySelect('');
@@ -2097,5 +3288,5 @@ document.addEventListener('i18n:ready', () => {
   });
 
   renderDashboardGreeting(currentAuthUser);
-  renderCards();
+  // renderCards lo dispara hydrateLibraryForAuthUser tras resolver Auth (S1.3)
 });

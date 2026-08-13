@@ -50,6 +50,7 @@
   },
   "main": {
     "urlPlaceholder": "Collez un lien (https://...) ou un titre...",
+    "analyzeUrl": "Analyser l'URL",
     "saveCard": "Enregistrer la fiche",
     "sectionLatest": "Dernières fiches enregistrées",
     "showingCards": "Affichage de {{count}} fiche(s)",
@@ -150,7 +151,8 @@
     "notesLabel": "Notes :",
     "notesPlaceholder": "Notes privées...",
     "visitOriginal": "Visiter le site original ↗",
-    "saveChanges": "Enregistrer les modifications"
+    "saveChanges": "Enregistrer les modifications",
+    "savePending": "Enregistrer la fiche sera disponible à l'étape suivante. Ce bouton ne crée pas encore la fiche."
   },
   "cards": {
     "favoriteTitle": "Favori",
@@ -167,7 +169,11 @@
     "resourcesFromHost": "Ressources de {{host}}",
     "youtubeTempTitle": "Vidéo YouTube (ID : {{id}})",
     "youtubeCardDesc": "Vidéo enregistrée depuis YouTube",
-    "youtubeFromAuthor": "YouTube · {{author}}"
+    "youtubeFromAuthor": "YouTube · {{author}}",
+    "saveErrorGeneric": "Impossible d'enregistrer la fiche. Veuillez réessayer.",
+    "saveErrorNetwork": "Connexion impossible. Vérifiez votre connexion et réessayez.",
+    "saveErrorSession": "Votre session n'est pas disponible. Connectez-vous et réessayez. La fiche n'a pas été enregistrée.",
+    "saveErrorLimit": "Vous avez atteint la limite de fiches de votre forfait gratuit. La fiche n'a pas été enregistrée."
   },
   "social": {
     "facebook": {

@@ -50,6 +50,7 @@
   },
   "main": {
     "urlPlaceholder": "Cole um link (https://...) ou título...",
+    "analyzeUrl": "Analisar URL",
     "saveCard": "Guardar ficha",
     "sectionLatest": "Últimas fichas guardadas",
     "showingCards": "A mostrar {{count}} ficha(s)",
@@ -150,7 +151,8 @@
     "notesLabel": "Notas:",
     "notesPlaceholder": "Notas privadas...",
     "visitOriginal": "Visitar site original ↗",
-    "saveChanges": "Guardar alterações"
+    "saveChanges": "Guardar alterações",
+    "savePending": "Guardar ficha estará disponível no passo seguinte. Este botão ainda não cria a ficha."
   },
   "cards": {
     "favoriteTitle": "Favorito",
@@ -167,7 +169,11 @@
     "resourcesFromHost": "Recursos de {{host}}",
     "youtubeTempTitle": "Vídeo do YouTube (ID: {{id}})",
     "youtubeCardDesc": "Vídeo guardado do YouTube",
-    "youtubeFromAuthor": "YouTube · {{author}}"
+    "youtubeFromAuthor": "YouTube · {{author}}",
+    "saveErrorGeneric": "Não foi possível guardar a ficha. Tente novamente.",
+    "saveErrorNetwork": "Não foi possível ligar. Verifique a ligação e tente novamente.",
+    "saveErrorSession": "A sua sessão não está disponível. Inicie sessão e tente novamente. A ficha não foi guardada.",
+    "saveErrorLimit": "Atingiu o limite de fichas do plano gratuito. A ficha não foi guardada."
   },
   "social": {
     "facebook": {

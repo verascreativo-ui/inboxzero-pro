@@ -50,6 +50,7 @@
   },
   "main": {
     "urlPlaceholder": "Paste a link (https://...) or title...",
+    "analyzeUrl": "Analyze URL",
     "saveCard": "Save Card",
     "sectionLatest": "Latest Saved Cards",
     "showingCards": "Showing {{count}} card(s)",
@@ -150,7 +151,8 @@
     "notesLabel": "Notes:",
     "notesPlaceholder": "Private notes...",
     "visitOriginal": "Visit original site ↗",
-    "saveChanges": "Save changes"
+    "saveChanges": "Save changes",
+    "savePending": "Save Card will be available in the next step. This button does not create a card yet."
   },
   "cards": {
     "favoriteTitle": "Favorite",
@@ -167,7 +169,11 @@
     "resourcesFromHost": "Resources from {{host}}",
     "youtubeTempTitle": "YouTube video (ID: {{id}})",
     "youtubeCardDesc": "Video saved from YouTube",
-    "youtubeFromAuthor": "YouTube · {{author}}"
+    "youtubeFromAuthor": "YouTube · {{author}}",
+    "saveErrorGeneric": "The card could not be saved. Please try again.",
+    "saveErrorNetwork": "Could not connect. Check your connection and try again.",
+    "saveErrorSession": "Your session is not available. Sign in and try again. The card was not saved.",
+    "saveErrorLimit": "You have reached the card limit of your free plan. The card was not saved."
   },
   "social": {
     "facebook": {

@@ -50,6 +50,7 @@
   },
   "main": {
     "urlPlaceholder": "Link einfügen (https://...) oder Titel...",
+    "analyzeUrl": "URL analysieren",
     "saveCard": "Karte speichern",
     "sectionLatest": "Zuletzt gespeicherte Karten",
     "showingCards": "{{count}} Karte(n) angezeigt",
@@ -150,7 +151,8 @@
     "notesLabel": "Notizen:",
     "notesPlaceholder": "Private Notizen...",
     "visitOriginal": "Originalwebsite besuchen ↗",
-    "saveChanges": "Änderungen speichern"
+    "saveChanges": "Änderungen speichern",
+    "savePending": "Karte speichern folgt im nächsten Schritt. Diese Schaltfläche erstellt noch keine Karte."
   },
   "cards": {
     "favoriteTitle": "Favorit",
@@ -167,7 +169,11 @@
     "resourcesFromHost": "Ressourcen von {{host}}",
     "youtubeTempTitle": "YouTube-Video (ID: {{id}})",
     "youtubeCardDesc": "Video von YouTube gespeichert",
-    "youtubeFromAuthor": "YouTube · {{author}}"
+    "youtubeFromAuthor": "YouTube · {{author}}",
+    "saveErrorGeneric": "Die Karte konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.",
+    "saveErrorNetwork": "Verbindung fehlgeschlagen. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+    "saveErrorSession": "Ihre Sitzung ist nicht verfügbar. Melden Sie sich an und versuchen Sie es erneut. Die Karte wurde nicht gespeichert.",
+    "saveErrorLimit": "Sie haben das Kartenlimit Ihres kostenlosen Plans erreicht. Die Karte wurde nicht gespeichert."
   },
   "social": {
     "facebook": {

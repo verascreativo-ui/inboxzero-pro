@@ -109,7 +109,7 @@
       <div class="top-action-bar">
         <div class="add-card-container">
           <input type="text" id="url-input" data-i18n-placeholder="main.urlPlaceholder" placeholder="Pega un enlace (https://...) o título...">
-          <button id="btn-save-card" class="btn-save-custom" data-i18n="main.saveCard">Guardar Ficha</button>
+          <button id="btn-save-card" class="btn-save-custom" data-i18n="main.analyzeUrl">Analizar URL</button>
         </div>
       </div>
 
@@ -272,6 +272,7 @@
               <label for="edit-notes-input" data-i18n="edit.notesLabel">Notas:</label>
               <textarea id="edit-notes-input" rows="2" data-i18n-placeholder="edit.notesPlaceholder" placeholder="Notas privadas..." class="modal-textarea"></textarea>
             </div>
+            <p id="preview-save-error" class="field-error preview-save-error" hidden role="alert" aria-live="assertive"></p>
             <div class="edit-modal-actions">
               <a id="edit-visit-link" href="#" target="_blank" class="visit-web-link" data-i18n="edit.visitOriginal">Visitar Web original ↗</a>
               <div class="edit-modal-action-btns">
