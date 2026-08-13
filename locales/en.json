@@ -22,6 +22,7 @@
   },
   "header": {
     "trialPlan": "Free Trial Plan: {{current}} / {{max}} Cards",
+    "premiumPlan": "Premium · Unlimited cards",
     "libraryDropdown": "My Library ▾",
     "help": "Help in 3 steps",
     "login": "Sign In",
@@ -132,6 +133,11 @@
     "message": "You've reached the limit of your Free Trial Plan! 🚀 If you want to keep saving and organizing all your knowledge in one click with no limits, subscribe to our Pro Plan.",
     "cta": "Subscribe Now",
     "later": "Not now"
+  },
+  "duplicateUrl": {
+    "message": "This URL is already in your library.",
+    "cancel": "Cancel",
+    "saveAnyway": "Save anyway"
   },
   "edit": {
     "title": "Customize your Card",

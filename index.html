@@ -308,6 +308,18 @@
     </div>
   </div>
 
+  <!-- S1.4-D: URL duplicada — Cancelar | Guardar igualmente -->
+  <div id="modal-duplicate-url" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="duplicate-url-message">
+    <div class="modal-box modal-box-duplicate">
+      <button type="button" class="modal-close" data-close="modal-duplicate-url" data-i18n="modals.close" aria-label="Cerrar">✕</button>
+      <p id="duplicate-url-message" class="duplicate-url-message" data-i18n="duplicateUrl.message">Esta URL ya está en tu biblioteca.</p>
+      <div class="modal-footer modal-footer-duplicate">
+        <button type="button" class="modal-action-btn modal-btn-cancel" data-close="modal-duplicate-url" data-i18n="duplicateUrl.cancel">Cancelar</button>
+        <button type="button" class="btn-primary modal-action-btn" id="btn-duplicate-save-anyway" data-i18n="duplicateUrl.saveAnyway">Guardar igualmente</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal Suscripción / Stripe -->
   <div id="modal-subscribe" class="modal-overlay">
     <div class="modal-box modal-box-login">

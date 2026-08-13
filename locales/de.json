@@ -22,6 +22,7 @@
   },
   "header": {
     "trialPlan": "Kostenloser Testplan: {{current}} / {{max}} Karten",
+    "premiumPlan": "Premium · Unbegrenzte Karten",
     "libraryDropdown": "Meine Bibliothek ▾",
     "help": "Hilfe in 3 Schritten",
     "login": "Anmelden",
@@ -132,6 +133,11 @@
     "message": "Sie haben das Limit Ihres Testplans erreicht! 🚀 Wenn Sie Ihr Wissen weiterhin mit einem Klick und ohne Limits speichern und organisieren möchten, abonnieren Sie unseren Pro-Plan.",
     "cta": "Jetzt abonnieren",
     "later": "Jetzt nicht"
+  },
+  "duplicateUrl": {
+    "message": "Diese URL ist bereits in Ihrer Bibliothek.",
+    "cancel": "Abbrechen",
+    "saveAnyway": "Trotzdem speichern"
   },
   "edit": {
     "title": "Karte anpassen",

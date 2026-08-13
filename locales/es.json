@@ -22,6 +22,7 @@
   },
   "header": {
     "trialPlan": "Plan de Prueba Gratuito: {{current}} / {{max}} Fichas",
+    "premiumPlan": "Premium · Fichas ilimitadas",
     "libraryDropdown": "Mi Biblioteca ▾",
     "help": "Ayuda en 3 pasos",
     "login": "Iniciar Sesión",
@@ -132,6 +133,11 @@
     "message": "¡Has alcanzado el límite de tu Plan de Prueba! 🚀 Si quieres seguir guardando y organizando todo tu conocimiento a un clic y sin límites, suscríbete a nuestro Plan Pro.",
     "cta": "Suscribirme Ahora",
     "later": "Ahora no"
+  },
+  "duplicateUrl": {
+    "message": "Esta URL ya está en tu biblioteca.",
+    "cancel": "Cancelar",
+    "saveAnyway": "Guardar igualmente"
   },
   "edit": {
     "title": "Personaliza tu Ficha",

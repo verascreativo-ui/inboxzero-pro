@@ -85,6 +85,10 @@ body {
   transition: width 0.3s ease;
 }
 
+.progress-container--unlimited .progress-bar-bg {
+  display: none;
+}
+
 .locale-switch {
   display: flex;
   align-items: center;
@@ -901,8 +905,28 @@ footer {
   display: flex;
 }
 
-#modal-trial-limit.active {
+#modal-trial-limit.active,
+#modal-duplicate-url.active {
   z-index: 1100;
+}
+
+.modal-box-duplicate {
+  max-width: 420px;
+  padding: 22px 22px 18px;
+}
+
+.duplicate-url-message {
+  margin: 8px 28px 18px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.4;
+}
+
+.modal-footer-duplicate {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 /* Backdrop premium del modal de borrado */

@@ -22,6 +22,7 @@
   },
   "header": {
     "trialPlan": "Forfait d'essai gratuit : {{current}} / {{max}} fiches",
+    "premiumPlan": "Premium · Fiches illimitées",
     "libraryDropdown": "Ma bibliothèque ▾",
     "help": "Aide en 3 étapes",
     "login": "Se connecter",
@@ -132,6 +133,11 @@
     "message": "Vous avez atteint la limite de votre plan d'essai ! 🚀 Si vous voulez continuer à enregistrer et organiser tout votre savoir en un clic et sans limites, abonnez-vous à notre Plan Pro.",
     "cta": "M'abonner maintenant",
     "later": "Pas maintenant"
+  },
+  "duplicateUrl": {
+    "message": "Cette URL est déjà dans votre bibliothèque.",
+    "cancel": "Annuler",
+    "saveAnyway": "Enregistrer quand même"
   },
   "edit": {
     "title": "Personnalisez votre fiche",

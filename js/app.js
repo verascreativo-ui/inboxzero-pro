@@ -1,5 +1,35 @@
 const TRIAL_MAX = 20;
 
+/**
+ * S1.4-D: normalización conservadora para duplicados de URL.
+ * Equivalencias: trim, hostname en minúsculas, puerto por defecto, slash final.
+ * No equivale: http/https, www/apex, query distinta.
+ */
+function normalizeUrlForDuplicateCheck(raw) {
+  const trimmed = String(raw || '').trim();
+  if (!trimmed) return '';
+  let parsed;
+  try {
+    parsed = new URL(trimmed);
+  } catch (_) {
+    return trimmed;
+  }
+  const protocol = String(parsed.protocol || '').toLowerCase();
+  const hostname = String(parsed.hostname || '').toLowerCase();
+  if (!hostname) return trimmed;
+  const port = String(parsed.port || '');
+  const defaultPort =
+    (protocol === 'http:' && (!port || port === '80')) ||
+    (protocol === 'https:' && (!port || port === '443'));
+  const host = defaultPort || !port ? hostname : `${hostname}:${port}`;
+  let pathname = parsed.pathname || '/';
+  if (pathname.length > 1) {
+    pathname = pathname.replace(/\/+$/, '');
+    if (!pathname) pathname = '/';
+  }
+  return `${protocol}//${host}${pathname}${parsed.search}${parsed.hash}`;
+}
+
 // =============================================================================
 // S1.1 — Storage local (Guest / Legacy / caché por UID)
 // Contrato v1.1 + DP1/DP2. La clave global legacy NO es escritura normal.
@@ -1046,6 +1076,13 @@ async function deleteOwnCardRepo(cardId) {
 let currentAuthUser = null;
 /** Perfil Cloud (S1.3); nombre para saludo según DP7. */
 let currentProfile = null;
+
+/** S1.4-D: Premium solo con tipo_plan leído. Sin perfil → no Premium (fail-safe). */
+function isPremiumPlan() {
+  return String(currentProfile && currentProfile.tipo_plan ? currentProfile.tipo_plan : '').toLowerCase() ===
+    'premium';
+}
+
 /**
  * Callback registrado desde el closure de la biblioteca (i18n:ready).
  * Hidrata Guest vs Cloud tras Auth — no cablea INSERT/UPDATE/DELETE.
@@ -1606,7 +1643,26 @@ document.addEventListener('i18n:ready', () => {
   setLibraryBootLoading(true);
 
   function isTrialLimitReached() {
+    // S1.4-D: Premium ilimitado en UI. Sin tipo_plan (Guest / Offline) → tope 20.
+    if (isPremiumPlan()) return false;
     return userCards().length >= TRIAL_MAX;
+  }
+
+  function libraryHasDuplicateUrl(url) {
+    const key = normalizeUrlForDuplicateCheck(url);
+    if (!key) return false;
+    return userCards().some((card) => {
+      const other = normalizeUrlForDuplicateCheck(card && card.url);
+      return Boolean(other) && other === key;
+    });
+  }
+
+  function openDuplicateUrlModal() {
+    openModal('modal-duplicate-url');
+  }
+
+  function closeDuplicateUrlModal() {
+    closeModal('modal-duplicate-url');
   }
 
   function openModal(modalId) {
@@ -1628,9 +1684,23 @@ document.addEventListener('i18n:ready', () => {
 
   function updateTrialPlanLabel(current) {
     if (!trialPlanText) return;
+    const progressBox = trialPlanText.closest('.progress-container');
+    if (isPremiumPlan()) {
+      progressBox?.classList.add('progress-container--unlimited');
+      trialPlanText.removeAttribute('data-i18n-vars');
+      trialPlanText.setAttribute('data-i18n', 'header.premiumPlan');
+      trialPlanText.textContent = t('header.premiumPlan');
+      if (progressFill) progressFill.style.width = '0%';
+      return;
+    }
+    progressBox?.classList.remove('progress-container--unlimited');
     const vars = { current, max: TRIAL_MAX };
+    trialPlanText.setAttribute('data-i18n', 'header.trialPlan');
     trialPlanText.setAttribute('data-i18n-vars', JSON.stringify(vars));
     trialPlanText.textContent = t('header.trialPlan', vars);
+    if (progressFill) {
+      progressFill.style.width = `${Math.min((current / TRIAL_MAX) * 100, 100)}%`;
+    }
   }
 
   function updateShowingCounter(count) {
@@ -1970,9 +2040,6 @@ document.addEventListener('i18n:ready', () => {
     // Métricas: solo fichas reales (la Guía no suma)
     const trialCount = userCards().length;
     updateTrialPlanLabel(trialCount);
-    if (progressFill) {
-      progressFill.style.width = `${Math.min((trialCount / TRIAL_MAX) * 100, 100)}%`;
-    }
     const shownUserCount = filtered.filter((c) => !isGuideCard(c)).length;
     updateShowingCounter(
       currentFilter === 'all' && !currentCategory ? trialCount : shownUserCount
@@ -2102,6 +2169,12 @@ document.addEventListener('i18n:ready', () => {
       const val = urlInput.value.trim();
       if (!val) {
         alert(t('messages.invalidUrlOrTitle'));
+        return;
+      }
+
+      // S1.4-D: gate de Analyze (optimización). Guardar vuelve a comprobar.
+      if (isTrialLimitReached()) {
+        openTrialLimitModal();
         return;
       }
 
@@ -2524,10 +2597,11 @@ document.addEventListener('i18n:ready', () => {
   }
 
   /**
-   * S1.4-B/C: persiste el Preview. Guest → local; Auth → INSERT Cloud.
+   * S1.4-B/C/D: persiste el Preview. Guest → local; Auth → INSERT Cloud.
+   * Orden Guardar: in-flight → sync → límite → duplicado → persistencia B → errores C.
    * Fallo → FAIL CLOSED: no ficha fantasma, Preview y draft intactos, reintento.
    */
-  async function savePreviewDraftFromModal() {
+  async function savePreviewDraftFromModal(options) {
     if (previewSaveInFlight) return;
     if (!previewDraft) {
       failClosedPreviewSave(currentAuthUser?.id ? 'INSERT_NETWORK' : 'INSERT_ERROR');
@@ -2547,6 +2621,17 @@ document.addEventListener('i18n:ready', () => {
         failClosedPreviewSave('INSERT_ERROR');
         return;
       }
+
+      if (isTrialLimitReached()) {
+        failClosedPreviewSave('INSERT_LIMIT');
+        return;
+      }
+
+      if (!(options && options.allowDuplicate) && libraryHasDuplicateUrl(draft.url)) {
+        openDuplicateUrlModal();
+        return;
+      }
+
       const uid = currentAuthUser?.id ? String(currentAuthUser.id) : '';
 
       if (uid) {
@@ -2958,6 +3043,14 @@ document.addEventListener('i18n:ready', () => {
   window.toggleReadLater = toggleReadLater;
   window.deleteCard = deleteCard;
   window.openEditModal = openEditModal;
+
+  const btnDuplicateSaveAnyway = document.getElementById('btn-duplicate-save-anyway');
+  if (btnDuplicateSaveAnyway) {
+    btnDuplicateSaveAnyway.addEventListener('click', () => {
+      closeDuplicateUrlModal();
+      savePreviewDraftFromModal({ allowDuplicate: true });
+    });
+  }
 
   const btnSaveEdit = document.getElementById('btn-save-edit');
   if (btnSaveEdit) {

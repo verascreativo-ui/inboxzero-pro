@@ -22,6 +22,7 @@
   },
   "header": {
     "trialPlan": "Plano de teste gratuito: {{current}} / {{max}} fichas",
+    "premiumPlan": "Premium · Fichas ilimitadas",
     "libraryDropdown": "A minha biblioteca ▾",
     "help": "Ajuda em 3 passos",
     "login": "Iniciar sessão",
@@ -132,6 +133,11 @@
     "message": "Atingiu o limite do seu Plano de Teste! 🚀 Se quiser continuar a guardar e organizar todo o seu conhecimento com um clique e sem limites, subscreva o nosso Plano Pro.",
     "cta": "Subscrever agora",
     "later": "Agora não"
+  },
+  "duplicateUrl": {
+    "message": "Este URL já está na sua biblioteca.",
+    "cancel": "Cancelar",
+    "saveAnyway": "Guardar mesmo assim"
   },
   "edit": {
     "title": "Personalize a sua ficha",
