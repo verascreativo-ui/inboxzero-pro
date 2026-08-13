@@ -79,6 +79,11 @@
     "message": "Esta acción no se puede deshacer y la ficha se borrará permanentemente de tu biblioteca.",
     "confirm": "Eliminar"
   },
+  "delete": {
+    "saveErrorGeneric": "No se ha podido eliminar la ficha. Inténtalo de nuevo.",
+    "saveErrorNetwork": "No se ha podido conectar. Comprueba tu conexión e inténtalo de nuevo.",
+    "saveErrorSession": "Tu sesión no está disponible. Inicia sesión e inténtalo de nuevo. La ficha no se ha eliminado."
+  },
   "retention": {
     "title": "¿Estás seguro de que deseas cancelar tu suscripción premium?",
     "message": "Al darte de baja, tu límite volverá a un máximo de 20 fichas y perderás las funciones de extracción avanzada de enlaces automáticos.",

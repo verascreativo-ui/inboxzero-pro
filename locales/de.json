@@ -79,6 +79,11 @@
     "message": "Diese Aktion kann nicht rückgängig gemacht werden. Die Karte wird dauerhaft aus Ihrer Bibliothek entfernt.",
     "confirm": "Löschen"
   },
+  "delete": {
+    "saveErrorGeneric": "Die Karte konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
+    "saveErrorNetwork": "Verbindung fehlgeschlagen. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+    "saveErrorSession": "Ihre Sitzung ist nicht verfügbar. Melden Sie sich an und versuchen Sie es erneut. Die Karte wurde nicht gelöscht."
+  },
   "retention": {
     "title": "Sind Sie sicher, dass Sie Ihr Premium-Abonnement kündigen möchten?",
     "message": "Bei einer Kündigung sinkt Ihr Limit wieder auf maximal 20 Karten und Sie verlieren die Funktionen zur erweiterten automatischen Link-Extraktion.",

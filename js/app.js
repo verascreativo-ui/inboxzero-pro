@@ -58,6 +58,13 @@ function cardIdsEqual(a, b) {
   return String(a ?? '') === String(b ?? '');
 }
 
+/** UUID de ficha Cloud. Rechaza vacío, "0" (Guía) y ids no UUID. */
+function isCloudCardUuid(cardId) {
+  const id = String(cardId || '').trim();
+  if (!id || id === '0') return false;
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+}
+
 /** Lee id de card desde DOM/atributos sin parseInt/Number. */
 function readDomCardId(value) {
   const id = String(value ?? '').trim();
@@ -1070,9 +1077,16 @@ async function updateOwnCardRepo(cardId, patch) {
   }
 }
 
+function classifyCardDeleteError(error) {
+  if (!error) return 'DELETE_ERROR';
+  const insertCode = classifyCardInsertError(error);
+  if (insertCode === 'INSERT_NETWORK') return 'DELETE_NETWORK';
+  return 'DELETE_ERROR';
+}
+
 /**
- * DELETE de ficha propia por id.
- * Preparado para S1.6+; no invocado en S1.1.
+ * DELETE de ficha propia por id. No permite cambiar user_id.
+ * S1.6: nunca lanza; éxito solo si la fila objetivo fue eliminada.
  */
 async function deleteOwnCardRepo(cardId) {
   const supabase = getSupabaseClient();
@@ -1081,10 +1095,25 @@ async function deleteOwnCardRepo(cardId) {
   if (!supabase || !uid) {
     return { ok: false, code: 'NO_SESSION', data: null, error: null };
   }
-  if (!id) return { ok: false, code: 'INVALID_ID', data: null, error: null };
-  const { error } = await supabase.from('cards').delete().eq('id', id).eq('user_id', uid);
-  if (error) return { ok: false, code: 'DELETE_ERROR', data: null, error };
-  return { ok: true, code: 'OK', data: { id }, error: null };
+  if (!isCloudCardUuid(id)) {
+    return { ok: false, code: 'INVALID_ID', data: null, error: null };
+  }
+  try {
+    const { data, error } = await supabase
+      .from('cards')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', uid)
+      .select('id')
+      .maybeSingle();
+    if (error) return { ok: false, code: classifyCardDeleteError(error), data: null, error };
+    if (!data || !data.id || !cardIdsEqual(data.id, id)) {
+      return { ok: false, code: 'DELETE_ERROR', data: null, error: null };
+    }
+    return { ok: true, code: 'OK', data: { id: String(data.id) }, error: null };
+  } catch (err) {
+    return { ok: false, code: classifyCardDeleteError(err), data: null, error: err };
+  }
 }
 
 let currentAuthUser = null;
@@ -2389,9 +2418,73 @@ document.addEventListener('i18n:ready', () => {
   }
 
   let pendingDeleteId = null;
+  let cardDeleteInFlight = false;
+  let deleteSaveErrorKey = null;
+
+  function restoreDeleteConfirmButton() {
+    const btn = document.getElementById('btn-confirm-delete');
+    if (!btn) return;
+    btn.disabled = false;
+    btn.removeAttribute('aria-disabled');
+    btn.removeAttribute('aria-busy');
+  }
+
+  function ensureDeleteSaveErrorEl() {
+    let el = document.getElementById('delete-save-error');
+    if (el) return el;
+    el = document.createElement('p');
+    el.id = 'delete-save-error';
+    el.className = 'field-error preview-save-error delete-save-error';
+    el.setAttribute('role', 'alert');
+    el.setAttribute('aria-live', 'assertive');
+    const footer = document.querySelector('#modal-confirm-delete .modal-footer-confirm-delete');
+    if (footer?.parentElement) {
+      footer.parentElement.insertBefore(el, footer);
+    }
+    return el;
+  }
+
+  function clearDeleteSaveError() {
+    deleteSaveErrorKey = null;
+    const el = document.getElementById('delete-save-error');
+    if (!el) return;
+    el.hidden = true;
+    el.setAttribute('hidden', '');
+    el.style.removeProperty('display');
+    el.textContent = '';
+    el.removeAttribute('data-i18n');
+  }
+
+  function setDeleteSaveError(key) {
+    deleteSaveErrorKey = key;
+    const el = ensureDeleteSaveErrorEl();
+    if (!el) return;
+    el.removeAttribute('hidden');
+    el.hidden = false;
+    el.style.display = 'block';
+    el.setAttribute('role', 'alert');
+    el.setAttribute('aria-live', 'assertive');
+    el.setAttribute('data-i18n', key);
+    el.textContent = t(key);
+  }
+
+  function failClosedDeleteSave(code) {
+    if (code === 'NO_SESSION') {
+      setDeleteSaveError('delete.saveErrorSession');
+      return;
+    }
+    if (code === 'DELETE_NETWORK') {
+      setDeleteSaveError('delete.saveErrorNetwork');
+      return;
+    }
+    setDeleteSaveError('delete.saveErrorGeneric');
+  }
 
   function closeDeleteConfirmModal() {
+    if (cardDeleteInFlight) return;
     pendingDeleteId = null;
+    clearDeleteSaveError();
+    restoreDeleteConfirmButton();
     closeModal('modal-confirm-delete');
   }
 
@@ -2399,17 +2492,88 @@ document.addEventListener('i18n:ready', () => {
     const card = cards.find((c) => cardIdsEqual(c.id, id));
     if (!card || isGuideCard(card)) return;
     pendingDeleteId = id;
+    clearDeleteSaveError();
+    restoreDeleteConfirmButton();
     openModal('modal-confirm-delete');
   }
 
-  function confirmDeleteCard() {
-    if (pendingDeleteId == null) return;
-    const id = pendingDeleteId;
+  function applyGuestDeleteCard(id) {
     pendingDeleteId = null;
     cards = cards.filter((c) => !cardIdsEqual(c.id, id));
     ensureWelcomeCardPresent();
     closeModal('modal-confirm-delete');
+    clearDeleteSaveError();
     renderCards();
+  }
+
+  /**
+   * S1.6: DELETE Cloud de ficha Auth existente. FAIL CLOSED hasta respuesta OK.
+   */
+  async function deleteExistingAuthCard(card) {
+    if (cardDeleteInFlight) return;
+    cardDeleteInFlight = true;
+    const btn = document.getElementById('btn-confirm-delete');
+    if (btn) {
+      btn.disabled = true;
+      btn.setAttribute('aria-busy', 'true');
+    }
+    clearDeleteSaveError();
+    try {
+      if (!card || isGuideCard(card) || !isCloudCardUuid(card.id)) {
+        failClosedDeleteSave('DELETE_ERROR');
+        return;
+      }
+      const result = await deleteOwnCardRepo(card.id);
+      if (!result.ok || !result.data || !result.data.id || !cardIdsEqual(result.data.id, card.id)) {
+        failClosedDeleteSave(result.code || 'DELETE_ERROR');
+        return;
+      }
+      cards = cards.filter((c) => !cardIdsEqual(c.id, card.id));
+      ensureWelcomeCardPresent();
+      persistCards();
+      renderCards();
+      pendingDeleteId = null;
+      closeModal('modal-confirm-delete');
+      clearDeleteSaveError();
+    } catch (_) {
+      failClosedDeleteSave('DELETE_NETWORK');
+    } finally {
+      cardDeleteInFlight = false;
+      restoreDeleteConfirmButton();
+    }
+  }
+
+  async function confirmDeleteCard() {
+    if (cardDeleteInFlight) return;
+    if (pendingDeleteId == null) return;
+    const id = pendingDeleteId;
+    const card = cards.find((c) => cardIdsEqual(c.id, id));
+    if (!card) {
+      pendingDeleteId = null;
+      closeModal('modal-confirm-delete');
+      clearDeleteSaveError();
+      return;
+    }
+    if (isGuideCard(card)) {
+      pendingDeleteId = null;
+      closeModal('modal-confirm-delete');
+      clearDeleteSaveError();
+      return;
+    }
+
+    const uid =
+      (currentAuthUser?.id ? String(currentAuthUser.id) : '') ||
+      (await getAuthenticatedUserId()) ||
+      '';
+    if (uid) {
+      await deleteExistingAuthCard(card);
+      return;
+    }
+    if (libraryHydratedAsAuth) {
+      failClosedDeleteSave('NO_SESSION');
+      return;
+    }
+    applyGuestDeleteCard(id);
   }
 
   /** Abre el modal de confirmación (sin confirm() nativo del navegador) */
@@ -3154,8 +3318,10 @@ document.addEventListener('i18n:ready', () => {
   });
 
   document.querySelectorAll('[data-close="modal-confirm-delete"]').forEach((el) => {
-    el.addEventListener('click', () => {
-      pendingDeleteId = null;
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeDeleteConfirmModal();
     });
   });
 
@@ -3502,6 +3668,10 @@ document.addEventListener('i18n:ready', () => {
   document.querySelectorAll('[data-close]').forEach(el => {
     el.addEventListener('click', () => {
       const modalId = el.getAttribute('data-close');
+      if (modalId === 'modal-confirm-delete') {
+        closeDeleteConfirmModal();
+        return;
+      }
       document.getElementById(modalId).classList.remove('active');
       if (modalId === 'modal-edit') discardPreviewDraft();
     });
@@ -3510,6 +3680,10 @@ document.addEventListener('i18n:ready', () => {
   document.querySelectorAll('.modal-overlay').forEach(overlay => {
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) {
+        if (overlay.id === 'modal-confirm-delete') {
+          closeDeleteConfirmModal();
+          return;
+        }
         overlay.classList.remove('active');
         if (overlay.id === 'modal-edit') discardPreviewDraft();
       }

@@ -79,6 +79,11 @@
     "message": "This action cannot be undone and the card will be permanently removed from your library.",
     "confirm": "Delete"
   },
+  "delete": {
+    "saveErrorGeneric": "The card could not be deleted. Please try again.",
+    "saveErrorNetwork": "Could not connect. Check your connection and try again.",
+    "saveErrorSession": "Your session is not available. Sign in and try again. The card was not deleted."
+  },
   "retention": {
     "title": "Are you sure you want to cancel your premium subscription?",
     "message": "If you cancel, your limit will go back to a maximum of 20 cards and you will lose advanced automatic link extraction features.",

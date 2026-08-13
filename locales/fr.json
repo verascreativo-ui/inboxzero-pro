@@ -79,6 +79,11 @@
     "message": "Cette action est irréversible et la fiche sera définitivement retirée de votre bibliothèque.",
     "confirm": "Supprimer"
   },
+  "delete": {
+    "saveErrorGeneric": "Impossible de supprimer la fiche. Veuillez réessayer.",
+    "saveErrorNetwork": "Connexion impossible. Vérifiez votre connexion et réessayez.",
+    "saveErrorSession": "Votre session n'est pas disponible. Connectez-vous et réessayez. La fiche n'a pas été supprimée."
+  },
   "retention": {
     "title": "Êtes-vous sûr de vouloir résilier votre abonnement premium ?",
     "message": "En résiliant, votre limite reviendra à un maximum de 20 fiches et vous perdrez les fonctions d'extraction avancée de liens automatiques.",

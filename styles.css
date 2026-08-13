@@ -1758,11 +1758,13 @@ footer {
   border: 1px solid #fecaca;
 }
 
-.preview-save-error[hidden] {
+.preview-save-error[hidden],
+.delete-save-error[hidden] {
   display: none !important;
 }
 
-#preview-save-error:not([hidden]) {
+#preview-save-error:not([hidden]),
+#delete-save-error:not([hidden]) {
   display: block !important;
   visibility: visible !important;
   opacity: 1;
