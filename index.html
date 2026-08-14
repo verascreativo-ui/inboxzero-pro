@@ -321,6 +321,63 @@
     </div>
   </div>
 
+  <!-- S2.0: importar fichas Guest → Cloud -->
+  <div id="modal-guest-migration" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="guest-migration-title">
+    <div class="modal-box modal-box-guest-migration">
+      <button type="button" class="modal-close" data-close="modal-guest-migration" data-i18n="modals.close" aria-label="Cerrar">✕</button>
+
+      <div id="guest-migration-view-consent">
+        <div class="modal-header">
+          <div class="modal-title-box">
+            <span class="modal-icon-badge" aria-hidden="true">📥</span>
+            <h3 id="guest-migration-title" data-i18n="guestMigration.title">Fichas guardadas como invitado</h3>
+          </div>
+        </div>
+        <div class="modal-body">
+          <p id="guest-migration-intro" class="guest-migration-intro"></p>
+          <ul class="guest-migration-bullets">
+            <li data-i18n="guestMigration.bulletAccount">Se incorporarán a la cuenta con la que has iniciado sesión en este dispositivo.</li>
+            <li data-i18n="guestMigration.bulletDuplicates">Las URLs que ya estén en tu biblioteca Cloud no se volverán a insertar.</li>
+            <li data-i18n="guestMigration.bulletLimit">El plan gratuito puede limitar cuántas fichas se importan (máximo 20 en Cloud).</li>
+            <li data-i18n="guestMigration.bulletProgress">El proceso es progresivo: cada ficha se importa de una en una.</li>
+          </ul>
+        </div>
+        <div class="modal-footer guest-migration-footer">
+          <button type="button" class="modal-action-btn modal-btn-cancel" id="btn-guest-migration-later" data-i18n="guestMigration.later">Ahora no</button>
+          <button type="button" class="btn-primary modal-action-btn" id="btn-guest-migration-import" data-i18n="guestMigration.import">Importar mis fichas</button>
+        </div>
+      </div>
+
+      <div id="guest-migration-view-progress" hidden>
+        <div class="modal-header">
+          <div class="modal-title-box">
+            <span class="modal-icon-badge" aria-hidden="true">⏳</span>
+            <h3 data-i18n="guestMigration.progressTitle">Importando fichas</h3>
+          </div>
+        </div>
+        <div class="modal-body">
+          <p id="guest-migration-progress-text" class="guest-migration-intro" role="status"></p>
+        </div>
+      </div>
+
+      <div id="guest-migration-view-result" hidden>
+        <div class="modal-header">
+          <div class="modal-title-box">
+            <span class="modal-icon-badge" aria-hidden="true">✅</span>
+            <h3 id="guest-migration-result-title"></h3>
+          </div>
+        </div>
+        <div class="modal-body">
+          <p id="guest-migration-result-body" class="guest-migration-intro"></p>
+        </div>
+        <div class="modal-footer guest-migration-footer">
+          <button type="button" class="modal-action-btn modal-btn-cancel" id="btn-guest-migration-retry" hidden data-i18n="guestMigration.retry">Reintentar</button>
+          <button type="button" class="btn-primary modal-action-btn" id="btn-guest-migration-done" data-i18n="guestMigration.done">Entendido</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal Suscripción / Stripe -->
   <div id="modal-subscribe" class="modal-overlay">
     <div class="modal-box modal-box-login">

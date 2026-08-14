@@ -144,6 +144,28 @@
     "cancel": "Annuler",
     "saveAnyway": "Enregistrer quand même"
   },
+  "guestMigration": {
+    "title": "Fiches enregistrées en invité",
+    "intro": "Nous avons trouvé {{count}} fiche(s) enregistrée(s) sur cet appareil en tant qu'invité.",
+    "bulletAccount": "Elles seront ajoutées au compte avec lequel vous êtes connecté sur cet appareil.",
+    "bulletDuplicates": "Les URL déjà présentes dans votre bibliothèque Cloud ne seront pas insérées à nouveau.",
+    "bulletLimit": "L'offre gratuite peut limiter le nombre de fiches importées (maximum 20 dans le Cloud).",
+    "bulletProgress": "Le processus est progressif : chaque fiche est importée une par une.",
+    "import": "Importer mes fiches",
+    "later": "Pas maintenant",
+    "progressTitle": "Importation des fiches",
+    "progress": "Traitement de {{current}} sur {{total}}…",
+    "resultTitleDone": "Importation terminée",
+    "resultTitlePartial": "Importation terminée avec des fiches restantes",
+    "resultBody": "Détectées : {{detected}}. Importées : {{imported}}. Déjà présentes : {{duplicates}}. Restantes : {{pending}}.",
+    "errorSession": "Votre session n'est pas disponible. Les fiches restantes ont été conservées.",
+    "errorNetwork": "Connexion impossible. Les fiches restantes ont été conservées.",
+    "errorLimit": "Vous avez atteint la limite de l'offre gratuite. Les fiches non importées restent en invité.",
+    "errorGeneric": "L'importation n'a pas pu aboutir. Les fiches restantes ont été conservées.",
+    "errorLock": "Une importation est déjà en cours dans un autre onglet.",
+    "retry": "Réessayer",
+    "done": "Compris"
+  },
   "edit": {
     "title": "Personnalisez votre fiche",
     "previewLabel": "Aperçu du site",

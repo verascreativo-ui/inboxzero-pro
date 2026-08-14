@@ -144,6 +144,28 @@
     "cancel": "Cancelar",
     "saveAnyway": "Guardar igualmente"
   },
+  "guestMigration": {
+    "title": "Fichas guardadas como invitado",
+    "intro": "Hemos encontrado {{count}} ficha(s) guardadas en este dispositivo como invitado.",
+    "bulletAccount": "Se incorporarán a la cuenta con la que has iniciado sesión en este dispositivo.",
+    "bulletDuplicates": "Las URLs que ya estén en tu biblioteca Cloud no se volverán a insertar.",
+    "bulletLimit": "El plan gratuito puede limitar cuántas fichas se importan (máximo 20 en Cloud).",
+    "bulletProgress": "El proceso es progresivo: cada ficha se importa de una en una.",
+    "import": "Importar mis fichas",
+    "later": "Ahora no",
+    "progressTitle": "Importando fichas",
+    "progress": "Procesando {{current}} de {{total}}…",
+    "resultTitleDone": "Importación completada",
+    "resultTitlePartial": "Importación finalizada con pendientes",
+    "resultBody": "Detectadas: {{detected}}. Importadas: {{imported}}. Ya existían: {{duplicates}}. Pendientes: {{pending}}.",
+    "errorSession": "La sesión no está disponible. Las fichas pendientes se han conservado.",
+    "errorNetwork": "No se ha podido conectar. Las fichas pendientes se han conservado.",
+    "errorLimit": "Has alcanzado el límite del plan gratuito. Las fichas que no se han importado permanecen como invitado.",
+    "errorGeneric": "No se ha podido completar la importación. Las fichas pendientes se han conservado.",
+    "errorLock": "Ya hay una importación en curso en otra pestaña.",
+    "retry": "Reintentar",
+    "done": "Entendido"
+  },
   "edit": {
     "title": "Personaliza tu Ficha",
     "previewLabel": "Vista Previa del Sitio",

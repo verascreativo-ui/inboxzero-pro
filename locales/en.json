@@ -144,6 +144,28 @@
     "cancel": "Cancel",
     "saveAnyway": "Save anyway"
   },
+  "guestMigration": {
+    "title": "Cards saved as a guest",
+    "intro": "We found {{count}} card(s) saved on this device as a guest.",
+    "bulletAccount": "They will be added to the account you are signed in with on this device.",
+    "bulletDuplicates": "URLs already in your Cloud library will not be inserted again.",
+    "bulletLimit": "The free plan may limit how many cards are imported (maximum 20 in Cloud).",
+    "bulletProgress": "The process is progressive: each card is imported one at a time.",
+    "import": "Import my cards",
+    "later": "Not now",
+    "progressTitle": "Importing cards",
+    "progress": "Processing {{current}} of {{total}}…",
+    "resultTitleDone": "Import complete",
+    "resultTitlePartial": "Import finished with remaining cards",
+    "resultBody": "Found: {{detected}}. Imported: {{imported}}. Already existed: {{duplicates}}. Remaining: {{pending}}.",
+    "errorSession": "Your session is not available. Remaining cards were kept.",
+    "errorNetwork": "Could not connect. Remaining cards were kept.",
+    "errorLimit": "You have reached the free plan limit. Cards that were not imported remain as guest cards.",
+    "errorGeneric": "The import could not be completed. Remaining cards were kept.",
+    "errorLock": "An import is already running in another tab.",
+    "retry": "Try again",
+    "done": "Got it"
+  },
   "edit": {
     "title": "Customize your Card",
     "previewLabel": "Site preview",

@@ -144,6 +144,28 @@
     "cancel": "Cancelar",
     "saveAnyway": "Guardar mesmo assim"
   },
+  "guestMigration": {
+    "title": "Fichas guardadas como convidado",
+    "intro": "Encontrámos {{count}} ficha(s) guardadas neste dispositivo como convidado.",
+    "bulletAccount": "Serão adicionadas à conta com a qual iniciou sessão neste dispositivo.",
+    "bulletDuplicates": "Os URLs que já estão na sua biblioteca Cloud não serão inseridos novamente.",
+    "bulletLimit": "O plano gratuito pode limitar quantas fichas são importadas (máximo 20 na Cloud).",
+    "bulletProgress": "O processo é progressivo: cada ficha é importada uma a uma.",
+    "import": "Importar as minhas fichas",
+    "later": "Agora não",
+    "progressTitle": "A importar fichas",
+    "progress": "A processar {{current}} de {{total}}…",
+    "resultTitleDone": "Importação concluída",
+    "resultTitlePartial": "Importação concluída com fichas pendentes",
+    "resultBody": "Detetadas: {{detected}}. Importadas: {{imported}}. Já existiam: {{duplicates}}. Pendentes: {{pending}}.",
+    "errorSession": "A sessão não está disponível. As fichas pendentes foram conservadas.",
+    "errorNetwork": "Não foi possível ligar. As fichas pendentes foram conservadas.",
+    "errorLimit": "Atingiu o limite do plano gratuito. As fichas não importadas permanecem como convidado.",
+    "errorGeneric": "Não foi possível concluir a importação. As fichas pendentes foram conservadas.",
+    "errorLock": "Já existe uma importação em curso noutro separador.",
+    "retry": "Tentar novamente",
+    "done": "Compreendi"
+  },
   "edit": {
     "title": "Personalize a sua ficha",
     "previewLabel": "Pré-visualização do site",

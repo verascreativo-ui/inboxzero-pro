@@ -144,6 +144,28 @@
     "cancel": "Abbrechen",
     "saveAnyway": "Trotzdem speichern"
   },
+  "guestMigration": {
+    "title": "Als Gast gespeicherte Karten",
+    "intro": "Wir haben {{count}} als Gast auf diesem Gerät gespeicherte Karte(n) gefunden.",
+    "bulletAccount": "Sie werden dem Konto hinzugefügt, mit dem Sie auf diesem Gerät angemeldet sind.",
+    "bulletDuplicates": "URLs, die bereits in Ihrer Cloud-Bibliothek sind, werden nicht erneut eingefügt.",
+    "bulletLimit": "Der kostenlose Plan kann begrenzen, wie viele Karten importiert werden (maximal 20 in der Cloud).",
+    "bulletProgress": "Der Vorgang ist schrittweise: Jede Karte wird einzeln importiert.",
+    "import": "Meine Karten importieren",
+    "later": "Jetzt nicht",
+    "progressTitle": "Karten werden importiert",
+    "progress": "{{current}} von {{total}} werden verarbeitet…",
+    "resultTitleDone": "Import abgeschlossen",
+    "resultTitlePartial": "Import mit ausstehenden Karten beendet",
+    "resultBody": "Gefunden: {{detected}}. Importiert: {{imported}}. Bereits vorhanden: {{duplicates}}. Ausstehend: {{pending}}.",
+    "errorSession": "Ihre Sitzung ist nicht verfügbar. Ausstehende Karten wurden behalten.",
+    "errorNetwork": "Verbindung fehlgeschlagen. Ausstehende Karten wurden behalten.",
+    "errorLimit": "Sie haben das Limit des kostenlosen Plans erreicht. Nicht importierte Karten bleiben als Gastkarten.",
+    "errorGeneric": "Der Import konnte nicht abgeschlossen werden. Ausstehende Karten wurden behalten.",
+    "errorLock": "In einem anderen Tab läuft bereits ein Import.",
+    "retry": "Erneut versuchen",
+    "done": "Verstanden"
+  },
   "edit": {
     "title": "Karte anpassen",
     "previewLabel": "Vorschau der Website",

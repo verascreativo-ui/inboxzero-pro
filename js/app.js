@@ -157,6 +157,106 @@ function detectLocalCardsStorageState(uid) {
   return { guest, legacy, userCache, userCacheKey };
 }
 
+// =============================================================================
+// S2.0 — Guest → Cloud (lock localStorage + dismissal sessionStorage)
+// =============================================================================
+const GUEST_MIGRATION_LOCK_KEY = 'inboxzero_guest_migration_lock';
+const GUEST_MIGRATION_DISMISS_PREFIX = 'inboxzero_guest_migration_dismissed:';
+const GUEST_MIGRATION_LOCK_TTL_MS = 5 * 60 * 1000;
+
+let guestMigrationLifecycleHandler = null;
+
+function getGuestMigrationDismissKey(uid) {
+  return GUEST_MIGRATION_DISMISS_PREFIX + String(uid || '').trim();
+}
+
+function isGuestMigrationDismissed(uid) {
+  const id = String(uid || '').trim();
+  if (!id) return false;
+  try {
+    return sessionStorage.getItem(getGuestMigrationDismissKey(id)) === '1';
+  } catch (_) {
+    return false;
+  }
+}
+
+function setGuestMigrationDismissed(uid) {
+  const id = String(uid || '').trim();
+  if (!id) return;
+  try {
+    sessionStorage.setItem(getGuestMigrationDismissKey(id), '1');
+  } catch (_) {
+    /* ignore quota / private mode */
+  }
+}
+
+function clearGuestMigrationDismissed(uid) {
+  const id = String(uid || '').trim();
+  if (!id) return;
+  try {
+    sessionStorage.removeItem(getGuestMigrationDismissKey(id));
+  } catch (_) {
+    /* ignore */
+  }
+}
+
+function readGuestMigrationLock() {
+  try {
+    const raw = localStorage.getItem(GUEST_MIGRATION_LOCK_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return null;
+    const owner = String(parsed.owner || '').trim();
+    const ts = Number(parsed.ts);
+    const expires = Number(parsed.expires);
+    if (!owner || !Number.isFinite(ts) || !Number.isFinite(expires)) return null;
+    return { owner, ts, expires };
+  } catch (_) {
+    return null;
+  }
+}
+
+function writeGuestMigrationLock(lock) {
+  try {
+    localStorage.setItem(GUEST_MIGRATION_LOCK_KEY, JSON.stringify(lock));
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+function acquireGuestMigrationLock(ownerId) {
+  const owner = String(ownerId || '').trim();
+  if (!owner) return false;
+  const now = Date.now();
+  const existing = readGuestMigrationLock();
+  if (existing && existing.owner !== owner && existing.expires > now) {
+    return false;
+  }
+  const lock = { owner, ts: now, expires: now + GUEST_MIGRATION_LOCK_TTL_MS };
+  if (!writeGuestMigrationLock(lock)) return false;
+  const verify = readGuestMigrationLock();
+  return Boolean(verify && verify.owner === owner && verify.expires > now);
+}
+
+function releaseGuestMigrationLock(ownerId) {
+  const owner = String(ownerId || '').trim();
+  if (!owner) return;
+  const existing = readGuestMigrationLock();
+  if (existing && existing.owner && existing.owner !== owner) return;
+  try {
+    localStorage.removeItem(GUEST_MIGRATION_LOCK_KEY);
+  } catch (_) {
+    /* ignore */
+  }
+}
+
+function notifyGuestMigrationLifecycle(type, uid) {
+  if (typeof guestMigrationLifecycleHandler === 'function') {
+    guestMigrationLifecycleHandler(type, uid);
+  }
+}
+
 /** Placeholder SVG elegante cuando falla la miniatura de una ficha */
 const CARD_THUMB_PLACEHOLDER =
   'data:image/svg+xml,' +
@@ -1378,6 +1478,8 @@ async function signUpWithEmailPassword(email, password) {
 async function signOutCurrentUser() {
   const supabase = getSupabaseClient();
   if (!supabase) return;
+  const prevUid = currentAuthUser?.id ? String(currentAuthUser.id) : '';
+  notifyGuestMigrationLifecycle('SIGNED_OUT', prevUid);
   await supabase.auth.signOut();
   currentProfile = null;
   updateAuthChrome(null);
@@ -1431,7 +1533,11 @@ function setupSupabaseAuth() {
   });
 
   supabase.auth.onAuthStateChange((event, session) => {
+    const prevUid = currentAuthUser?.id ? String(currentAuthUser.id) : '';
     updateAuthChrome(session?.user ?? null);
+    if (event === 'SIGNED_OUT') {
+      notifyGuestMigrationLifecycle('SIGNED_OUT', prevUid);
+    }
     if (
       event === 'INITIAL_SESSION' ||
       event === 'SIGNED_IN' ||
@@ -1726,6 +1832,339 @@ document.addEventListener('i18n:ready', () => {
   function closeModal(modalId) {
     document.getElementById(modalId)?.classList.remove('active');
   }
+
+  // =============================================================================
+  // S2.0 — Guest → Cloud (orquestador en el closure de biblioteca)
+  // =============================================================================
+  let guestMigrationInFlight = false;
+  let guestMigrationAborted = false;
+  let guestMigrationOwnerId = null;
+  let guestMigrationStartedUid = '';
+  let guestMigrationOfferTimer = null;
+  let guestMigrationView = 'consent';
+
+  function getMigratableGuestCards() {
+    return normalizeStoredCardRows(getGuestCardsStorage()) || [];
+  }
+
+  function isKnownFreePlan() {
+    return String(currentProfile && currentProfile.tipo_plan ? currentProfile.tipo_plan : '').toLowerCase() ===
+      'free';
+  }
+
+  function guestMigrationStartConditionsMet() {
+    return Boolean(
+      libraryHydratedAsAuth && librarySessionReady && !libraryCloudHydrateInFlight
+    );
+  }
+
+  async function resolveGuestMigrationUid() {
+    const jwtUid = await getAuthenticatedUserId();
+    if (!jwtUid) return '';
+    const chromeUid = currentAuthUser?.id ? String(currentAuthUser.id) : '';
+    if (chromeUid && chromeUid !== jwtUid) return '';
+    return jwtUid;
+  }
+
+  function setGuestMigrationView(view) {
+    guestMigrationView = view;
+    const consent = document.getElementById('guest-migration-view-consent');
+    const progress = document.getElementById('guest-migration-view-progress');
+    const result = document.getElementById('guest-migration-view-result');
+    if (consent) consent.hidden = view !== 'consent';
+    if (progress) progress.hidden = view !== 'progress';
+    if (result) result.hidden = view !== 'result';
+  }
+
+  function restoreGuestMigrationButtons() {
+    const importBtn = document.getElementById('btn-guest-migration-import');
+    const laterBtn = document.getElementById('btn-guest-migration-later');
+    const retryBtn = document.getElementById('btn-guest-migration-retry');
+    const doneBtn = document.getElementById('btn-guest-migration-done');
+    if (importBtn) {
+      importBtn.disabled = false;
+      importBtn.removeAttribute('aria-busy');
+    }
+    if (laterBtn) laterBtn.disabled = false;
+    if (retryBtn) retryBtn.disabled = false;
+    if (doneBtn) doneBtn.disabled = false;
+  }
+
+  function abortGuestMigration() {
+    guestMigrationAborted = true;
+    const owner = guestMigrationOwnerId;
+    guestMigrationInFlight = false;
+    guestMigrationStartedUid = '';
+    if (owner) releaseGuestMigrationLock(owner);
+    guestMigrationOwnerId = null;
+    restoreGuestMigrationButtons();
+  }
+
+  function closeGuestMigrationModal() {
+    closeModal('modal-guest-migration');
+    setGuestMigrationView('consent');
+    restoreGuestMigrationButtons();
+  }
+
+  function dismissGuestMigrationForSession() {
+    if (guestMigrationInFlight) return;
+    resolveGuestMigrationUid().then((uid) => {
+      if (uid) setGuestMigrationDismissed(uid);
+    });
+    closeGuestMigrationModal();
+  }
+
+  /** Cerrar la vista result = acknowledge de sesión (no reofrecer en este login). */
+  function acknowledgeGuestMigrationResult() {
+    if (guestMigrationInFlight) return;
+    const chromeUid = currentAuthUser?.id ? String(currentAuthUser.id) : '';
+    if (chromeUid) setGuestMigrationDismissed(chromeUid);
+    resolveGuestMigrationUid().then((uid) => {
+      if (uid) setGuestMigrationDismissed(uid);
+    });
+    closeGuestMigrationModal();
+  }
+
+  function fillGuestMigrationConsent(count) {
+    const intro = document.getElementById('guest-migration-intro');
+    if (intro) {
+      intro.textContent = t('guestMigration.intro', { count });
+    }
+    const title = document.getElementById('guest-migration-title');
+    if (title) title.textContent = t('guestMigration.title');
+    setGuestMigrationView('consent');
+    restoreGuestMigrationButtons();
+  }
+
+  function fillGuestMigrationProgress(current, total) {
+    const el = document.getElementById('guest-migration-progress-text');
+    if (el) el.textContent = t('guestMigration.progress', { current, total });
+  }
+
+  function fillGuestMigrationResult(stats) {
+    const title = document.getElementById('guest-migration-result-title');
+    const body = document.getElementById('guest-migration-result-body');
+    const retryBtn = document.getElementById('btn-guest-migration-retry');
+    const errorKey = stats.errorCode
+      ? stats.errorCode === 'NO_SESSION'
+        ? 'guestMigration.errorSession'
+        : stats.errorCode === 'INSERT_NETWORK'
+          ? 'guestMigration.errorNetwork'
+          : stats.errorCode === 'INSERT_LIMIT'
+            ? 'guestMigration.errorLimit'
+            : stats.errorCode === 'LOCK'
+              ? 'guestMigration.errorLock'
+              : 'guestMigration.errorGeneric'
+      : '';
+    if (title) {
+      title.textContent = stats.errorCode
+        ? t('guestMigration.resultTitlePartial')
+        : stats.pending > 0
+          ? t('guestMigration.resultTitlePartial')
+          : t('guestMigration.resultTitleDone');
+    }
+    if (body) {
+      const summary = t('guestMigration.resultBody', {
+        detected: stats.detected,
+        imported: stats.imported,
+        duplicates: stats.duplicates,
+        pending: stats.pending,
+      });
+      body.textContent = errorKey ? `${summary} ${t(errorKey)}` : summary;
+    }
+    if (retryBtn) {
+      retryBtn.hidden = !(stats.pending > 0);
+    }
+    setGuestMigrationView('result');
+    restoreGuestMigrationButtons();
+  }
+
+  function openGuestMigrationConsentModal(count) {
+    fillGuestMigrationConsent(count);
+    openModal('modal-guest-migration');
+  }
+
+  async function maybeOfferGuestMigration() {
+    if (guestMigrationInFlight) return;
+    if (!guestMigrationStartConditionsMet()) return;
+    const uid = await resolveGuestMigrationUid();
+    if (!uid) return;
+    if (isGuestMigrationDismissed(uid)) return;
+    const pending = getMigratableGuestCards();
+    if (!pending.length) return;
+    const existingLock = readGuestMigrationLock();
+    const now = Date.now();
+    if (existingLock && existingLock.expires > now && existingLock.owner !== guestMigrationOwnerId) {
+      return;
+    }
+    openGuestMigrationConsentModal(pending.length);
+  }
+
+  function scheduleGuestMigrationOffer() {
+    if (guestMigrationOfferTimer != null) {
+      clearTimeout(guestMigrationOfferTimer);
+    }
+    guestMigrationOfferTimer = setTimeout(() => {
+      guestMigrationOfferTimer = null;
+      maybeOfferGuestMigration();
+    }, 0);
+  }
+
+  async function runGuestCloudMigration() {
+    if (guestMigrationInFlight) return;
+    guestMigrationAborted = false;
+    if (!guestMigrationStartConditionsMet()) return;
+    const uid = await resolveGuestMigrationUid();
+    if (!uid) {
+      fillGuestMigrationResult({
+        detected: 0,
+        imported: 0,
+        duplicates: 0,
+        pending: getMigratableGuestCards().length,
+        errorCode: 'NO_SESSION',
+      });
+      openModal('modal-guest-migration');
+      return;
+    }
+
+    const ownerId = createCardId();
+    if (!acquireGuestMigrationLock(ownerId)) {
+      fillGuestMigrationResult({
+        detected: getMigratableGuestCards().length,
+        imported: 0,
+        duplicates: 0,
+        pending: getMigratableGuestCards().length,
+        errorCode: 'LOCK',
+      });
+      openModal('modal-guest-migration');
+      return;
+    }
+
+    guestMigrationInFlight = true;
+    guestMigrationOwnerId = ownerId;
+    guestMigrationStartedUid = uid;
+    const pending = getMigratableGuestCards();
+    const stats = {
+      detected: pending.length,
+      imported: 0,
+      duplicates: 0,
+      pending: pending.length,
+      errorCode: '',
+    };
+
+    const importBtn = document.getElementById('btn-guest-migration-import');
+    const laterBtn = document.getElementById('btn-guest-migration-later');
+    if (importBtn) {
+      importBtn.disabled = true;
+      importBtn.setAttribute('aria-busy', 'true');
+    }
+    if (laterBtn) laterBtn.disabled = true;
+    setGuestMigrationView('progress');
+    fillGuestMigrationProgress(0, stats.detected);
+
+    const processedTotal = () => stats.imported + stats.duplicates;
+
+    try {
+      while (pending.length > 0) {
+        if (guestMigrationAborted) break;
+        if (!guestMigrationStartConditionsMet()) {
+          stats.errorCode = 'NO_SESSION';
+          break;
+        }
+        const liveUid = await resolveGuestMigrationUid();
+        if (!liveUid || liveUid !== guestMigrationStartedUid) {
+          stats.errorCode = 'NO_SESSION';
+          break;
+        }
+
+        const card = pending[0];
+        fillGuestMigrationProgress(processedTotal() + 1, stats.detected);
+
+        if (libraryHasDuplicateUrl(card.url)) {
+          pending.shift();
+          saveGuestCardsStorage(pending);
+          stats.duplicates += 1;
+          stats.pending = pending.length;
+          continue;
+        }
+
+        if (isKnownFreePlan() && userCards().length >= TRIAL_MAX) {
+          stats.errorCode = 'INSERT_LIMIT';
+          break;
+        }
+
+        const result = await insertOwnCardRepo({
+          title: String(card.title || ''),
+          description: String(card.description || ''),
+          url: String(card.url || ''),
+          category: String(card.category || UNCATEGORIZED_ID),
+          favorite: Boolean(card.favorite),
+          readLater: Boolean(card.readLater),
+          notes: String(card.notes || ''),
+          image: String(card.image || ''),
+        });
+
+        if (guestMigrationAborted) break;
+
+        if (!result.ok || !result.data || !isCloudCardUuid(result.data.id)) {
+          stats.errorCode = result.code || 'INSERT_ERROR';
+          break;
+        }
+
+        const uiCard = mapCloudCardToUi(result.data);
+        pinGuideFirst([uiCard, ...userCards()]);
+        pending.shift();
+        saveGuestCardsStorage(pending);
+        stats.imported += 1;
+        stats.pending = pending.length;
+
+        const stillLive = await resolveGuestMigrationUid();
+        if (
+          stillLive &&
+          stillLive === guestMigrationStartedUid &&
+          guestMigrationStartConditionsMet() &&
+          !guestMigrationAborted
+        ) {
+          renderCards();
+        } else {
+          stats.errorCode = 'NO_SESSION';
+          break;
+        }
+      }
+    } catch (_) {
+      if (!stats.errorCode) stats.errorCode = 'INSERT_NETWORK';
+    } finally {
+      const owner = guestMigrationOwnerId;
+      guestMigrationInFlight = false;
+      guestMigrationStartedUid = '';
+      guestMigrationOwnerId = null;
+      if (owner) releaseGuestMigrationLock(owner);
+      stats.pending = pending.length;
+      if (!guestMigrationAborted) {
+        fillGuestMigrationResult(stats);
+        openModal('modal-guest-migration');
+      }
+    }
+  }
+
+  guestMigrationLifecycleHandler = (type, uid) => {
+    if (type === 'SIGNED_OUT') {
+      abortGuestMigration();
+      clearGuestMigrationDismissed(uid);
+      closeGuestMigrationModal();
+      return;
+    }
+    if (type === 'HYDRATE_GUEST') {
+      abortGuestMigration();
+      closeGuestMigrationModal();
+      return;
+    }
+    if (type === 'HYDRATE_START') {
+      const wasRunning = guestMigrationInFlight;
+      abortGuestMigration();
+      if (wasRunning) closeGuestMigrationModal();
+    }
+  };
 
   function openTrialLimitModal() {
     openModal('modal-trial-limit');
@@ -2114,6 +2553,7 @@ document.addEventListener('i18n:ready', () => {
   async function hydrateLibraryForAuthUser(user) {
     const syncId = ++libraryHydrateGeneration;
     const uid = user?.id ? String(user.id) : '';
+    notifyGuestMigrationLifecycle(uid ? 'HYDRATE_START' : 'HYDRATE_GUEST', uid);
 
     try {
       if (!uid) {
@@ -2141,6 +2581,7 @@ document.addEventListener('i18n:ready', () => {
         setLibraryBootLoading(false);
         renderCards();
         renderDashboardGreeting(user);
+        scheduleGuestMigrationOffer();
         return;
       }
 
@@ -2187,6 +2628,7 @@ document.addEventListener('i18n:ready', () => {
       setLibraryBootLoading(false);
       renderCards();
       renderDashboardGreeting(user);
+      scheduleGuestMigrationOffer();
     } catch (err) {
       if (uid && (isBrowserOffline() || isLibraryCloudNetworkError(err))) {
         libraryCloudFetchBlocked = true;
@@ -2208,6 +2650,7 @@ document.addEventListener('i18n:ready', () => {
       setLibraryBootLoading(false);
       renderCards();
       renderDashboardGreeting(uid ? user : null);
+      if (uid) scheduleGuestMigrationOffer();
     } finally {
       if (uid) libraryCloudHydrateInFlight = false;
       // Solo la generación activa puede cerrar loading / forzar ready
@@ -2219,11 +2662,29 @@ document.addEventListener('i18n:ready', () => {
         ensureWelcomeCardPresent();
         renderCards();
       }
+      if (uid && libraryHydratedAsAuth && librarySessionReady) {
+        scheduleGuestMigrationOffer();
+      }
     }
   }
 
   libraryAuthSyncHandler = hydrateLibraryForAuthUser;
   setupSupabaseAuth();
+
+  document.getElementById('btn-guest-migration-import')?.addEventListener('click', () => {
+    if (guestMigrationInFlight) return;
+    runGuestCloudMigration();
+  });
+  document.getElementById('btn-guest-migration-later')?.addEventListener('click', () => {
+    dismissGuestMigrationForSession();
+  });
+  document.getElementById('btn-guest-migration-done')?.addEventListener('click', () => {
+    acknowledgeGuestMigrationResult();
+  });
+  document.getElementById('btn-guest-migration-retry')?.addEventListener('click', () => {
+    if (guestMigrationInFlight) return;
+    runGuestCloudMigration();
+  });
 
   // S1.4-A: Analizar URL → Preview (borrador). Sin persistencia.
   if (btnSave && urlInput) {
@@ -3469,6 +3930,20 @@ document.addEventListener('i18n:ready', () => {
       closeDeleteConfirmModal();
       return;
     }
+    const guestMigModal = document.getElementById('modal-guest-migration');
+    if (guestMigModal?.classList.contains('active')) {
+      if (guestMigrationInFlight) return;
+      if (guestMigrationView === 'consent') {
+        dismissGuestMigrationForSession();
+        return;
+      }
+      if (guestMigrationView === 'result') {
+        acknowledgeGuestMigrationResult();
+        return;
+      }
+      closeGuestMigrationModal();
+      return;
+    }
     const retentionModal = document.getElementById('modal-retention');
     if (retentionModal?.classList.contains('active')) {
       closeRetentionModal();
@@ -3809,6 +4284,19 @@ document.addEventListener('i18n:ready', () => {
         closeDeleteConfirmModal();
         return;
       }
+      if (modalId === 'modal-guest-migration') {
+        if (guestMigrationInFlight) return;
+        if (guestMigrationView === 'consent') {
+          dismissGuestMigrationForSession();
+          return;
+        }
+        if (guestMigrationView === 'result') {
+          acknowledgeGuestMigrationResult();
+          return;
+        }
+        closeGuestMigrationModal();
+        return;
+      }
       document.getElementById(modalId).classList.remove('active');
       if (modalId === 'modal-edit') discardPreviewDraft();
     });
@@ -3819,6 +4307,19 @@ document.addEventListener('i18n:ready', () => {
       if (e.target === overlay) {
         if (overlay.id === 'modal-confirm-delete') {
           closeDeleteConfirmModal();
+          return;
+        }
+        if (overlay.id === 'modal-guest-migration') {
+          if (guestMigrationInFlight) return;
+          if (guestMigrationView === 'consent') {
+            dismissGuestMigrationForSession();
+            return;
+          }
+          if (guestMigrationView === 'result') {
+            acknowledgeGuestMigrationResult();
+            return;
+          }
+          closeGuestMigrationModal();
           return;
         }
         overlay.classList.remove('active');
@@ -3849,6 +4350,10 @@ document.addEventListener('i18n:ready', () => {
     }
     if (activeLegalDocKey && document.getElementById('modal-legal')?.classList.contains('active')) {
       renderLegalModalContent(activeLegalDocKey);
+    }
+    const guestMigModal = document.getElementById('modal-guest-migration');
+    if (guestMigModal?.classList.contains('active') && guestMigrationView === 'consent') {
+      fillGuestMigrationConsent(getMigratableGuestCards().length);
     }
     if (!currentAuthUser) {
       updateAuthChrome(null);
