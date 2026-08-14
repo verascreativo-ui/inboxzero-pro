@@ -12,7 +12,9 @@
     "title": "🚀 Willkommen bei Inbox Zero! So organisieren Sie Ihr Wissen",
     "description": "Das ist Ihre Modellkarte. Speichern Sie oben Links, ordnen Sie sie nach Kategorien und markieren Sie sie als Favoriten oder für später. Ihr Schreibtisch startet bei 0 Karten.",
     "notes": "System-Willkommenskarte. Sie kann nicht gelöscht werden und zählt nicht zum kostenlosen Testkontingent.",
-    "category": "Modellkarte"
+    "category": "Modellkarte",
+    "hide": "Ausblenden",
+    "showAgain": "Modellkarte anzeigen"
   },
   "categories": {
     "health": "Gesundes Essen",

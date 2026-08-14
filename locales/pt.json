@@ -12,7 +12,9 @@
     "title": "🚀 Bem-vindo ao Inbox Zero! Assim se organiza o seu conhecimento",
     "description": "Esta é a sua ficha modelo. Guarde links acima, organize-os por categorias e marque-os como favoritos ou para ler mais tarde. A sua secretária começa com 0 fichas.",
     "notes": "Ficha de boas-vindas do sistema. Não pode ser apagada e não conta no plano de teste gratuito.",
-    "category": "Ficha modelo"
+    "category": "Ficha modelo",
+    "hide": "Ocultar",
+    "showAgain": "Mostrar ficha modelo"
   },
   "categories": {
     "health": "Comida Saudável",

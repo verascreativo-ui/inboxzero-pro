@@ -36,6 +36,27 @@ function normalizeUrlForDuplicateCheck(raw) {
 // =============================================================================
 const LEGACY_CARDS_STORAGE_KEY = 'inboxzero_cards';
 const GUEST_CARDS_STORAGE_KEY = 'inboxzero_guest_cards';
+const WELCOME_HIDDEN_STORAGE_KEY = 'inboxzero_welcome_hidden';
+
+function isWelcomeCardHidden() {
+  try {
+    return localStorage.getItem(WELCOME_HIDDEN_STORAGE_KEY) === '1';
+  } catch (_) {
+    return false;
+  }
+}
+
+function setWelcomeCardHidden(hidden) {
+  try {
+    if (hidden) {
+      localStorage.setItem(WELCOME_HIDDEN_STORAGE_KEY, '1');
+    } else {
+      localStorage.removeItem(WELCOME_HIDDEN_STORAGE_KEY);
+    }
+  } catch (_) {
+    /* ignore quota / private mode */
+  }
+}
 
 /**
  * Identidad persistente de ficha (S1.2): UUID string.
@@ -2463,6 +2484,7 @@ document.addEventListener('i18n:ready', () => {
     let filtered = cards.filter((card) => {
       // Guía fija: visible al inicio de "Últimas / Todas", nunca en fav, later ni categorías
       if (isGuideCard(card)) {
+        if (isWelcomeCardHidden()) return false;
         return !currentCategory && currentFilter === 'all';
       }
       if (currentCategory) {
@@ -2499,6 +2521,10 @@ document.addEventListener('i18n:ready', () => {
 
         const flagBusy = !guide && cardFlagUpdateInFlight.has(String(card.id));
         const flagBusyAttrs = flagBusy ? ' disabled aria-busy="true"' : '';
+
+        const hideGuideBtn = guide
+          ? `<button type="button" class="card-btn-action card-btn-hide-guide" data-action="hide-guide" data-id="${card.id}" title="${t('welcome.hide')}">${t('welcome.hide')}</button>`
+          : '';
 
         const deleteBtn = guide
           ? `<button type="button" class="card-btn-action card-btn-action--locked" disabled title="Ficha modelo: no se puede borrar">🔒</button>`
@@ -2553,6 +2579,7 @@ document.addEventListener('i18n:ready', () => {
           <div class="card-footer-actions">
             ${favBtn}
             ${readBtn}
+            ${hideGuideBtn}
             <button type="button" class="card-btn-action" data-action="edit" data-id="${card.id}" title="${t('cards.editTitle')}">✏️</button>
             ${deleteBtn}
           </div>
@@ -2570,7 +2597,16 @@ document.addEventListener('i18n:ready', () => {
     );
     updateSectionTitle();
     updateLibraryCounters();
+    syncWelcomeRestoreMenu();
     persistCards();
+  }
+
+  function syncWelcomeRestoreMenu() {
+    const hidden = isWelcomeCardHidden();
+    const link = document.getElementById('link-show-welcome');
+    const divider = document.getElementById('dropdown-welcome-divider');
+    if (link) link.hidden = !hidden;
+    if (divider) divider.hidden = !hidden;
   }
 
   /**
@@ -3562,11 +3598,27 @@ document.addEventListener('i18n:ready', () => {
     saveExistingGuestCardFromModal(card);
   }
 
+  function resetCaptureInputAfterPreview() {
+    if (!urlInput) return;
+    urlInput.value = '';
+    try {
+      urlInput.focus({ preventScroll: true });
+    } catch (_) {
+      try {
+        urlInput.focus();
+      } catch (__) {
+        /* ignore */
+      }
+    }
+  }
+
   function discardPreviewDraft() {
+    const wasPreview = Boolean(previewDraft);
     previewDraft = null;
     restoreEditSaveButton();
     const modal = document.getElementById('modal-edit');
     if (!modal?.classList.contains('active')) clearPreviewSaveError();
+    if (wasPreview) resetCaptureInputAfterPreview();
   }
 
   function isPreviewDraftToken(id) {
@@ -3928,6 +3980,12 @@ document.addEventListener('i18n:ready', () => {
       e.preventDefault();
       e.stopPropagation();
 
+      if (action === 'hide-guide') {
+        if (!isGuideCard(cards.find((c) => cardIdsEqual(c.id, id)))) return;
+        setWelcomeCardHidden(true);
+        renderCards();
+        return;
+      }
       if (action === 'favorite') toggleFavorite(id);
       else if (action === 'readLater') toggleReadLater(id);
       else if (action === 'edit') openEditModal(id);
@@ -4190,6 +4248,14 @@ document.addEventListener('i18n:ready', () => {
       dropdownWrapper.classList.remove('active');
     });
   }
+
+  document.getElementById('link-show-welcome')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setWelcomeCardHidden(false);
+    renderCards();
+    document.querySelectorAll('.dropdown-wrapper').forEach((w) => w.classList.remove('active'));
+  });
 
   const setupModal = (btnId, modalId) => {
     const btn = document.getElementById(btnId);

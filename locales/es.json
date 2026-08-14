@@ -12,7 +12,9 @@
     "title": "🚀 ¡Bienvenido a Inbox Zero! Así se organiza tu conocimiento",
     "description": "Esta es tu ficha modelo. Guarda enlaces arriba, organízalos por categorías y márcalos como favoritos o para leer más tarde. Tu escritorio empieza en 0 fichas.",
     "notes": "Ficha de bienvenida del sistema. No se puede borrar ni cuenta en el plan de prueba.",
-    "category": "Ficha Modelo"
+    "category": "Ficha Modelo",
+    "hide": "Ocultar",
+    "showAgain": "Mostrar Ficha Modelo"
   },
   "categories": {
     "health": "Comida Sana",

@@ -12,7 +12,9 @@
     "title": "🚀 Bienvenue sur Inbox Zero ! Voici comment organiser vos connaissances",
     "description": "Voici votre fiche modèle. Enregistrez des liens ci-dessus, organisez-les par catégories et marquez-les en favoris ou à lire plus tard. Votre bureau commence à 0 fiches.",
     "notes": "Fiche de bienvenue du système. Elle ne peut pas être supprimée et ne compte pas dans l'essai gratuit.",
-    "category": "Fiche modèle"
+    "category": "Fiche modèle",
+    "hide": "Masquer",
+    "showAgain": "Afficher la fiche modèle"
   },
   "categories": {
     "health": "Alimentation saine",

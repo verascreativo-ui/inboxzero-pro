@@ -198,6 +198,21 @@ body {
   color: #2563eb;
 }
 
+.dropdown-content a.dropdown-welcome-restore {
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.dropdown-content a.dropdown-welcome-restore[hidden] {
+  display: none;
+}
+
+.dropdown-content a.dropdown-welcome-restore:hover {
+  background: #f8fafc;
+  color: #374151;
+}
+
 .app-layout {
   display: flex;
   flex: 1 1 auto;
@@ -363,20 +378,26 @@ body {
   background: #ffffff;
   padding: 10px 12px;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
 }
 
 .add-card-container input {
   flex: 1;
   padding: 10px 14px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #94a3b8;
   border-radius: 6px;
   outline: none;
   font-size: 14px;
 }
 
+.add-card-container input::placeholder {
+  color: #64748b;
+}
+
 .add-card-container input:focus {
   border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 .btn-save-custom {
@@ -639,6 +660,23 @@ body {
 .card-btn-action:hover {
   background: #f3f4f6;
   border-color: #9ca3af;
+}
+
+.card-btn-hide-guide {
+  width: auto;
+  min-width: 0;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #6b7280;
+  border-color: transparent;
+  background: transparent;
+}
+
+.card-btn-hide-guide:hover {
+  color: #374151;
+  background: #f3f4f6;
+  border-color: #e5e7eb;
 }
 
 .card-btn-action.active-fav {

@@ -12,7 +12,9 @@
     "title": "🚀 Welcome to Inbox Zero! This is how you organize your knowledge",
     "description": "This is your model card. Save links above, organize them by category, and mark them as favorites or read later. Your desk starts at 0 cards.",
     "notes": "System welcome card. It cannot be deleted and does not count toward the free trial.",
-    "category": "Model Card"
+    "category": "Model Card",
+    "hide": "Hide",
+    "showAgain": "Show model card"
   },
   "categories": {
     "health": "Healthy Food",
