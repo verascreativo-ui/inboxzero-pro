@@ -383,9 +383,28 @@ async function fetchYoutubeOEmbed(pageUrl) {
 }
 
 /**
- * Heurística conservadora: ¿esta URL parece logo / icono / asset de marca?
+ * Placeholders OG / stubs triviales (p. ej. grey-placeholder.png).
+ * Conservador: no trata maxresdefault/hqdefault de YouTube como placeholder.
+ */
+function isLikelyPlaceholderOrGenericOgImage(imageUrl) {
+  const url = String(imageUrl || '').trim();
+  if (!url) return false;
+  if (/ytimg\.com|(?:^|\/\/)(?:www\.)?youtube\.com\/vi\//i.test(url)) return false;
+
+  const path = url.split(/[?#]/)[0] || url;
+  const fileName = path.split('/').pop() || '';
+
+  if (/(^|[-_])placeholders?([-_.]|$)/i.test(fileName)) return true;
+  if (/(^|[-_])(spacer|dummy|no[-_]?image|image[-_]?missing)([-_.]|$)/i.test(fileName)) return true;
+  if (/^(?:1x1|pixel|blank|transparent)\.(?:gif|png|webp|jpe?g)$/i.test(fileName)) return true;
+  if (/(^|[-_])(og[-_]?default|default[-_]?og|default[-_]?share)([-_.]|$)/i.test(fileName)) return true;
+  if (/\/(?:placeholders?|spacers?|dummy)\//i.test(path)) return true;
+  return false;
+}
+
+/**
+ * Heurística conservadora: ¿esta URL parece logo / icono / asset de marca / placeholder OG?
  * No descarta cualquier imagen cuadrada: combina señales de nombre, tipo y tamaño.
- * Fase 2 podrá reutilizar esta señal dentro de un score multi-candidato.
  *
  * @param {string} imageUrl
  * @param {{ width?: number, height?: number, logoUrl?: string, type?: string }} [options]
@@ -393,6 +412,7 @@ async function fetchYoutubeOEmbed(pageUrl) {
 function isLikelyBrandOrLogoImage(imageUrl, options = {}) {
   const url = String(imageUrl || '').trim();
   if (!url) return false;
+  if (isLikelyPlaceholderOrGenericOgImage(url)) return true;
 
   const logoUrl = String(options.logoUrl || '').trim();
   if (logoUrl) {
@@ -689,11 +709,18 @@ function mergeFacebookExtraction(pageUrl) {
   return getFacebookInstantMetadata(pageUrl);
 }
 
+function getExtractApiBase() {
+  return String(window.INBOXZERO_EXTRACT_API || '')
+    .trim()
+    .replace(/\/$/, '');
+}
+
 /**
  * Backend avanzado (ScrapingBee). Facebook / Instagram / LinkedIn / webs.
  */
 async function fetchAdvancedExtractApi(pageUrl) {
-  const base = String(window.INBOXZERO_EXTRACT_API || 'http://localhost:8787').replace(/\/$/, '');
+  const base = getExtractApiBase();
+  if (!base) return null;
   const endpoint = `${base}/api/extract?url=${encodeURIComponent(pageUrl)}`;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 55000);
@@ -732,7 +759,8 @@ async function fetchAdvancedExtractApi(pageUrl) {
  * @returns {Promise<{ url: string, source: string, score: number, candidate: object } | null>}
  */
 async function fetchPageImagesBest(pageUrl) {
-  const base = String(window.INBOXZERO_EXTRACT_API || 'http://localhost:8787').replace(/\/$/, '');
+  const base = getExtractApiBase();
+  if (!base) return null;
   const endpoint = `${base}/api/page-images?url=${encodeURIComponent(pageUrl)}`;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 45000);
@@ -2689,6 +2717,8 @@ document.addEventListener('i18n:ready', () => {
   // S1.4-A: Analizar URL → Preview (borrador). Sin persistencia.
   if (btnSave && urlInput) {
     btnSave.addEventListener('click', async () => {
+      if (btnSave.disabled || btnSave.getAttribute('aria-busy') === 'true') return;
+
       const val = urlInput.value.trim();
       if (!val) {
         alert(t('messages.invalidUrlOrTitle'));
@@ -2714,6 +2744,7 @@ document.addEventListener('i18n:ready', () => {
       const prevBtnLabel = btnSave.textContent;
       btnSave.disabled = true;
       btnSave.setAttribute('aria-busy', 'true');
+      btnSave.textContent = t('main.analyzingUrl') || 'Analizando…';
 
       try {
         if (val.startsWith('http://') || val.startsWith('https://')) {
@@ -2772,7 +2803,7 @@ document.addEventListener('i18n:ready', () => {
             }
           }
           // Último recurso visual: favicon del dominio (evita preview en blanco)
-          if (!isUsableImageUrl(finalImage)) {
+          if (!isUsableImageUrl(finalImage) || isLikelyPlaceholderOrGenericOgImage(finalImage)) {
             finalImage = resolveDisplayImage('', finalUrl);
           }
 

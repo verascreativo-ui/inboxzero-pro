@@ -9,6 +9,18 @@
 // 4) npm start  →  http://localhost:8787
 //
 // Frontend: GET /api/extract?url=... → title / description / image al modal.
+// Solo se activa por defecto en desarrollo local. En producción el frontend
+// no llama a localhost:8787 (fallbacks Microlink / favicon / placeholder).
 
-window.INBOXZERO_EXTRACT_API =
-  window.INBOXZERO_EXTRACT_API || 'http://localhost:8787';
+(function () {
+  if (window.INBOXZERO_EXTRACT_API) return;
+  try {
+    const host = String((window.location && window.location.hostname) || '').toLowerCase();
+    const isLocal = !host || host === 'localhost' || host === '127.0.0.1' || host === '[::1]';
+    if (isLocal) {
+      window.INBOXZERO_EXTRACT_API = 'http://localhost:8787';
+    }
+  } catch (_) {
+    /* sin API: el frontend usa los fallbacks existentes */
+  }
+})();

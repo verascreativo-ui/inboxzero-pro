@@ -52,6 +52,7 @@
   "main": {
     "urlPlaceholder": "Collez un lien (https://...) ou un titre...",
     "analyzeUrl": "Analyser l'URL",
+    "analyzingUrl": "Analyse…",
     "saveCard": "Enregistrer la fiche",
     "sectionLatest": "Dernières fiches enregistrées",
     "showingCards": "Affichage de {{count}} fiche(s)",

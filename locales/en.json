@@ -52,6 +52,7 @@
   "main": {
     "urlPlaceholder": "Paste a link (https://...) or title...",
     "analyzeUrl": "Analyze URL",
+    "analyzingUrl": "Analyzing…",
     "saveCard": "Save Card",
     "sectionLatest": "Latest Saved Cards",
     "showingCards": "Showing {{count}} card(s)",

@@ -52,6 +52,7 @@
   "main": {
     "urlPlaceholder": "Link einfügen (https://...) oder Titel...",
     "analyzeUrl": "URL analysieren",
+    "analyzingUrl": "Wird analysiert…",
     "saveCard": "Karte speichern",
     "sectionLatest": "Zuletzt gespeicherte Karten",
     "showingCards": "{{count}} Karte(n) angezeigt",

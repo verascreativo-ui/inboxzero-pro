@@ -52,6 +52,7 @@
   "main": {
     "urlPlaceholder": "Pega un enlace (https://...) o título...",
     "analyzeUrl": "Analizar URL",
+    "analyzingUrl": "Analizando…",
     "saveCard": "Guardar Ficha",
     "sectionLatest": "Últimas Fichas Incorporadas",
     "showingCards": "Mostrando {{count}} ficha(s)",
