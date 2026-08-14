@@ -173,7 +173,10 @@
     "readLaterTitle": "Leer más tarde",
     "editTitle": "Editar",
     "deleteTitle": "Eliminar",
-    "thumbAlt": "Vista previa del enlace"
+    "thumbAlt": "Vista previa del enlace",
+    "flagErrorGeneric": "No se ha podido actualizar el estado. Inténtalo de nuevo.",
+    "flagErrorNetwork": "No se ha podido conectar. Comprueba tu conexión e inténtalo de nuevo.",
+    "flagErrorSession": "Tu sesión no está disponible. Inicia sesión e inténtalo de nuevo. El estado no se ha guardado."
   },
   "messages": {
     "invalidUrlOrTitle": "Por favor, introduce un enlace o título válido.",

@@ -173,7 +173,10 @@
     "readLaterTitle": "À lire plus tard",
     "editTitle": "Modifier",
     "deleteTitle": "Supprimer",
-    "thumbAlt": "Aperçu du lien"
+    "thumbAlt": "Aperçu du lien",
+    "flagErrorGeneric": "Impossible de mettre à jour l'état. Veuillez réessayer.",
+    "flagErrorNetwork": "Connexion impossible. Vérifiez votre connexion et réessayez.",
+    "flagErrorSession": "Votre session n'est pas disponible. Connectez-vous et réessayez. L'état n'a pas été enregistré."
   },
   "messages": {
     "invalidUrlOrTitle": "Veuillez saisir un lien ou un titre valide.",

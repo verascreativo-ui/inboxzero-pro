@@ -173,7 +173,10 @@
     "readLaterTitle": "Read later",
     "editTitle": "Edit",
     "deleteTitle": "Delete",
-    "thumbAlt": "Link preview"
+    "thumbAlt": "Link preview",
+    "flagErrorGeneric": "The status could not be updated. Please try again.",
+    "flagErrorNetwork": "Could not connect. Check your connection and try again.",
+    "flagErrorSession": "Your session is not available. Sign in and try again. The status was not saved."
   },
   "messages": {
     "invalidUrlOrTitle": "Please enter a valid link or title.",

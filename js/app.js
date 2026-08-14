@@ -1036,10 +1036,16 @@ function classifyCardUpdateError(error) {
 /**
  * UPDATE de ficha propia por id. No permite cambiar user_id.
  * S1.5: nunca lanza; éxito solo con fila devuelta e id.
+ * sessionUid opcional (S1.7): filtro user_id; JWT/RLS siguen siendo la autoridad.
  */
-async function updateOwnCardRepo(cardId, patch) {
+async function updateOwnCardRepo(cardId, patch, sessionUid) {
   const supabase = getSupabaseClient();
-  const uid = await getAuthenticatedUserId();
+  const jwtUid = await getAuthenticatedUserId();
+  const passedUid = String(sessionUid || '').trim();
+  if (jwtUid && passedUid && String(jwtUid) !== passedUid) {
+    return { ok: false, code: 'NO_SESSION', data: null, error: null };
+  }
+  const uid = jwtUid || passedUid;
   const id = String(cardId || '').trim();
   if (!supabase || !uid) {
     return { ok: false, code: 'NO_SESSION', data: null, error: null };
@@ -1525,6 +1531,9 @@ document.addEventListener('i18n:ready', () => {
   let previewSaveInFlight = false;
   /** Clave i18n del último error de Guardar Ficha (S1.4-C). */
   let previewSaveErrorKey = null;
+  /** S1.7: UPDATE ⭐/⏰ en vuelo, por id de ficha. */
+  const cardFlagUpdateInFlight = new Set();
+  let cardsFlagErrorKey = null;
 
   let currentFilter = 'all';
   let currentCategory = null;
@@ -2021,17 +2030,20 @@ document.addEventListener('i18n:ready', () => {
         cardEl.dataset.cardId = String(card.id);
         if (guide) cardEl.dataset.guide = '1';
 
+        const flagBusy = !guide && cardFlagUpdateInFlight.has(String(card.id));
+        const flagBusyAttrs = flagBusy ? ' disabled aria-busy="true"' : '';
+
         const deleteBtn = guide
           ? `<button type="button" class="card-btn-action card-btn-action--locked" disabled title="Ficha modelo: no se puede borrar">🔒</button>`
           : `<button type="button" class="card-btn-action" data-action="delete" data-id="${card.id}" title="${t('cards.deleteTitle')}">🗑️</button>`;
 
         const favBtn = guide
           ? ''
-          : `<button type="button" class="card-btn-action ${card.favorite ? 'active-fav' : ''}" data-action="favorite" data-id="${card.id}" title="${t('cards.favoriteTitle')}">⭐</button>`;
+          : `<button type="button" class="card-btn-action ${card.favorite ? 'active-fav' : ''}" data-action="favorite" data-id="${card.id}" title="${t('cards.favoriteTitle')}"${flagBusyAttrs}>⭐</button>`;
 
         const readBtn = guide
           ? ''
-          : `<button type="button" class="card-btn-action ${card.readLater ? 'active-read' : ''}" data-action="readLater" data-id="${card.id}" title="${t('cards.readLaterTitle')}">⏰</button>`;
+          : `<button type="button" class="card-btn-action ${card.readLater ? 'active-read' : ''}" data-action="readLater" data-id="${card.id}" title="${t('cards.readLaterTitle')}"${flagBusyAttrs}>⏰</button>`;
 
         const thumbSrc = resolveDisplayImage(card.image, card.url);
         // Persistir resolución para que el dashboard no se quede en gris
@@ -2404,17 +2416,142 @@ document.addEventListener('i18n:ready', () => {
   }
 
   function toggleFavorite(id) {
-    const card = cards.find((c) => cardIdsEqual(c.id, id));
-    if (!card || isGuideCard(card)) return;
-    card.favorite = !card.favorite;
-    renderCards();
+    toggleCardFlag(id, 'favorite');
   }
 
   function toggleReadLater(id) {
+    toggleCardFlag(id, 'readLater');
+  }
+
+  function ensureCardsFlagErrorEl() {
+    let el = document.getElementById('cards-flag-error');
+    if (el) return el;
+    el = document.createElement('p');
+    el.id = 'cards-flag-error';
+    el.className = 'field-error preview-save-error cards-flag-error';
+    el.setAttribute('role', 'alert');
+    el.setAttribute('aria-live', 'assertive');
+    if (cardsGrid?.parentElement) {
+      cardsGrid.parentElement.insertBefore(el, cardsGrid);
+    }
+    return el;
+  }
+
+  function clearCardsFlagError() {
+    cardsFlagErrorKey = null;
+    const el = document.getElementById('cards-flag-error');
+    if (!el) return;
+    el.hidden = true;
+    el.setAttribute('hidden', '');
+    el.style.removeProperty('display');
+    el.textContent = '';
+    el.removeAttribute('data-i18n');
+  }
+
+  function setCardsFlagError(key) {
+    cardsFlagErrorKey = key;
+    const el = ensureCardsFlagErrorEl();
+    if (!el) return;
+    el.removeAttribute('hidden');
+    el.hidden = false;
+    el.style.display = 'block';
+    el.setAttribute('role', 'alert');
+    el.setAttribute('aria-live', 'assertive');
+    el.setAttribute('data-i18n', key);
+    el.textContent = t(key);
+    try {
+      el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    } catch (_) {
+      /* ignore */
+    }
+  }
+
+  function failClosedFlagSave(code) {
+    if (code === 'NO_SESSION') {
+      setCardsFlagError('cards.flagErrorSession');
+      return;
+    }
+    if (code === 'UPDATE_NETWORK') {
+      setCardsFlagError('cards.flagErrorNetwork');
+      return;
+    }
+    setCardsFlagError('cards.flagErrorGeneric');
+  }
+
+  function isCardFlagLocked(id) {
+    const key = String(id || '');
+    if (!key) return true;
+    if (cardFlagUpdateInFlight.has(key)) return true;
+    return Boolean(cardDeleteInFlight && cardIdsEqual(pendingDeleteId, id));
+  }
+
+  function applyGuestCardFlagToggle(card, field) {
+    card[field] = !Boolean(card[field]);
+    renderCards();
+  }
+
+  /**
+   * S1.7: UPDATE Cloud de ⭐/⏰. FAIL CLOSED. Patch solo del campo pulsado.
+   */
+  async function persistCardCloudFlag(card, field, sessionUid) {
+    if (!card || isGuideCard(card) || (field !== 'favorite' && field !== 'readLater')) {
+      failClosedFlagSave('UPDATE_ERROR');
+      return;
+    }
+    const nextValue = !Boolean(card[field]);
+    const patch = field === 'favorite' ? { favorite: nextValue } : { readLater: nextValue };
+    const result = await updateOwnCardRepo(card.id, patch, sessionUid);
+    if (!result.ok || !result.data || !result.data.id || !cardIdsEqual(result.data.id, card.id)) {
+      failClosedFlagSave(result.code || 'UPDATE_ERROR');
+      return;
+    }
+    const uiCard = mapCloudCardToUi(result.data);
+    if (!uiCard?.id || !cardIdsEqual(uiCard.id, card.id)) {
+      failClosedFlagSave('UPDATE_ERROR');
+      return;
+    }
+    const idx = cards.findIndex((c) => cardIdsEqual(c.id, card.id));
+    if (idx < 0) {
+      failClosedFlagSave('UPDATE_ERROR');
+      return;
+    }
+    uiCard[field] = nextValue;
+    cards[idx] = uiCard;
+    persistCards();
+    renderCards();
+  }
+
+  async function toggleCardFlag(id, field) {
+    if (isCardFlagLocked(id)) return;
     const card = cards.find((c) => cardIdsEqual(c.id, id));
     if (!card || isGuideCard(card)) return;
-    card.readLater = !card.readLater;
+    if (field !== 'favorite' && field !== 'readLater') return;
+
+    if (!currentAuthUser?.id && !libraryHydratedAsAuth) {
+      applyGuestCardFlagToggle(card, field);
+      return;
+    }
+
+    const idKey = String(card.id);
+    cardFlagUpdateInFlight.add(idKey);
+    clearCardsFlagError();
     renderCards();
+    try {
+      const uid =
+        (currentAuthUser?.id ? String(currentAuthUser.id) : '') ||
+        (await getAuthenticatedUserId()) ||
+        '';
+      if (!uid) {
+        failClosedFlagSave('NO_SESSION');
+        return;
+      }
+      await persistCardCloudFlag(card, field, uid);
+    } catch (_) {
+      failClosedFlagSave('UPDATE_NETWORK');
+    } finally {
+      cardFlagUpdateInFlight.delete(idKey);
+      renderCards();
+    }
   }
 
   let pendingDeleteId = null;

@@ -173,7 +173,10 @@
     "readLaterTitle": "Später lesen",
     "editTitle": "Bearbeiten",
     "deleteTitle": "Löschen",
-    "thumbAlt": "Linkvorschau"
+    "thumbAlt": "Linkvorschau",
+    "flagErrorGeneric": "Der Status konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
+    "flagErrorNetwork": "Verbindung fehlgeschlagen. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+    "flagErrorSession": "Ihre Sitzung ist nicht verfügbar. Melden Sie sich an und versuchen Sie es erneut. Der Status wurde nicht gespeichert."
   },
   "messages": {
     "invalidUrlOrTitle": "Bitte geben Sie einen gültigen Link oder Titel ein.",
