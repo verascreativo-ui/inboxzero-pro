@@ -736,6 +736,26 @@ function getExtractApiBase() {
     .replace(/\/$/, '');
 }
 
+/** Access token de la sesión Auth para el API local. Vacío si no hay sesión. */
+async function getExtractAccessToken() {
+  const supabase = getSupabaseClient();
+  if (!supabase) return '';
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    if (error || !data?.session?.access_token) return '';
+    return String(data.session.access_token);
+  } catch (_) {
+    return '';
+  }
+}
+
+async function extractApiHeaders() {
+  const headers = { Accept: 'application/json' };
+  const token = await getExtractAccessToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+}
+
 /**
  * Backend avanzado (ScrapingBee). Facebook / Instagram / LinkedIn / webs.
  */
@@ -748,7 +768,7 @@ async function fetchAdvancedExtractApi(pageUrl) {
   try {
     const res = await fetch(endpoint, {
       method: 'GET',
-      headers: { Accept: 'application/json' },
+      headers: await extractApiHeaders(),
       signal: controller.signal,
     });
     const payload = await res.json().catch(() => null);
@@ -788,7 +808,7 @@ async function fetchPageImagesBest(pageUrl) {
   try {
     const res = await fetch(endpoint, {
       method: 'GET',
-      headers: { Accept: 'application/json' },
+      headers: await extractApiHeaders(),
       signal: controller.signal,
     });
     const payload = await res.json().catch(() => null);

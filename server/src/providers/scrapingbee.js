@@ -3,6 +3,8 @@
  * Docs: https://www.scrapingbee.com/documentation/
  */
 
+import { fetchWithTimeout } from '../fetch-timeout.js';
+
 /** Chrome de escritorio moderno — evita que Facebook sirva el muro de login móvil/bot */
 const CHROME_DESKTOP_UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
@@ -86,7 +88,7 @@ export async function fetchWithScrapingBee(targetUrl, opts = {}) {
   const params = buildScrapingBeeParams(targetUrl, opts);
   const endpoint = `https://app.scrapingbee.com/api/v1/?${params.toString()}`;
 
-  const res = await fetch(endpoint, {
+  const res = await fetchWithTimeout(endpoint, {
     headers: {
       Accept: opts.screenshot ? '*/*' : 'text/html,application/xhtml+xml',
       ...scrapingBeeForwardHeaders(),

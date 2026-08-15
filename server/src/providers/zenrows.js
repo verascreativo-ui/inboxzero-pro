@@ -3,6 +3,8 @@
  * Docs: https://docs.zenrows.com/
  */
 
+import { fetchWithTimeout } from '../fetch-timeout.js';
+
 function requireKey() {
   const key = process.env.ZENROWS_API_KEY?.trim();
   if (!key) {
@@ -41,7 +43,7 @@ export async function fetchWithZenRows(targetUrl, opts = {}) {
   }
 
   const endpoint = `https://api.zenrows.com/v1/?${params.toString()}`;
-  const res = await fetch(endpoint);
+  const res = await fetchWithTimeout(endpoint);
 
   if (!res.ok) {
     const body = await res.text().catch(() => '');
