@@ -2,6 +2,8 @@
  * Lectura ligera de width/height desde cabeceras de imagen (sin descargar el archivo completo).
  */
 
+import { fetchSafeHttp, SSRF_CODE, assertSafeHttpUrl } from '../ssrf-guard.js';
+
 const PROBE_BYTES = 65536;
 const PROBE_TIMEOUT_MS = 4000;
 
@@ -122,33 +124,42 @@ export async function probeImageDimensions(imageUrl) {
   const url = String(imageUrl || '').trim();
   if (!url || !/^https?:\/\//i.test(url)) return null;
 
+  try {
+    await assertSafeHttpUrl(url);
+  } catch (err) {
+    if (err && err.code === SSRF_CODE) return null;
+    return null;
+  }
+
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
   try {
-    let res = await fetch(url, {
-      method: 'GET',
-      headers: {
-        Range: `bytes=0-${PROBE_BYTES - 1}`,
-        Accept: 'image/*,*/*;q=0.8',
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-      },
-      redirect: 'follow',
-      signal: controller.signal,
-    });
+    let fetched = await fetchSafeHttp(
+      url,
+      {
+        method: 'GET',
+        headers: {
+          Range: `bytes=0-${PROBE_BYTES - 1}`,
+          Accept: 'image/*,*/*;q=0.8',
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        },
+        signal: controller.signal,
+      }
+    );
+    let res = fetched.response;
 
-    // Algunos hosts no aceptan Range: reintentar GET completo pero cortando lectura
     if (!res.ok && res.status !== 206) {
-      res = await fetch(url, {
+      fetched = await fetchSafeHttp(url, {
         method: 'GET',
         headers: {
           Accept: 'image/*,*/*;q=0.8',
           'User-Agent':
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
         },
-        redirect: 'follow',
         signal: controller.signal,
       });
+      res = fetched.response;
     }
 
     if (!res.ok && res.status !== 206) return null;

@@ -1,5 +1,6 @@
 /**
- * fetch() con timeout de servidor. No sustituye la validación de URL (MUST FIX #2).
+ * fetch() con timeout de servidor.
+ * Destinos de usuario deben pasar antes por ssrf-guard (fetchSafeHttp).
  */
 
 export function getExtractFetchTimeoutMs() {

@@ -4,6 +4,8 @@
  * Estructura lista; solo se activa si los paquetes están instalados.
  */
 
+import { assertSafeHttpUrl } from '../ssrf-guard.js';
+
 export function isPuppeteerConfigured() {
   // Activo si SCRAPE_PROVIDER=puppeteer o si no hay APIs cloud y se fuerza auto local
   return process.env.SCRAPE_PROVIDER === 'puppeteer' || process.env.ENABLE_PUPPETEER === '1';
@@ -33,6 +35,8 @@ async function loadStealthBrowser() {
  * @param {string} targetUrl
  */
 export async function fetchWithPuppeteerStealth(targetUrl) {
+  const safe = await assertSafeHttpUrl(targetUrl);
+  const safeUrl = safe.href;
   if (!isPuppeteerConfigured() && process.env.SCRAPE_PROVIDER !== 'auto') {
     const err = new Error('Puppeteer desactivado (ENABLE_PUPPETEER=1 o SCRAPE_PROVIDER=puppeteer)');
     err.code = 'PROVIDER_NOT_CONFIGURED';
@@ -60,7 +64,7 @@ export async function fetchWithPuppeteerStealth(targetUrl) {
       'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8',
     });
 
-    await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 45000 });
+    await page.goto(safeUrl, { waitUntil: 'networkidle2', timeout: 45000 });
     // Esperar posibles h1 de grupo / feed
     await page.waitForSelector('h1, [role="main"], meta[property="og:title"]', { timeout: 8000 }).catch(() => {});
 

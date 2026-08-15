@@ -7,7 +7,7 @@ import { loadHtml } from './opengraph.js';
 import { rankImageCandidates } from './image-score.js';
 import { enrichCandidatesWithDimensions } from './image-dims.js';
 import { fetchPageViaProvider, getProviderStatus } from '../providers/index.js';
-import { fetchWithTimeout } from '../fetch-timeout.js';
+import { fetchSafeHttp, SSRF_CODE, SSRF_MESSAGE, assertSafeHttpUrl } from '../ssrf-guard.js';
 
 const MAX_CANDIDATES = 20;
 /** Límite de sondas de cabecera de imagen (bytes parciales, no descarga completa). */
@@ -244,25 +244,25 @@ export async function fetchHtmlForPageImages(pageUrl) {
   const errors = [];
 
   try {
-    const res = await fetchWithTimeout(pageUrl, {
+    const { response: res, finalUrl } = await fetchSafeHttp(pageUrl, {
       headers: {
         Accept: 'text/html,application/xhtml+xml',
         'User-Agent':
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
         'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8',
       },
-      redirect: 'follow',
     });
     if (res.ok) {
       const html = await res.text();
       if (html && html.length > 200) {
-        return { html, provider: 'direct-fetch', finalUrl: res.url || pageUrl };
+        return { html, provider: 'direct-fetch', finalUrl: finalUrl || pageUrl };
       }
       errors.push(`direct-fetch cuerpo demasiado corto (${html?.length || 0})`);
     } else {
       errors.push(`direct-fetch HTTP ${res.status}`);
     }
   } catch (e) {
+    if (e && e.code === SSRF_CODE) throw e;
     errors.push(`direct-fetch: ${e.message || e}`);
   }
 
@@ -279,6 +279,7 @@ export async function fetchHtmlForPageImages(pageUrl) {
       }
       errors.push('scrape-provider: HTML vacío');
     } catch (e) {
+      if (e && e.code === SSRF_CODE) throw e;
       errors.push(`scrape-provider: ${e.message || e}`);
     }
   } else {
@@ -298,8 +299,12 @@ export async function fetchHtmlForPageImages(pageUrl) {
 export async function analyzePageImages(pageUrl) {
   let normalized;
   try {
-    normalized = new URL(pageUrl).href;
-  } catch (_) {
+    const safe = await assertSafeHttpUrl(pageUrl);
+    normalized = safe.href;
+  } catch (err) {
+    if (err && err.code === SSRF_CODE) {
+      return { status: 'fail', message: SSRF_MESSAGE, code: SSRF_CODE };
+    }
     return { status: 'fail', message: 'URL inválida', code: 'INVALID_URL' };
   }
 
@@ -324,11 +329,14 @@ export async function analyzePageImages(pageUrl) {
       },
     };
   } catch (err) {
+    if (err && err.code === SSRF_CODE) {
+      return { status: 'fail', message: SSRF_MESSAGE, code: SSRF_CODE };
+    }
     return {
       status: 'fail',
       message: err.message || 'Error al analizar imágenes',
       code: err.code || 'PAGE_IMAGES_ERROR',
-      details: err.details || undefined,
     };
   }
 }
+

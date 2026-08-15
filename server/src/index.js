@@ -6,6 +6,7 @@ import { getProviderStatus } from './providers/index.js';
 import { analyzePageImages } from './parse/page-images.js';
 import { requireUser } from './require-user.js';
 import { rateLimitExtract } from './rate-limit.js';
+import { assertSafeHttpUrl, SSRF_CODE, SSRF_MESSAGE } from './ssrf-guard.js';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 8787;
@@ -57,6 +58,9 @@ app.get('/health', (_req, res) => {
 function sendSafeError(res, err) {
   const code = err && err.code ? String(err.code) : '';
   const name = err && err.name ? String(err.name) : '';
+  if (code === SSRF_CODE) {
+    return res.status(400).json({ status: 'fail', message: SSRF_MESSAGE, code: SSRF_CODE });
+  }
   if (code === 'TIMEOUT' || name === 'AbortError' || name === 'TimeoutError') {
     return res.status(500).json({ status: 'fail', message: 'Tiempo de espera agotado' });
   }
@@ -99,7 +103,11 @@ async function handleExtract(req, res) {
       return res.status(400).json({ status: 'fail', message: 'Parámetro url requerido' });
     }
 
+    await assertSafeHttpUrl(url);
     const result = await withRequestTimeout(() => extractAdvancedMetadata(url));
+    if (result.code === SSRF_CODE) {
+      return res.status(400).json({ status: 'fail', message: SSRF_MESSAGE, code: SSRF_CODE });
+    }
     const httpStatus = result.status === 'success' ? 200 : result.code === 'NO_PROVIDER' ? 503 : 422;
     return res.status(httpStatus).json(result);
   } catch (err) {
@@ -119,7 +127,11 @@ async function handlePageImages(req, res) {
       return res.status(400).json({ status: 'fail', message: 'Parámetro url requerido' });
     }
 
+    await assertSafeHttpUrl(url);
     const result = await withRequestTimeout(() => analyzePageImages(url));
+    if (result.code === SSRF_CODE) {
+      return res.status(400).json({ status: 'fail', message: SSRF_MESSAGE, code: SSRF_CODE });
+    }
     const httpStatus =
       result.status === 'success' ? 200 : result.code === 'INVALID_URL' ? 400 : 422;
     return res.status(httpStatus).json(result);

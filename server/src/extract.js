@@ -1,5 +1,6 @@
 import { fetchPageViaProvider } from './providers/index.js';
 import { detectPlatform, parseScrapedPage } from './parse/social.js';
+import { assertSafeHttpUrl, SSRF_CODE, SSRF_MESSAGE } from './ssrf-guard.js';
 
 /**
  * Extracción avanzada de metadatos para redes con muro de login.
@@ -15,8 +16,12 @@ import { detectPlatform, parseScrapedPage } from './parse/social.js';
 export async function extractAdvancedMetadata(pageUrl) {
   let normalized;
   try {
-    normalized = new URL(pageUrl).href;
-  } catch (_) {
+    const safe = await assertSafeHttpUrl(pageUrl);
+    normalized = safe.href;
+  } catch (err) {
+    if (err && err.code === SSRF_CODE) {
+      return { status: 'fail', message: SSRF_MESSAGE, code: SSRF_CODE };
+    }
     return { status: 'fail', message: 'URL inválida' };
   }
 
@@ -90,6 +95,9 @@ export async function extractAdvancedMetadata(pageUrl) {
       },
     };
   } catch (err) {
+    if (err && err.code === SSRF_CODE) {
+      return { status: 'fail', message: SSRF_MESSAGE, code: SSRF_CODE };
+    }
     return {
       status: 'fail',
       message: err.message || 'Error de extracción',

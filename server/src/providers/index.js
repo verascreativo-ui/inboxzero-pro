@@ -1,12 +1,15 @@
 import { fetchHtmlAndScreenshotScrapingBee, isScrapingBeeConfigured } from './scrapingbee.js';
 import { fetchWithZenRows, isZenRowsConfigured } from './zenrows.js';
 import { fetchWithPuppeteerStealth, isPuppeteerConfigured } from './puppeteer.js';
+import { assertSafeHttpUrl } from '../ssrf-guard.js';
 
 /**
  * Obtiene HTML (y screenshot si aplica) con el proveedor configurado.
  * Orden auto: ScrapingBee → ZenRows → Puppeteer stealth.
  */
 export async function fetchPageViaProvider(targetUrl, { preferScreenshot = true } = {}) {
+  const safe = await assertSafeHttpUrl(targetUrl);
+  const safeUrl = safe.href;
   const mode = (process.env.SCRAPE_PROVIDER || 'auto').toLowerCase();
   const errors = [];
 
@@ -16,9 +19,7 @@ export async function fetchPageViaProvider(targetUrl, { preferScreenshot = true 
       err.code = 'PROVIDER_NOT_CONFIGURED';
       throw err;
     }
-    return preferScreenshot
-      ? fetchHtmlAndScreenshotScrapingBee(targetUrl)
-      : fetchHtmlAndScreenshotScrapingBee(targetUrl);
+    return fetchHtmlAndScreenshotScrapingBee(safeUrl);
   };
 
   const tryZenRows = async () => {
@@ -27,11 +28,11 @@ export async function fetchPageViaProvider(targetUrl, { preferScreenshot = true 
       err.code = 'PROVIDER_NOT_CONFIGURED';
       throw err;
     }
-    const htmlResult = await fetchWithZenRows(targetUrl, { screenshot: false });
+    const htmlResult = await fetchWithZenRows(safeUrl, { screenshot: false });
     let screenshotDataUrl = htmlResult.screenshotDataUrl;
     if (preferScreenshot && !screenshotDataUrl) {
       try {
-        const shot = await fetchWithZenRows(targetUrl, { screenshot: true });
+        const shot = await fetchWithZenRows(safeUrl, { screenshot: true });
         screenshotDataUrl = shot.screenshotDataUrl;
       } catch (_) {
         /* opcional */
@@ -45,7 +46,7 @@ export async function fetchPageViaProvider(targetUrl, { preferScreenshot = true 
   };
 
   const tryPuppeteer = async () => {
-    return fetchWithPuppeteerStealth(targetUrl);
+    return fetchWithPuppeteerStealth(safeUrl);
   };
 
   const chain =
