@@ -76,7 +76,21 @@
 
       <button id="btn-help-modal" data-i18n="header.help">Ayuda en 3 pasos</button>
       <button id="btn-login-modal" data-i18n="header.login">Iniciar Sesión</button>
-      <button type="button" id="btn-logout" class="btn-secondary" hidden data-i18n="auth.logout">Cerrar sesión</button>
+      <div id="account-menu-wrapper" class="dropdown-wrapper account-menu-wrapper" hidden>
+        <button type="button" id="btn-account-menu" class="btn-account-menu" aria-haspopup="true" aria-expanded="false" data-i18n-title="auth.accountMenuAria" title="Cuenta">
+          <span id="account-menu-trigger-label"></span>
+        </button>
+        <div class="dropdown-content account-menu-content" role="menu" aria-labelledby="btn-account-menu">
+          <div class="account-menu-identity">
+            <div id="account-menu-name" class="account-menu-name" hidden></div>
+            <div id="account-menu-email" class="account-menu-email"></div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <button type="button" id="btn-logout" class="account-menu-action" role="menuitem" data-i18n="auth.logout">Cerrar sesión</button>
+          <button type="button" id="btn-logout-others" class="account-menu-action" role="menuitem" data-i18n="auth.logoutOthers">Cerrar sesión en otros dispositivos</button>
+          <p id="account-menu-status" class="account-menu-status" hidden role="status" aria-live="polite"></p>
+        </div>
+      </div>
       <button id="btn-subscribe-modal" class="btn-primary" data-i18n="header.subscribe">Suscríbete</button>
     </nav>
   </header>
@@ -213,6 +227,9 @@
           <div class="form-group">
             <label for="login-password" data-i18n="login.passwordLabel">Contraseña:</label>
             <input type="password" id="login-password" data-i18n-placeholder="login.passwordPlaceholder" placeholder="••••••••" required minlength="6" autocomplete="current-password">
+          </div>
+          <div class="form-group login-turnstile-group">
+            <div id="login-turnstile" class="login-turnstile" aria-live="polite"></div>
           </div>
           <div class="login-modal-actions">
             <button type="submit" id="btn-submit-login" class="btn-primary modal-action-btn" data-i18n="login.submit">Acceder a mi Biblioteca</button>
@@ -456,6 +473,19 @@
     </div>
   </div>
 
+  <!-- P3: confirmar cierre de sesión en otros dispositivos -->
+  <div id="modal-logout-others" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="logout-others-title">
+    <div class="modal-box modal-box-logout-others">
+      <button type="button" class="modal-close" data-close="modal-logout-others" data-i18n="modals.close" aria-label="Cerrar">✕</button>
+      <h3 id="logout-others-title" class="logout-others-title" data-i18n="auth.logoutOthersTitle">¿Cerrar sesión en otros dispositivos?</h3>
+      <p class="logout-others-message" data-i18n="auth.logoutOthersMessage">Se cerrarán las sesiones de InboxZero abiertas en otros dispositivos. Tu sesión actual seguirá abierta.</p>
+      <div class="modal-footer modal-footer-logout-others">
+        <button type="button" class="btn-primary modal-action-btn" data-close="modal-logout-others" data-i18n="modals.cancel">Cancelar</button>
+        <button type="button" class="modal-action-btn modal-btn-logout-others" id="btn-confirm-logout-others" data-i18n="auth.logoutOthersConfirm">Cerrar sesión en otros dispositivos</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal confirmación eliminar ficha (sin confirm() nativo) -->
   <div id="modal-confirm-delete" class="modal-overlay modal-overlay--delete" role="dialog" aria-modal="true" aria-labelledby="confirm-delete-title">
     <div class="modal-box modal-box-confirm-delete">
@@ -527,6 +557,7 @@
   <!-- CONECTORES Y LOGICA SCRIPT -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="js/supabase-config.js"></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=inboxZeroTurnstileOnload" async defer></script>
   <script src="js/extract-config.js"></script>
   <script src="js/i18n.js"></script>
   <script src="js/app.js"></script>

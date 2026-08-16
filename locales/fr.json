@@ -239,8 +239,16 @@
   },
   "auth": {
     "logout": "Se déconnecter",
+    "logoutOthers": "Se déconnecter des autres appareils",
+    "logoutOthersTitle": "Se déconnecter des autres appareils ?",
+    "logoutOthersMessage": "Les sessions InboxZero ouvertes sur d'autres appareils seront fermées. Votre session actuelle restera ouverte.",
+    "logoutOthersConfirm": "Se déconnecter des autres appareils",
+    "logoutOthersSuccess": "Sessions fermées sur les autres appareils.",
+    "logoutOthersError": "Impossible de fermer les autres sessions. Votre session actuelle reste ouverte.",
+    "accountMenuAria": "Compte",
     "notConfigured": "Supabase n'est pas encore configuré. Ajoutez l'URL du projet et la clé anon dans js/supabase-config.js.",
     "missingCredentials": "Saisissez votre e-mail et votre mot de passe.",
+    "captchaRequired": "Complétez la vérification de sécurité.",
     "signInSuccess": "Connexion réussie.",
     "signUpSuccess": "Compte créé. Vous êtes connecté.",
     "signUpConfirmEmail": "Compte créé. Consultez votre e-mail pour confirmer l'adresse, puis connectez-vous."

@@ -36,6 +36,7 @@ function normalizeUrlForDuplicateCheck(raw) {
 // =============================================================================
 const LEGACY_CARDS_STORAGE_KEY = 'inboxzero_cards';
 const GUEST_CARDS_STORAGE_KEY = 'inboxzero_guest_cards';
+const GUEST_CONTEXT_STORAGE_KEY = 'inboxzero_guest_context';
 const WELCOME_HIDDEN_STORAGE_KEY = 'inboxzero_welcome_hidden';
 
 function isWelcomeCardHidden() {
@@ -150,7 +151,102 @@ function getGuestCardsStorage() {
 }
 
 function saveGuestCardsStorage(cardsArray) {
-  return writeLocalCardsArray(GUEST_CARDS_STORAGE_KEY, cardsArray);
+  const list = Array.isArray(cardsArray) ? cardsArray : [];
+  if (list.length > 0) {
+    ensureGuestContext();
+  } else {
+    clearGuestContext();
+  }
+  return writeLocalCardsArray(GUEST_CARDS_STORAGE_KEY, list);
+}
+
+/**
+ * Contexto Guest local (P0). Marcador de cubo del navegador, no identidad Auth.
+ * { id: guestSessionId, boundUid: string|null }
+ */
+function readGuestContext() {
+  try {
+    const raw = localStorage.getItem(GUEST_CONTEXT_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return null;
+    const id = String(parsed.id || '').trim();
+    if (!id) return null;
+    const boundRaw = parsed.boundUid;
+    const boundUid =
+      boundRaw == null || String(boundRaw).trim() === '' ? null : String(boundRaw).trim();
+    return { id, boundUid };
+  } catch (_) {
+    return null;
+  }
+}
+
+function writeGuestContext(ctx) {
+  if (!ctx || !String(ctx.id || '').trim()) return false;
+  try {
+    localStorage.setItem(
+      GUEST_CONTEXT_STORAGE_KEY,
+      JSON.stringify({
+        id: String(ctx.id).trim(),
+        boundUid: ctx.boundUid == null || String(ctx.boundUid).trim() === '' ? null : String(ctx.boundUid).trim(),
+      })
+    );
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+function ensureGuestContext() {
+  const existing = readGuestContext();
+  if (existing) return existing;
+  const ctx = { id: createCardId(), boundUid: null };
+  writeGuestContext(ctx);
+  return ctx;
+}
+
+function clearGuestContext() {
+  try {
+    localStorage.removeItem(GUEST_CONTEXT_STORAGE_KEY);
+  } catch (_) {
+    /* ignore */
+  }
+}
+
+/** Vincula el cubo Guest al UID Auth. No reasigna si ya está bound a otro uid. */
+function bindGuestContextToUid(uid) {
+  const current = String(uid || '').trim();
+  if (!current) return null;
+  const existing = readGuestContext();
+  if (existing && existing.boundUid && existing.boundUid !== current) {
+    return existing;
+  }
+  const ctx = {
+    id: existing && existing.id ? existing.id : createCardId(),
+    boundUid: current,
+  };
+  writeGuestContext(ctx);
+  return ctx;
+}
+
+/** true si este uid puede ver/importar el cubo Guest (unbound o bound a él). */
+function guestContextAllowsUid(uid) {
+  const current = String(uid || '').trim();
+  if (!current) return false;
+  const ctx = readGuestContext();
+  if (!ctx || ctx.boundUid == null || ctx.boundUid === '') return true;
+  return ctx.boundUid === current;
+}
+
+/** Purga Guest pendiente tras SIGNED_OUT de una sesión autenticada. No usar en boot Guest. */
+function purgeGuestStateAfterAuthenticatedSignOut() {
+  writeLocalCardsArray(GUEST_CARDS_STORAGE_KEY, []);
+  clearGuestContext();
+  try {
+    localStorage.removeItem(GUEST_MIGRATION_LOCK_KEY);
+  } catch (_) {
+    /* ignore */
+  }
 }
 
 function getUserCardsCache(uid) {
@@ -1461,25 +1557,161 @@ function readLoginCredentials() {
   return { email, password };
 }
 
+function getTurnstileSiteKey() {
+  return String(window.INBOXZERO_TURNSTILE_SITE_KEY || '').trim();
+}
+
+let loginTurnstileWidgetId = null;
+let loginTurnstileToken = '';
+
+function clearLoginTurnstileToken() {
+  loginTurnstileToken = '';
+}
+
+function resetTurnstileWidget() {
+  clearLoginTurnstileToken();
+  const api = window.turnstile;
+  if (!api || loginTurnstileWidgetId == null) return;
+  try {
+    api.reset(loginTurnstileWidgetId);
+  } catch (_) {
+    /* widget aún no listo */
+  }
+}
+
+function renderTurnstileWidget() {
+  const host = document.getElementById('login-turnstile');
+  const siteKey = getTurnstileSiteKey();
+  const api = window.turnstile;
+  if (!host || !siteKey || typeof api?.render !== 'function') return;
+  if (loginTurnstileWidgetId != null) {
+    resetTurnstileWidget();
+    return;
+  }
+  host.replaceChildren();
+  loginTurnstileWidgetId = api.render(host, {
+    sitekey: siteKey,
+    theme: 'light',
+    appearance: 'always',
+    callback(token) {
+      loginTurnstileToken = String(token || '');
+    },
+    'expired-callback'() {
+      clearLoginTurnstileToken();
+    },
+    'error-callback'() {
+      clearLoginTurnstileToken();
+    },
+    'timeout-callback'() {
+      clearLoginTurnstileToken();
+    },
+  });
+}
+
+function mountLoginTurnstile() {
+  renderTurnstileWidget();
+}
+
+function takeTurnstileTokenForAuth() {
+  const token = String(loginTurnstileToken || '').trim();
+  loginTurnstileToken = '';
+  return token;
+}
+
+window.inboxZeroTurnstileOnload = function inboxZeroTurnstileOnload() {
+  const modal = document.getElementById('modal-login');
+  if (modal && modal.classList.contains('active')) {
+    mountLoginTurnstile();
+  }
+};
+
+/** Nombre de cuenta para el menú (P3). Solo perfil o metadata; nunca email local-part ni UID. */
+function resolveAccountDisplayName(user = currentAuthUser) {
+  if (currentProfile && String(currentProfile.nombre || '').trim()) {
+    return String(currentProfile.nombre).trim();
+  }
+  if (!user) return '';
+  const meta = user.user_metadata || {};
+  const fromMeta = meta.full_name || meta.name || meta.display_name || meta.first_name;
+  if (fromMeta && String(fromMeta).trim()) return String(fromMeta).trim();
+  return '';
+}
+
+function closeAccountMenu() {
+  const wrapper = document.getElementById('account-menu-wrapper');
+  const trigger = document.getElementById('btn-account-menu');
+  wrapper?.classList.remove('active');
+  if (trigger) trigger.setAttribute('aria-expanded', 'false');
+}
+
+function openAccountMenu() {
+  const wrapper = document.getElementById('account-menu-wrapper');
+  const trigger = document.getElementById('btn-account-menu');
+  if (!wrapper || wrapper.hidden) return;
+  document.querySelectorAll('.dropdown-wrapper').forEach((w) => {
+    if (w !== wrapper) w.classList.remove('active');
+  });
+  wrapper.classList.add('active');
+  if (trigger) trigger.setAttribute('aria-expanded', 'true');
+}
+
+function setAccountMenuStatus(message, isError) {
+  const el = document.getElementById('account-menu-status');
+  if (!el) return;
+  const text = String(message || '').trim();
+  if (!text) {
+    el.hidden = true;
+    el.textContent = '';
+    el.removeAttribute('data-error');
+    return;
+  }
+  el.hidden = false;
+  el.textContent = text;
+  if (isError) el.setAttribute('data-error', 'true');
+  else el.removeAttribute('data-error');
+}
+
+function refreshAccountMenuIdentity(user) {
+  const nameEl = document.getElementById('account-menu-name');
+  const emailEl = document.getElementById('account-menu-email');
+  const triggerLabel = document.getElementById('account-menu-trigger-label');
+  const trigger = document.getElementById('btn-account-menu');
+  const email = user?.email ? String(user.email) : '';
+  const name = resolveAccountDisplayName(user);
+  if (nameEl) {
+    nameEl.textContent = name;
+    nameEl.hidden = !name;
+  }
+  if (emailEl) emailEl.textContent = email;
+  if (triggerLabel) triggerLabel.textContent = email;
+  if (trigger) {
+    if (email) trigger.title = email;
+    else trigger.removeAttribute('title');
+  }
+}
+
 function updateAuthChrome(user) {
   currentAuthUser = user || null;
   const btnLogin = document.getElementById('btn-login-modal');
-  const btnLogout = document.getElementById('btn-logout');
+  const accountWrapper = document.getElementById('account-menu-wrapper');
 
   if (btnLogin) {
-    if (user?.email) {
-      btnLogin.textContent = user.email;
-      btnLogin.title = user.email;
-    } else {
+    btnLogin.hidden = Boolean(user);
+    if (!user) {
       btnLogin.textContent = t('header.login');
       btnLogin.removeAttribute('title');
     }
   }
 
-  if (btnLogout) {
-    btnLogout.hidden = !user;
+  if (accountWrapper) {
+    accountWrapper.hidden = !user;
+    if (!user) {
+      closeAccountMenu();
+      setAccountMenuStatus('', false);
+    }
   }
 
+  refreshAccountMenuIdentity(user);
   renderDashboardGreeting(currentAuthUser);
 }
 
@@ -1494,18 +1726,32 @@ async function signInWithEmailPassword(email, password) {
   const submitBtn = document.getElementById('btn-submit-login');
   if (submitBtn) submitBtn.disabled = true;
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-  if (submitBtn) submitBtn.disabled = false;
-
-  if (error) {
-    setLoginAuthMessage(error.message, true);
+  const captchaToken = takeTurnstileTokenForAuth();
+  if (!captchaToken) {
+    setLoginAuthMessage(t('auth.captchaRequired'), true);
+    if (submitBtn) submitBtn.disabled = false;
     return;
   }
 
-  setLoginAuthMessage(t('auth.signInSuccess'), false);
-  document.getElementById('modal-login')?.classList.remove('active');
-  updateAuthChrome(data.user);
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+      options: { captchaToken },
+    });
+
+    if (error) {
+      setLoginAuthMessage(error.message, true);
+      return;
+    }
+
+    setLoginAuthMessage(t('auth.signInSuccess'), false);
+    document.getElementById('modal-login')?.classList.remove('active');
+    updateAuthChrome(data.user);
+  } finally {
+    resetTurnstileWidget();
+    if (submitBtn) submitBtn.disabled = false;
+  }
 }
 
 async function signUpWithEmailPassword(email, password) {
@@ -1519,47 +1765,148 @@ async function signUpWithEmailPassword(email, password) {
   const registerBtn = document.getElementById('btn-register-login');
   if (registerBtn) registerBtn.disabled = true;
 
+  const captchaToken = takeTurnstileTokenForAuth();
+  if (!captchaToken) {
+    setLoginAuthMessage(t('auth.captchaRequired'), true);
+    if (registerBtn) registerBtn.disabled = false;
+    return;
+  }
+
   const redirectTo = `${window.location.origin}${window.location.pathname}`;
 
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: { emailRedirectTo: redirectTo },
-  });
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: redirectTo, captchaToken },
+    });
 
-  if (registerBtn) registerBtn.disabled = false;
+    if (error) {
+      setLoginAuthMessage(error.message, true);
+      return;
+    }
 
-  if (error) {
-    setLoginAuthMessage(error.message, true);
-    return;
+    if (data.session) {
+      setLoginAuthMessage(t('auth.signUpSuccess'), false);
+      document.getElementById('modal-login')?.classList.remove('active');
+      updateAuthChrome(data.user);
+      return;
+    }
+
+    setLoginAuthMessage(t('auth.signUpConfirmEmail'), false);
+  } finally {
+    resetTurnstileWidget();
+    if (registerBtn) registerBtn.disabled = false;
   }
-
-  if (data.session) {
-    setLoginAuthMessage(t('auth.signUpSuccess'), false);
-    document.getElementById('modal-login')?.classList.remove('active');
-    updateAuthChrome(data.user);
-    return;
-  }
-
-  setLoginAuthMessage(t('auth.signUpConfirmEmail'), false);
 }
 
 async function signOutCurrentUser() {
   const supabase = getSupabaseClient();
   if (!supabase) return;
   const prevUid = currentAuthUser?.id ? String(currentAuthUser.id) : '';
+  closeAccountMenu();
   notifyGuestMigrationLifecycle('SIGNED_OUT', prevUid);
-  await supabase.auth.signOut();
+  await supabase.auth.signOut({ scope: 'local' });
   currentProfile = null;
   updateAuthChrome(null);
   setLoginAuthMessage('', false);
   notifyLibraryAuthSync(null);
 }
 
+async function signOutOtherSessions() {
+  const supabase = getSupabaseClient();
+  const confirmBtn = document.getElementById('btn-confirm-logout-others');
+  if (!supabase) {
+    closeModalById('modal-logout-others');
+    setAccountMenuStatus(t('auth.logoutOthersError'), true);
+    return;
+  }
+  if (confirmBtn) {
+    confirmBtn.disabled = true;
+    confirmBtn.setAttribute('aria-busy', 'true');
+  }
+  try {
+    const { error } = await supabase.auth.signOut({ scope: 'others' });
+    closeModalById('modal-logout-others');
+    if (error) {
+      setAccountMenuStatus(t('auth.logoutOthersError'), true);
+      openAccountMenu();
+      return;
+    }
+    setAccountMenuStatus(t('auth.logoutOthersSuccess'), false);
+    openAccountMenu();
+  } catch (_) {
+    closeModalById('modal-logout-others');
+    setAccountMenuStatus(t('auth.logoutOthersError'), true);
+    openAccountMenu();
+  } finally {
+    if (confirmBtn) {
+      confirmBtn.disabled = false;
+      confirmBtn.removeAttribute('aria-busy');
+    }
+  }
+}
+
+function closeModalById(modalId) {
+  document.getElementById(modalId)?.classList.remove('active');
+}
+
+function openLogoutOthersConfirmModal() {
+  closeAccountMenu();
+  setAccountMenuStatus('', false);
+  document.getElementById('modal-logout-others')?.classList.add('active');
+}
+
+/** P3.1: colapsa focus + visibilitychange; no es polling. */
+const SESSION_REVOKE_PROBE_THROTTLE_MS = 8000;
+let sessionRevokeProbeInFlight = false;
+let sessionRevokeProbeLastAt = 0;
+
+function isSessionRevokeProbeThrottled() {
+  if (sessionRevokeProbeInFlight) return true;
+  return Date.now() - sessionRevokeProbeLastAt < SESSION_REVOKE_PROBE_THROTTLE_MS;
+}
+
+/**
+ * P3.1 — al recuperar foco/visibilidad pide refreshSession().
+ * Presencia local vía currentAuthUser (no getSession/getUser).
+ * Éxito: no hidrata. Red: no logout. Revocada: el SDK emite SIGNED_OUT.
+ */
+async function probeRevokedSessionOnResume() {
+  if (isSessionRevokeProbeThrottled()) return;
+  if (!currentAuthUser) return;
+  if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+  const supabase = getSupabaseClient();
+  if (!supabase || typeof supabase.auth.refreshSession !== 'function') return;
+
+  sessionRevokeProbeInFlight = true;
+  sessionRevokeProbeLastAt = Date.now();
+  try {
+    await supabase.auth.refreshSession();
+  } catch (_) {
+    /* error transitorio de red: no SIGNED_OUT artificial */
+  } finally {
+    sessionRevokeProbeInFlight = false;
+  }
+}
+
+function setupRevokedSessionResumeProbe() {
+  window.addEventListener('focus', probeRevokedSessionOnResume);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      probeRevokedSessionOnResume();
+    }
+  });
+}
+
 function setupSupabaseAuth() {
   const form = document.getElementById('login-form');
   const registerBtn = document.getElementById('btn-register-login');
   const logoutBtn = document.getElementById('btn-logout');
+  const logoutOthersBtn = document.getElementById('btn-logout-others');
+  const confirmLogoutOthersBtn = document.getElementById('btn-confirm-logout-others');
+  const accountWrapper = document.getElementById('account-menu-wrapper');
+  const accountBtn = document.getElementById('btn-account-menu');
   const supabase = getSupabaseClient();
 
   if (form) {
@@ -1586,10 +1933,41 @@ function setupSupabaseAuth() {
   }
 
   if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
+    logoutBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
       signOutCurrentUser();
     });
   }
+
+  if (accountBtn && accountWrapper) {
+    accountBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('.dropdown-wrapper').forEach((w) => {
+        if (w !== accountWrapper) w.classList.remove('active');
+      });
+      const next = !accountWrapper.classList.contains('active');
+      accountWrapper.classList.toggle('active', next);
+      accountBtn.setAttribute('aria-expanded', next ? 'true' : 'false');
+    });
+    accountWrapper.addEventListener('click', (e) => e.stopPropagation());
+  }
+
+  if (logoutOthersBtn) {
+    logoutOthersBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openLogoutOthersConfirmModal();
+    });
+  }
+
+  if (confirmLogoutOthersBtn) {
+    confirmLogoutOthersBtn.addEventListener('click', () => {
+      signOutOtherSessions();
+    });
+  }
+
+  document.addEventListener('click', () => {
+    closeAccountMenu();
+  });
 
   if (!supabase) {
     notifyLibraryAuthSync(null);
@@ -1616,6 +1994,8 @@ function setupSupabaseAuth() {
       notifyLibraryAuthSync(session?.user ?? null);
     }
   });
+
+  setupRevokedSessionResumeProbe();
 }
 
 document.addEventListener('i18n:ready', () => {
@@ -1791,6 +2171,8 @@ document.addEventListener('i18n:ready', () => {
   let librarySessionReady = false;
   /** true si la biblioteca en pantalla salió de hidratación Auth/Cloud (nunca Guest). */
   let libraryHydratedAsAuth = false;
+  /** Último uid hidratado ('' = Guest). null = aún no hubo hidratación. */
+  let lastHydratedAuthUid = null;
 
   /**
    * S1.3 — persistencia consciente de sesión.
@@ -1807,20 +2189,21 @@ document.addEventListener('i18n:ready', () => {
   }
 
   /**
-   * Carga local Guest (o Legacy solo-lectura si Guest vacío).
+   * Carga local Guest (o Legacy solo-lectura si aún no hay cubo Guest).
+   * Si la clave Guest existe —incluso vacía tras SIGNED_OUT— no resucitar Legacy.
    * No usa caché UID ni Cloud — eso va por hydrateLibraryForAuthUser.
    */
   function loadCardsFromStorage() {
     const guestRaw = getGuestCardsStorage();
-    const guestNormalized = normalizeStoredCardRows(guestRaw);
-    if (guestNormalized && guestNormalized.length > 0) return guestNormalized;
+    if (guestRaw != null) {
+      return normalizeStoredCardRows(guestRaw) || [];
+    }
 
     if (hasLegacyCardsStorage()) {
       const legacyNormalized = normalizeStoredCardRows(readLegacyCardsStorage());
       if (legacyNormalized && legacyNormalized.length > 0) return legacyNormalized;
     }
 
-    if (guestNormalized) return guestNormalized;
     return null;
   }
 
@@ -1978,7 +2361,10 @@ document.addEventListener('i18n:ready', () => {
   function dismissGuestMigrationForSession() {
     if (guestMigrationInFlight) return;
     resolveGuestMigrationUid().then((uid) => {
-      if (uid) setGuestMigrationDismissed(uid);
+      if (uid && guestContextAllowsUid(uid)) {
+        bindGuestContextToUid(uid);
+        setGuestMigrationDismissed(uid);
+      }
     });
     closeGuestMigrationModal();
   }
@@ -2059,6 +2445,7 @@ document.addEventListener('i18n:ready', () => {
     const uid = await resolveGuestMigrationUid();
     if (!uid) return;
     if (isGuestMigrationDismissed(uid)) return;
+    if (!guestContextAllowsUid(uid)) return;
     const pending = getMigratableGuestCards();
     if (!pending.length) return;
     const existingLock = readGuestMigrationLock();
@@ -2066,6 +2453,7 @@ document.addEventListener('i18n:ready', () => {
     if (existingLock && existingLock.expires > now && existingLock.owner !== guestMigrationOwnerId) {
       return;
     }
+    bindGuestContextToUid(uid);
     openGuestMigrationConsentModal(pending.length);
   }
 
@@ -2095,6 +2483,8 @@ document.addEventListener('i18n:ready', () => {
       openModal('modal-guest-migration');
       return;
     }
+    if (!guestContextAllowsUid(uid)) return;
+    bindGuestContextToUid(uid);
 
     const ownerId = createCardId();
     if (!acquireGuestMigrationLock(ownerId)) {
@@ -2216,11 +2606,34 @@ document.addEventListener('i18n:ready', () => {
     }
   }
 
+  function resetTransientUiForAuthBoundary() {
+    previewDraft = null;
+    previewSaveErrorKey = null;
+    previewSaveInFlight = false;
+    cardsFlagErrorKey = null;
+    currentFilter = 'all';
+    currentCategory = null;
+    if (urlInput) urlInput.value = '';
+    restoreEditSaveButton();
+    document.getElementById('modal-edit')?.classList.remove('active');
+    closeDuplicateUrlModal();
+    closeModal('modal-confirm-delete');
+  }
+
   guestMigrationLifecycleHandler = (type, uid) => {
     if (type === 'SIGNED_OUT') {
       abortGuestMigration();
-      clearGuestMigrationDismissed(uid);
       closeGuestMigrationModal();
+      librarySessionReady = false;
+      libraryHydratedAsAuth = false;
+      cards = [{ ...WELCOME_CARD }];
+      resetTransientUiForAuthBoundary();
+      lastHydratedAuthUid = '';
+      if (uid) {
+        purgeGuestStateAfterAuthenticatedSignOut();
+        clearGuestMigrationDismissed(uid);
+      }
+      renderCards();
       return;
     }
     if (type === 'HYDRATE_GUEST') {
@@ -2637,6 +3050,10 @@ document.addEventListener('i18n:ready', () => {
   async function hydrateLibraryForAuthUser(user) {
     const syncId = ++libraryHydrateGeneration;
     const uid = user?.id ? String(user.id) : '';
+    if (lastHydratedAuthUid !== null && lastHydratedAuthUid !== uid) {
+      resetTransientUiForAuthBoundary();
+    }
+    lastHydratedAuthUid = uid;
     notifyGuestMigrationLifecycle(uid ? 'HYDRATE_START' : 'HYDRATE_GUEST', uid);
 
     try {
@@ -2665,6 +3082,7 @@ document.addEventListener('i18n:ready', () => {
         setLibraryBootLoading(false);
         renderCards();
         renderDashboardGreeting(user);
+        updateAuthChrome(user);
         scheduleGuestMigrationOffer();
         return;
       }
@@ -2692,6 +3110,7 @@ document.addEventListener('i18n:ready', () => {
       } else {
         currentProfile = null;
       }
+      updateAuthChrome(user);
 
       let userRows = [];
       if (cardsRes.ok && Array.isArray(cardsRes.data)) {
@@ -3743,6 +4162,11 @@ document.addEventListener('i18n:ready', () => {
         return;
       }
 
+      if (libraryHydratedAsAuth) {
+        failClosedPreviewSave('NO_SESSION');
+        return;
+      }
+
       const newCard = buildGuestCardFromDraft(draft);
       const stored = serializeUserCards().concat([
         {
@@ -4261,6 +4685,7 @@ document.addEventListener('i18n:ready', () => {
 
     btnLibraryDrop.addEventListener('click', (e) => {
       e.stopPropagation();
+      closeAccountMenu();
       dropdownWrapper.classList.toggle('active');
     });
 
@@ -4286,7 +4711,15 @@ document.addEventListener('i18n:ready', () => {
   };
 
   setupModal('btn-help-modal', 'modal-help');
-  setupModal('btn-login-modal', 'modal-login');
+  const loginModalBtn = document.getElementById('btn-login-modal');
+  const loginModal = document.getElementById('modal-login');
+  if (loginModalBtn && loginModal) {
+    loginModalBtn.addEventListener('click', () => {
+      if (currentAuthUser) return;
+      loginModal.classList.add('active');
+      mountLoginTurnstile();
+    });
+  }
   setupModal('btn-subscribe-modal', 'modal-subscribe');
 
   const SUPPORT_EMAIL = 'soporte@inboxzero.es';
@@ -4415,6 +4848,7 @@ document.addEventListener('i18n:ready', () => {
         return;
       }
       document.getElementById(modalId).classList.remove('active');
+      if (modalId === 'modal-login') resetTurnstileWidget();
       if (modalId === 'modal-edit') discardPreviewDraft();
     });
   });
@@ -4440,6 +4874,7 @@ document.addEventListener('i18n:ready', () => {
           return;
         }
         overlay.classList.remove('active');
+        if (overlay.id === 'modal-login') resetTurnstileWidget();
         if (overlay.id === 'modal-edit') discardPreviewDraft();
       }
     });

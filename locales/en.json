@@ -239,8 +239,16 @@
   },
   "auth": {
     "logout": "Sign out",
+    "logoutOthers": "Sign out on other devices",
+    "logoutOthersTitle": "Sign out on other devices?",
+    "logoutOthersMessage": "InboxZero sessions on other devices will be closed. Your current session will stay open.",
+    "logoutOthersConfirm": "Sign out on other devices",
+    "logoutOthersSuccess": "Signed out on other devices.",
+    "logoutOthersError": "Could not sign out other devices. Your current session is still open.",
+    "accountMenuAria": "Account",
     "notConfigured": "Supabase is not configured yet. Add your Project URL and anon key in js/supabase-config.js.",
     "missingCredentials": "Enter your email and password.",
+    "captchaRequired": "Complete the security check.",
     "signInSuccess": "Signed in successfully.",
     "signUpSuccess": "Account created. You are now signed in.",
     "signUpConfirmEmail": "Account created. Check your email to confirm your address, then sign in."

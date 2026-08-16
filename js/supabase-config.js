@@ -11,6 +11,10 @@
   const supabaseAnonKey =
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imljbnhla2R2YXh5cnJiY2tiampxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMzU3OTIsImV4cCI6MjEwMTcxMTc5Mn0.RJjbaq3V1nhuQRW85Ha2V_sIo5DAeH3dmrPRM3NW8io';
 
+  // Cloudflare Turnstile — Site Key pública (widget hostname: inboxzero.es).
+  // La clave de verificación del Dashboard permanece solo en Supabase Auth.
+  window.INBOXZERO_TURNSTILE_SITE_KEY = '0x4AAAAAAEQxehRpTZLWBtTi';
+
   if (!window.supabase || typeof window.supabase.createClient !== 'function') {
     console.error('[Supabase] Error: la librería no se ha cargado correctamente desde index.html');
     window.inboxZeroSupabase = null;
@@ -24,3 +28,5 @@
     window.inboxZeroSupabase = null;
   }
 })();
+
+window.inboxZeroTurnstileOnload = window.inboxZeroTurnstileOnload || function inboxZeroTurnstileOnload() {};

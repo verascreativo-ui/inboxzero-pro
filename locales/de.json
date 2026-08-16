@@ -239,8 +239,16 @@
   },
   "auth": {
     "logout": "Abmelden",
+    "logoutOthers": "Auf anderen Geräten abmelden",
+    "logoutOthersTitle": "Auf anderen Geräten abmelden?",
+    "logoutOthersMessage": "InboxZero-Sitzungen auf anderen Geräten werden beendet. Ihre aktuelle Sitzung bleibt geöffnet.",
+    "logoutOthersConfirm": "Auf anderen Geräten abmelden",
+    "logoutOthersSuccess": "Sitzungen auf anderen Geräten beendet.",
+    "logoutOthersError": "Andere Sitzungen konnten nicht beendet werden. Ihre aktuelle Sitzung bleibt geöffnet.",
+    "accountMenuAria": "Konto",
     "notConfigured": "Supabase ist noch nicht konfiguriert. Tragen Sie Project URL und anon key in js/supabase-config.js ein.",
     "missingCredentials": "Geben Sie E-Mail und Passwort ein.",
+    "captchaRequired": "Schließen Sie die Sicherheitsprüfung ab.",
     "signInSuccess": "Erfolgreich angemeldet.",
     "signUpSuccess": "Konto erstellt. Sie sind angemeldet.",
     "signUpConfirmEmail": "Konto erstellt. Bestätigen Sie Ihre E-Mail-Adresse und melden Sie sich dann an."

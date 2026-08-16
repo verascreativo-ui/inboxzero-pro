@@ -239,8 +239,16 @@
   },
   "auth": {
     "logout": "Terminar sessão",
+    "logoutOthers": "Terminar sessão noutros dispositivos",
+    "logoutOthersTitle": "Terminar sessão noutros dispositivos?",
+    "logoutOthersMessage": "As sessões do InboxZero noutros dispositivos serão encerradas. A sessão atual permanecerá aberta.",
+    "logoutOthersConfirm": "Terminar sessão noutros dispositivos",
+    "logoutOthersSuccess": "Sessões encerradas noutros dispositivos.",
+    "logoutOthersError": "Não foi possível encerrar as outras sessões. A sessão atual continua aberta.",
+    "accountMenuAria": "Conta",
     "notConfigured": "O Supabase ainda não está configurado. Adicione a Project URL e a anon key em js/supabase-config.js.",
     "missingCredentials": "Introduza o e-mail e a palavra-passe.",
+    "captchaRequired": "Conclua a verificação de segurança.",
     "signInSuccess": "Sessão iniciada com sucesso.",
     "signUpSuccess": "Conta criada. Já tem sessão iniciada.",
     "signUpConfirmEmail": "Conta criada. Confirme o e-mail e depois inicie sessão."
