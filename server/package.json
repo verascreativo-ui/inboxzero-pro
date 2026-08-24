@@ -11,7 +11,7 @@
     "test": "node --test test/ssrf-guard.test.js test/billing-entitlement.test.js test/billing-webhook.test.js test/billing-contract.test.js test/billing-corrections.test.js"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20.0.0"
   },
   "dependencies": {
     "cheerio": "^1.0.0",
