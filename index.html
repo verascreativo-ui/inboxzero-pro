@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icons/7.5.0/css/flag-icons.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -39,6 +41,12 @@
 
     <div class="progress-container">
       <span id="trial-plan-text" data-i18n="header.trialPlan" data-i18n-vars='{"current":0,"max":20}'>Plan de Prueba Gratuito: 0 / 20 Fichas</span>
+      <span id="premium-plan-badge" class="premium-plan-badge" hidden>
+        <span class="premium-plan-badge-shine" aria-hidden="true"></span>
+        <span class="premium-plan-badge-icon" aria-hidden="true">👑</span>
+        <span data-i18n="header.premiumBadge">Eres Premium</span>
+        <span class="premium-plan-badge-tooltip" aria-hidden="true"></span>
+      </span>
       <div class="progress-bar-bg">
         <div class="progress-bar-fill" id="progress-fill" style="width: 0%;"></div>
       </div>
@@ -47,13 +55,27 @@
     <nav class="top-nav">
       <!-- Menú Desplegable de 5 Idiomas -->
       <div class="idioma-container" style="display: flex; align-items: center; margin-right: 15px;">
-        <select id="language-select" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #ccc; background-color: #fff; cursor: pointer; font-family: inherit; font-size: 14px;">
+        <select id="language-select" class="visually-hidden-select">
           <option value="es">Español</option>
           <option value="en">English</option>
           <option value="fr">Français</option>
           <option value="de">Deutsch</option>
           <option value="pt">Português</option>
         </select>
+        <div class="lang-dropdown" id="lang-dropdown">
+          <button type="button" class="lang-dropdown-toggle" id="lang-dropdown-toggle" aria-haspopup="listbox" aria-expanded="false">
+            <span class="fi fi-es lang-flag" id="lang-dropdown-flag"></span>
+            <span id="lang-dropdown-label">Español</span>
+            <span class="lang-dropdown-caret" aria-hidden="true">▾</span>
+          </button>
+          <ul class="lang-dropdown-menu" id="lang-dropdown-menu" role="listbox" hidden>
+            <li role="option" data-lang="es" data-flag="es"><span class="fi fi-es lang-flag"></span><span>Español</span></li>
+            <li role="option" data-lang="en" data-flag="gb"><span class="fi fi-gb lang-flag"></span><span>English</span></li>
+            <li role="option" data-lang="fr" data-flag="fr"><span class="fi fi-fr lang-flag"></span><span>Français</span></li>
+            <li role="option" data-lang="de" data-flag="de"><span class="fi fi-de lang-flag"></span><span>Deutsch</span></li>
+            <li role="option" data-lang="pt" data-flag="pt"><span class="fi fi-pt lang-flag"></span><span>Português</span></li>
+          </ul>
+        </div>
       </div>
 
       <!-- Menú Desplegable Mi Biblioteca -->
@@ -213,13 +235,20 @@
         </div>
         <div class="modal-title-box edit-modal-title">
           <span class="modal-icon-badge">🔐</span>
-          <h3 data-i18n="login.title">Iniciar Sesión / Registro</h3>
+          <div>
+            <h3 data-i18n="login.title">Iniciar Sesión / Registro</h3>
+            <p class="modal-subtitle" data-i18n="login.subtitle">Inicia sesión si ya tienes cuenta, o crea una gratis para guardar tus fichas en la nube.</p>
+          </div>
         </div>
         <button type="button" class="modal-close" data-close="modal-login" data-i18n="modals.close">✕</button>
       </div>
       <div class="modal-body modal-body-login">
         <p id="login-auth-message" class="auth-message" hidden role="status" aria-live="polite"></p>
         <form id="login-form" class="login-form">
+          <div class="form-group">
+            <label for="login-fullname" data-i18n="login.fullNameLabel">Nombre y Apellidos:</label>
+            <input type="text" id="login-fullname" data-i18n-placeholder="login.fullNamePlaceholder" placeholder="Ej. Juan Pérez" autocomplete="name">
+          </div>
           <div class="form-group">
             <label for="login-email" data-i18n="login.emailLabel">Email:</label>
             <input type="email" id="login-email" data-i18n-placeholder="login.emailPlaceholder" placeholder="tu@email.com" required autocomplete="email">
@@ -228,6 +257,9 @@
             <label for="login-password" data-i18n="login.passwordLabel">Contraseña:</label>
             <input type="password" id="login-password" data-i18n-placeholder="login.passwordPlaceholder" placeholder="••••••••" required minlength="6" autocomplete="current-password">
           </div>
+          <div class="login-forgot-password">
+            <button type="button" id="btn-forgot-password" class="link-button" data-i18n="login.forgotPassword">¿Olvidaste tu contraseña?</button>
+          </div>
           <div class="form-group login-turnstile-group">
             <div id="login-turnstile" class="login-turnstile" aria-live="polite"></div>
           </div>
@@ -235,6 +267,38 @@
             <button type="submit" id="btn-submit-login" class="btn-primary modal-action-btn" data-i18n="login.submit">Acceder a mi Biblioteca</button>
             <button type="button" id="btn-register-login" class="modal-action-btn modal-btn-cancel" data-i18n="login.registerBtn">Crear cuenta</button>
             <button type="button" class="modal-action-btn modal-btn-cancel" data-close="modal-login" data-i18n="modals.cancel">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Nueva Contraseña (tras enlace de recuperación) -->
+  <div id="modal-new-password" class="modal-overlay">
+    <div class="modal-box modal-box-login">
+      <div class="modal-header modal-header-edit">
+        <div class="edit-modal-brand">
+          <img src="logo.png" class="edit-modal-logo" data-i18n-alt="meta.logoAlt" alt="Logo">
+          <span class="edit-modal-brand-name" data-i18n="brand.name">InboxZero.es</span>
+        </div>
+        <div class="modal-title-box edit-modal-title">
+          <span class="modal-icon-badge">🔑</span>
+          <h3 data-i18n="newPassword.title">Crea tu nueva contraseña</h3>
+        </div>
+      </div>
+      <div class="modal-body modal-body-login">
+        <p id="new-password-message" class="auth-message" hidden role="status" aria-live="polite"></p>
+        <form id="new-password-form" class="login-form">
+          <div class="form-group">
+            <label for="new-password-input" data-i18n="newPassword.label">Nueva contraseña:</label>
+            <input type="password" id="new-password-input" placeholder="••••••••" required minlength="6" autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label for="new-password-confirm" data-i18n="newPassword.confirmLabel">Confirma la contraseña:</label>
+            <input type="password" id="new-password-confirm" placeholder="••••••••" required minlength="6" autocomplete="new-password">
+          </div>
+          <div class="login-modal-actions">
+            <button type="submit" id="btn-save-new-password" class="btn-primary modal-action-btn" data-i18n="newPassword.submit">Guardar nueva contraseña</button>
           </div>
         </form>
       </div>
@@ -428,6 +492,23 @@
             <label for="subscribe-captcha" data-i18n="subscribe.captchaLabel">Seguridad (Captcha): ¿Cuánto es 3 + 4?</label>
             <input type="text" id="subscribe-captcha" data-i18n-placeholder="subscribe.captchaPlaceholder" placeholder="Respuesta numérica (7)" required inputmode="numeric">
           </div>
+          <fieldset class="form-group subscribe-plan-fieldset">
+            <legend data-i18n="subscribe.planLegend">Elige tu plan:</legend>
+            <label class="subscribe-plan-option">
+              <input type="radio" name="subscribe-plan" value="monthly" checked>
+              <span>
+                <strong data-i18n="subscribe.planMonthlyTitle">Mensual — 4,99€/mes</strong>
+                <small data-i18n="subscribe.planMonthlySubtitle">Cancela cuando quieras</small>
+              </span>
+            </label>
+            <label class="subscribe-plan-option">
+              <input type="radio" name="subscribe-plan" value="annual">
+              <span>
+                <strong data-i18n="subscribe.planAnnualTitle">Anual — 3,99€/mes</strong>
+                <small data-i18n="subscribe.planAnnualSubtitle">47,90€/año, facturado de una vez · Ahorra un 20%</small>
+              </span>
+            </label>
+          </fieldset>
           <label class="check-label subscribe-terms">
             <input type="checkbox" id="subscribe-terms" required>
             <span data-i18n-html="subscribe.termsHtml">He leído y acepto la Política de Privacidad y los Términos.</span>
@@ -551,7 +632,19 @@
           <button type="button" id="btn-retention-success-close" class="w-full rounded-md border border-blue-600 bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-[0_8px_18px_rgba(37,99,235,0.28)] transition hover:border-blue-700 hover:bg-blue-700" data-i18n="modals.understood">¡Entendido!</button>
         </div>
       </div>
+      <div id="retention-scheduled-view" class="text-center" hidden>
+        <div class="mx-auto mb-2.5 flex items-center justify-center rounded-full border border-amber-200 bg-amber-50 text-lg font-bold text-amber-600" style="width:2.75rem;height:2.75rem;" aria-hidden="true">⏳</div>
+        <h3 class="mb-1.5 text-center text-base font-bold leading-snug tracking-tight text-slate-900" data-i18n="retention.scheduledTitle">Baja ya programada</h3>
+        <p class="mx-auto mb-3 max-w-[42ch] text-center text-sm leading-tight text-slate-500" id="retention-scheduled-message" data-i18n="retention.scheduledMessage">Tu suscripción Premium seguirá activa hasta el fin del periodo ya pagado.</p>
+        <div class="flex flex-col gap-1.5">
+          <button type="button" id="btn-retention-scheduled-close" class="w-full rounded-md border border-blue-600 bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-[0_8px_18px_rgba(37,99,235,0.28)] transition hover:border-blue-700 hover:bg-blue-700" data-i18n="modals.understood">¡Entendido!</button>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <div id="premium-welcome-toast" class="premium-welcome-toast" hidden role="status" aria-live="polite">
+    <span data-i18n="header.premiumWelcome">¡Bienvenido a Premium! Ya tienes fichas ilimitadas</span>
   </div>
 
   <!-- CONECTORES Y LOGICA SCRIPT -->

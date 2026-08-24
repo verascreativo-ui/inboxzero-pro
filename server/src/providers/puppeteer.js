@@ -57,6 +57,15 @@ export async function fetchWithPuppeteerStealth(targetUrl) {
 
   try {
     const page = await browser.newPage();
+    await page.setRequestInterception(true);
+    page.on('request', async (req) => {
+      try {
+        await assertSafeHttpUrl(req.url());
+        await req.continue();
+      } catch (_) {
+        await req.abort('blockedbyclient');
+      }
+    });
     await page.setUserAgent(
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
     );

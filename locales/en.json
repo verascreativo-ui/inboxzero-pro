@@ -25,6 +25,9 @@
   "header": {
     "trialPlan": "Free Trial Plan: {{current}} / {{max}} Cards",
     "premiumPlan": "Premium · Unlimited cards",
+    "premiumBadge": "You're Premium",
+    "premiumBadgeTitle": "You can save unlimited cards",
+    "premiumWelcome": "Welcome to Premium! You now have unlimited cards",
     "libraryDropdown": "My Library ▾",
     "help": "Help in 3 steps",
     "login": "Sign In",
@@ -101,26 +104,44 @@
     "talkToSupport": "Talk to Support",
     "confirmCancel": "Confirm subscription cancellation",
     "successTitle": "Request recorded",
-    "successMessage": "We have recorded your cancellation request. Thank you for your feedback; we will guide you through the process."
+    "successMessage": "We have recorded your cancellation request. Thank you for your feedback; we will guide you through the process.",
+    "successMessageWithDate": "You'll keep Premium until {{fecha}}. After that, you'll automatically switch to the Free Plan.",
+    "scheduledTitle": "Cancellation already scheduled",
+    "scheduledMessage": "Your Premium subscription will stay active until the end of the period you already paid for.",
+    "scheduledMessageWithDate": "You'll keep Premium until {{fecha}}. After that you'll automatically switch to the Free plan.",
+    "cancelError": "We couldn't process the cancellation. Please try again or contact support."
   },
   "help": {
-    "title": "How InboxZero works",
+    "title": "How InboxZero Works",
     "step1Title": "Save your links or ideas",
-    "step1Body": "Paste any URL or type your idea in the top bar and press \"Save Card\" to capture it instantly.",
-    "step2Title": "Organize and customize",
-    "step2Body": "Edit your cards by clicking the pencil: assign custom categories, private notes, or mark them as favorites or pending.",
-    "step3Title": "Filter and browse",
-    "step3Body": "Quickly access your cards from the sidebar or the \"My Library\" dropdown in the top bar without losing anything."
+    "step1Body": "Paste any URL or type your idea in the search bar above and press \"Save Card\" to capture it instantly. You can try it without signing up, for up to 20 free cards.",
+    "step2Title": "Create your free account",
+    "step2Body": "Sign up with your email to keep your cards permanently in the cloud, without relying on this browser. Still free for up to 20 cards.",
+    "step3Title": "Organize, filter and browse",
+    "step3Body": "Quickly access your cards from the side menu or the \"My Library\" dropdown in the top bar, without losing anything."
   },
   "login": {
     "title": "Sign In",
-    "subtitle": "Exclusive access for subscribed users or those on an active trial.",
+    "subtitle": "Sign in if you already have an account, or create one for free to save your cards in the cloud.",
+    "fullNameLabel": "Full name:",
+    "fullNamePlaceholder": "e.g. John Smith",
     "emailLabel": "Email:",
     "emailPlaceholder": "you@email.com",
     "passwordLabel": "Password:",
     "passwordPlaceholder": "••••••••",
+    "forgotPassword": "Forgot your password?",
+    "forgotPasswordNeedsEmail": "Enter your email above so we can send you the recovery link.",
+    "forgotPasswordSent": "We've sent you an email with a link to reset your password. Check your inbox.",
     "submit": "Access my Library",
     "registerBtn": "Create account"
+  },
+  "newPassword": {
+    "title": "Create your new password",
+    "label": "New password:",
+    "confirmLabel": "Confirm password:",
+    "submit": "Save new password",
+    "success": "Password updated successfully.",
+    "mismatch": "Passwords don't match."
   },
   "subscribe": {
     "title": "Register / Subscription",
@@ -131,9 +152,18 @@
     "emailPlaceholder": "example@domain.com",
     "captchaLabel": "Security (Captcha): What is 3 + 4?",
     "captchaPlaceholder": "Numeric answer (7)",
+    "planLegend": "Choose your plan:",
+    "planMonthlyTitle": "Monthly — €4.99/mo",
+    "planMonthlySubtitle": "Cancel anytime",
+    "planAnnualTitle": "Annual — €3.99/mo",
+    "planAnnualSubtitle": "€47.90/year, billed once · Save 20%",
     "termsHtml": "I have read and accept the <a href=\"#\">Privacy Policy</a>, the <a href=\"#\">Terms and Conditions</a>, and the authorization of use.",
-    "stripeButton": "Continue to Stripe (Test Mode) 💳",
-    "captchaError": "Incorrect captcha answer. It must be 7."
+    "stripeButton": "Continue to Stripe 💳",
+    "captchaError": "Incorrect captcha answer. It must be 7.",
+    "needAuth": "Sign in to subscribe to Premium.",
+    "checkoutError": "Could not start checkout. Please try again.",
+    "alreadyPremium": "Your account is already Premium.",
+    "pendingSync": "Your Premium subscription is already paid. It will activate in a few seconds."
   },
   "trialLimit": {
     "title": "Free Trial Limit Reached",

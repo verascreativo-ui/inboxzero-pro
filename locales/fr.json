@@ -25,6 +25,9 @@
   "header": {
     "trialPlan": "Forfait d'essai gratuit : {{current}} / {{max}} fiches",
     "premiumPlan": "Premium · Fiches illimitées",
+    "premiumBadge": "Vous êtes Premium",
+    "premiumBadgeTitle": "Vous pouvez enregistrer des fiches illimitées",
+    "premiumWelcome": "Bienvenue dans Premium ! Vous avez désormais des fiches illimitées",
     "libraryDropdown": "Ma bibliothèque ▾",
     "help": "Aide en 3 étapes",
     "login": "Se connecter",
@@ -101,26 +104,44 @@
     "talkToSupport": "Parler au support",
     "confirmCancel": "Confirmer la résiliation de l'abonnement",
     "successTitle": "Demande enregistrée",
-    "successMessage": "Nous avons enregistré votre demande de résiliation. Merci pour votre retour ; nous vous accompagnerons dans la suite."
+    "successMessage": "Nous avons enregistré votre demande de résiliation. Merci pour votre retour ; nous vous accompagnerons dans la suite.",
+    "successMessageWithDate": "Vous conserverez Premium jusqu'au {{fecha}}. Ensuite, vous passerez automatiquement au Plan Gratuit.",
+    "scheduledTitle": "Résiliation déjà programmée",
+    "scheduledMessage": "Votre abonnement Premium restera actif jusqu'à la fin de la période déjà payée.",
+    "scheduledMessageWithDate": "Vous conserverez Premium jusqu'au {{fecha}}. Vous passerez ensuite automatiquement au Plan Gratuit.",
+    "cancelError": "Impossible de traiter l'annulation. Veuillez réessayer ou contacter le support."
   },
   "help": {
     "title": "Comment fonctionne InboxZero",
     "step1Title": "Enregistrez vos liens ou idées",
-    "step1Body": "Collez n'importe quelle URL ou saisissez votre idée dans la barre du haut et appuyez sur « Enregistrer la fiche » pour la capturer instantanément.",
-    "step2Title": "Organisez et personnalisez",
-    "step2Body": "Modifiez vos fiches en cliquant sur le crayon : assignez des catégories personnalisées, des notes privées, ou marquez-les comme favorites ou en attente.",
-    "step3Title": "Filtrez et parcourez",
-    "step3Body": "Accédez rapidement à vos fiches depuis la barre latérale ou le menu « Ma bibliothèque » dans la barre supérieure sans rien perdre."
+    "step1Body": "Collez n'importe quelle URL ou saisissez votre idée dans la barre de recherche en haut et appuyez sur « Enregistrer la fiche » pour la capturer instantanément. Vous pouvez essayer sans vous inscrire, jusqu'à 20 fiches gratuites.",
+    "step2Title": "Créez votre compte gratuit",
+    "step2Body": "Inscrivez-vous avec votre e-mail pour conserver vos fiches de façon permanente dans le cloud, sans dépendre de ce navigateur. Toujours gratuit jusqu'à 20 fiches.",
+    "step3Title": "Organisez, filtrez et consultez",
+    "step3Body": "Accédez rapidement à vos fiches depuis le menu latéral ou le menu déroulant « Ma Bibliothèque » dans la barre supérieure, sans rien perdre."
   },
   "login": {
     "title": "Se connecter",
-    "subtitle": "Accès réservé aux utilisateurs abonnés ou en période d'essai active.",
+    "subtitle": "Connectez-vous si vous avez déjà un compte, ou créez-en un gratuitement pour enregistrer vos fiches dans le cloud.",
+    "fullNameLabel": "Nom complet :",
+    "fullNamePlaceholder": "ex. Jean Dupont",
     "emailLabel": "E-mail :",
     "emailPlaceholder": "vous@email.com",
     "passwordLabel": "Mot de passe :",
     "passwordPlaceholder": "••••••••",
+    "forgotPassword": "Mot de passe oublié ?",
+    "forgotPasswordNeedsEmail": "Saisissez votre email ci-dessus pour recevoir le lien de récupération.",
+    "forgotPasswordSent": "Nous vous avons envoyé un email avec un lien pour réinitialiser votre mot de passe. Vérifiez votre boîte de réception.",
     "submit": "Accéder à ma bibliothèque",
     "registerBtn": "Créer un compte"
+  },
+  "newPassword": {
+    "title": "Créez votre nouveau mot de passe",
+    "label": "Nouveau mot de passe :",
+    "confirmLabel": "Confirmez le mot de passe :",
+    "submit": "Enregistrer le nouveau mot de passe",
+    "success": "Mot de passe mis à jour avec succès.",
+    "mismatch": "Les mots de passe ne correspondent pas."
   },
   "subscribe": {
     "title": "Inscription / Abonnement",
@@ -131,9 +152,18 @@
     "emailPlaceholder": "exemple@domaine.com",
     "captchaLabel": "Sécurité (Captcha) : Combien font 3 + 4 ?",
     "captchaPlaceholder": "Réponse numérique (7)",
+    "planLegend": "Choisissez votre forfait :",
+    "planMonthlyTitle": "Mensuel — 4,99€/mois",
+    "planMonthlySubtitle": "Annulez à tout moment",
+    "planAnnualTitle": "Annuel — 3,99€/mois",
+    "planAnnualSubtitle": "47,90€/an, facturé en une fois · Économisez 20%",
     "termsHtml": "J'ai lu et j'accepte la <a href=\"#\">Politique de confidentialité</a>, les <a href=\"#\">Conditions générales</a> et l'autorisation d'utilisation.",
-    "stripeButton": "Continuer vers Stripe (mode test) 💳",
-    "captchaError": "Réponse du captcha incorrecte. Ce doit être 7."
+    "stripeButton": "Continuer vers Stripe 💳",
+    "captchaError": "Réponse du captcha incorrecte. Ce doit être 7.",
+    "needAuth": "Connectez-vous pour souscrire à Premium.",
+    "checkoutError": "Impossible de lancer le paiement. Réessayez.",
+    "alreadyPremium": "Votre compte est déjà Premium.",
+    "pendingSync": "Votre abonnement Premium est déjà payé. Il sera activé dans quelques secondes."
   },
   "trialLimit": {
     "title": "Limite de l'essai gratuit",

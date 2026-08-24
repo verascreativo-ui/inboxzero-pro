@@ -25,6 +25,9 @@
   "header": {
     "trialPlan": "Plan de Prueba Gratuito: {{current}} / {{max}} Fichas",
     "premiumPlan": "Premium · Fichas ilimitadas",
+    "premiumBadge": "Eres Premium",
+    "premiumBadgeTitle": "Puedes guardar fichas ilimitadas",
+    "premiumWelcome": "¡Bienvenido a Premium! Ya tienes fichas ilimitadas",
     "libraryDropdown": "Mi Biblioteca ▾",
     "help": "Ayuda en 3 pasos",
     "login": "Iniciar Sesión",
@@ -101,26 +104,44 @@
     "talkToSupport": "Hablar con Soporte",
     "confirmCancel": "Confirmar cancelación de suscripción",
     "successTitle": "Solicitud registrada",
-    "successMessage": "Hemos registrado tu solicitud de baja. Gracias por tu feedback; te acompañaremos en el proceso."
+    "successMessage": "Hemos registrado tu solicitud de baja. Gracias por tu feedback; te acompañaremos en el proceso.",
+    "successMessageWithDate": "Seguirás teniendo Premium hasta el {{fecha}}. Después pasarás automáticamente al Plan Gratuito.",
+    "scheduledTitle": "Baja ya programada",
+    "scheduledMessage": "Tu suscripción Premium seguirá activa hasta el fin del periodo ya pagado.",
+    "scheduledMessageWithDate": "Seguirás teniendo Premium hasta el {{fecha}}. Después pasarás automáticamente al Plan Gratuito.",
+    "cancelError": "No se pudo procesar la cancelación. Inténtalo de nuevo o contacta con soporte."
   },
   "help": {
     "title": "Cómo funciona InboxZero",
     "step1Title": "Guarda tus enlaces o conceptos",
-    "step1Body": "Pega cualquier dirección URL o escribe tu idea en el buscador superior y presiona \"Guardar Ficha\" para capturarlo al instante.",
-    "step2Title": "Organiza y Personaliza",
-    "step2Body": "Edita tus fichas haciendo clic en el lápiz: asigna categorías personalizadas, notas privadas, o márcalas como favoritas o pendientes.",
-    "step3Title": "Filtra y Consulta",
-    "step3Body": "Accede rápidamente a tus fichas desde el menú lateral o desde el desplegable \"Mi Biblioteca\" en la barra superior sin perder nada."
+    "step1Body": "Pega cualquier dirección URL o escribe tu idea en el buscador superior y presiona \"Guardar Ficha\" para capturarlo al instante. Puedes probar sin registrarte, hasta 20 fichas gratis.",
+    "step2Title": "Crea tu cuenta gratuita",
+    "step2Body": "Regístrate con tu correo para guardar tus fichas de forma permanente en la nube, sin depender de este navegador. Sigue siendo gratis hasta 20 fichas.",
+    "step3Title": "Organiza, filtra y consulta",
+    "step3Body": "Edita tus fichas haciendo clic en el lápiz: asigna categorías, notas privadas, favoritos o \"leer más tarde\". Accede a todo desde el menú lateral o \"Mi Biblioteca\"."
   },
   "login": {
     "title": "Iniciar Sesión",
-    "subtitle": "Acceso exclusivo para usuarios suscritos o en periodo de prueba activo.",
+    "subtitle": "Inicia sesión si ya tienes cuenta, o crea una gratis para guardar tus fichas en la nube.",
+    "fullNameLabel": "Nombre y Apellidos:",
+    "fullNamePlaceholder": "Ej. Juan Pérez",
     "emailLabel": "Correo Electrónico:",
     "emailPlaceholder": "tu@email.com",
     "passwordLabel": "Contraseña:",
     "passwordPlaceholder": "••••••••",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "forgotPasswordNeedsEmail": "Escribe tu email arriba para poder enviarte el enlace de recuperación.",
+    "forgotPasswordSent": "Te hemos enviado un email con un enlace para restablecer tu contraseña. Revisa tu bandeja de entrada.",
     "submit": "Acceder a mi Biblioteca",
     "registerBtn": "Crear cuenta"
+  },
+  "newPassword": {
+    "title": "Crea tu nueva contraseña",
+    "label": "Nueva contraseña:",
+    "confirmLabel": "Confirma la contraseña:",
+    "submit": "Guardar nueva contraseña",
+    "success": "Contraseña actualizada correctamente.",
+    "mismatch": "Las contraseñas no coinciden."
   },
   "subscribe": {
     "title": "Registro / Suscripción",
@@ -131,9 +152,18 @@
     "emailPlaceholder": "ejemplo@dominio.com",
     "captchaLabel": "Seguridad (Captcha): ¿Cuánto es 3 + 4?",
     "captchaPlaceholder": "Respuesta numérica (7)",
+    "planLegend": "Elige tu plan:",
+    "planMonthlyTitle": "Mensual — 4,99€/mes",
+    "planMonthlySubtitle": "Cancela cuando quieras",
+    "planAnnualTitle": "Anual — 3,99€/mes",
+    "planAnnualSubtitle": "47,90€/año, facturado de una vez · Ahorra un 20%",
     "termsHtml": "He leído y acepto la <a href=\"#\">Política de Privacidad</a>, los <a href=\"#\">Términos y Condiciones</a> y la autorización de uso.",
-    "stripeButton": "Continuar a Stripe (Modo Pruebas) 💳",
-    "captchaError": "Respuesta del captcha incorrecta. Debe ser 7."
+    "stripeButton": "Continuar a Stripe 💳",
+    "captchaError": "Respuesta del captcha incorrecta. Debe ser 7.",
+    "needAuth": "Inicia sesión para suscribirte a Premium.",
+    "checkoutError": "No se pudo abrir el pago. Inténtalo de nuevo.",
+    "alreadyPremium": "Tu cuenta ya es Premium.",
+    "pendingSync": "Tu suscripción Premium ya está pagada. Se activará en unos segundos."
   },
   "trialLimit": {
     "title": "Límite del Plan de Prueba",

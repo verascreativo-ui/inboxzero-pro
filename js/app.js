@@ -661,41 +661,47 @@ async function fetchMicrolinkMetadata(pageUrl, options = {}) {
   if (options.screenshot) params.set('screenshot', 'true');
   if (options.palette) params.set('palette', 'true');
   const endpoint = `https://api.microlink.io/?${params.toString()}`;
-  const res = await fetch(endpoint);
-  if (!res.ok) {
-    throw new Error(`Microlink HTTP ${res.status}`);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 3000);
+  try {
+    const res = await fetch(endpoint, { signal: controller.signal });
+    if (!res.ok) {
+      throw new Error(`Microlink HTTP ${res.status}`);
+    }
+    const datos = await res.json();
+    if (!datos || datos.status !== 'success' || !datos.data) {
+      throw new Error((datos && datos.message) || 'Microlink no devolvió datos');
+    }
+    const d = datos.data;
+    const microlink = {
+      image: d.image || null,
+      logo: d.logo || null,
+      screenshot: d.screenshot || null,
+    };
+    const candidates = buildMicrolinkImageCandidates(microlink);
+    const picked = selectPreferredMicrolinkImage(candidates, {
+      logoUrl: (d.logo && d.logo.url) || '',
+    });
+    // Compat: si no hay selección, cadena clásica image → screenshot → logo
+    const imageUrl =
+      picked.url ||
+      (d.image && d.image.url) ||
+      (d.screenshot && d.screenshot.url) ||
+      (d.logo && d.logo.url) ||
+      '';
+    return {
+      title: (d.title && String(d.title).trim()) || '',
+      description: (d.description && String(d.description).trim()) || '',
+      image: imageUrl,
+      canonicalUrl: d.url || pageUrl,
+      imageSource: picked.source || '',
+      imageLogoLike: Boolean(picked.logoLike),
+      imageCandidates: candidates,
+      microlink,
+    };
+  } finally {
+    clearTimeout(timer);
   }
-  const datos = await res.json();
-  if (!datos || datos.status !== 'success' || !datos.data) {
-    throw new Error((datos && datos.message) || 'Microlink no devolvió datos');
-  }
-  const d = datos.data;
-  const microlink = {
-    image: d.image || null,
-    logo: d.logo || null,
-    screenshot: d.screenshot || null,
-  };
-  const candidates = buildMicrolinkImageCandidates(microlink);
-  const picked = selectPreferredMicrolinkImage(candidates, {
-    logoUrl: (d.logo && d.logo.url) || '',
-  });
-  // Compat: si no hay selección, cadena clásica image → screenshot → logo
-  const imageUrl =
-    picked.url ||
-    (d.image && d.image.url) ||
-    (d.screenshot && d.screenshot.url) ||
-    (d.logo && d.logo.url) ||
-    '';
-  return {
-    title: (d.title && String(d.title).trim()) || '',
-    description: (d.description && String(d.description).trim()) || '',
-    image: imageUrl,
-    canonicalUrl: d.url || pageUrl,
-    imageSource: picked.source || '',
-    imageLogoLike: Boolean(picked.logoLike),
-    imageCandidates: candidates,
-    microlink,
-  };
 }
 
 const FACEBOOK_GENERIC_TITLE_RE =
@@ -845,6 +851,59 @@ async function getExtractAccessToken() {
   }
 }
 
+async function createBillingCheckoutSession(plan) {
+  const base = getExtractApiBase();
+  if (!base) return null;
+  const token = await getExtractAccessToken();
+  if (!token) return null;
+  const res = await fetch(`${base}/api/billing/create-checkout-session`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ plan: plan === 'annual' ? 'annual' : 'monthly' }),
+  });
+  const payload = await res.json().catch(() => null);
+  if (!payload || payload.status !== 'success') return null;
+  return payload;
+}
+
+async function cancelBillingSubscription() {
+  const base = getExtractApiBase();
+  if (!base) return null;
+  const token = await getExtractAccessToken();
+  if (!token) return null;
+  const res = await fetch(`${base}/api/billing/cancel-subscription`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  const payload = await res.json().catch(() => null);
+  if (!payload || payload.status !== 'success') return null;
+  return payload;
+}
+
+async function fetchBillingStatus() {
+  const base = getExtractApiBase();
+  if (!base) return null;
+  const token = await getExtractAccessToken();
+  if (!token) return null;
+  const res = await fetch(`${base}/api/billing/status`, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  const payload = await res.json().catch(() => null);
+  if (!payload || payload.status !== 'success') return null;
+  return payload;
+}
+
 async function extractApiHeaders() {
   const headers = { Accept: 'application/json' };
   const token = await getExtractAccessToken();
@@ -951,6 +1010,87 @@ function needsAdvancedScrape(pageUrl) {
   return brand === 'facebook' || brand === 'instagram' || brand === 'linkedin';
 }
 
+/** Compara título vs URL ignorando barra final, mayúsculas y percent-encoding. */
+function normalizeMetaUrlKey(value) {
+  let s = String(value || '').trim();
+  if (!s) return '';
+  try {
+    s = decodeURIComponent(s);
+  } catch (_) {
+    /* dejar s */
+  }
+  return s.replace(/\/+$/, '').toLowerCase();
+}
+
+function isTitleEqualToPastedUrl(title, pageUrl) {
+  const rawTitle = String(title || '').trim();
+  if (!rawTitle) return true;
+  const page = String(pageUrl || '').trim();
+  if (!page) return false;
+  const tKey = normalizeMetaUrlKey(rawTitle);
+  const uKey = normalizeMetaUrlKey(page);
+  if (tKey === uKey) return true;
+  try {
+    const u = new URL(page);
+    const host = u.hostname.replace(/^www\./i, '').toLowerCase();
+    if (tKey === host || tKey === u.hostname.toLowerCase()) return true;
+    if (tKey === normalizeMetaUrlKey(u.origin)) return true;
+    if (tKey === normalizeMetaUrlKey(u.origin + u.pathname)) return true;
+  } catch (_) {
+    /* ignore */
+  }
+  return false;
+}
+
+/** Favicon Google, placeholder interno o logo Microlink: no cuenta como imagen real. */
+function isGenericFaviconOrMissingImage(meta) {
+  const image = String((meta && meta.image) || '').trim();
+  if (!image || !isUsableImageUrl(image)) return true;
+  if (image === CARD_THUMB_PLACEHOLDER) return true;
+  if (/google\.com\/s2\/favicons/i.test(image)) return true;
+  if (meta.imageSource === 'microlink-logo') return true;
+  if (isLikelyPlaceholderOrGenericOgImage(image)) return true;
+  return false;
+}
+
+/**
+ * Microlink degradado en web genérica: título vacío o igual a la URL,
+ * y además sin descripción o sin imagen real.
+ */
+function isDegradedGenericMetadata(meta, pageUrl) {
+  if (!meta) return true;
+  const titleIsUrlOrEmpty =
+    isTitleEqualToPastedUrl(meta.title, pageUrl) ||
+    (meta.canonicalUrl ? isTitleEqualToPastedUrl(meta.title, meta.canonicalUrl) : false);
+  if (!titleIsUrlOrEmpty) return false;
+  const noDescription = !String(meta.description || '').trim();
+  const noRealImage = isGenericFaviconOrMissingImage(meta);
+  return noDescription || noRealImage;
+}
+
+/**
+ * Fallback aislado: solo webs genéricas (no FB/IG/LI, no YouTube).
+ * Si Microlink falla o queda degradado, reintenta GET /api/extract.
+ */
+async function fallbackDegradedGenericToAdvancedExtract(pageUrl, microlinkMeta) {
+  if (needsAdvancedScrape(pageUrl)) return microlinkMeta;
+  if (extractYoutubeVideoId(pageUrl)) return microlinkMeta;
+  if (microlinkMeta && !isDegradedGenericMetadata(microlinkMeta, pageUrl)) {
+    return microlinkMeta;
+  }
+  try {
+    const advanced = await fetchAdvancedExtractApi(pageUrl);
+    if (!advanced) return microlinkMeta;
+    if (!isDegradedGenericMetadata(advanced, pageUrl)) return advanced;
+    if (!microlinkMeta && (advanced.title || advanced.description || advanced.image)) {
+      return advanced;
+    }
+  } catch (_) {
+    /* conservar Microlink / null */
+  }
+  return microlinkMeta;
+}
+
 /**
  * Extracción: Facebook → ScrapingBee (páginas públicas) → contingencia;
  * IG/LinkedIn ScrapingBee; resto Microlink.
@@ -987,7 +1127,9 @@ async function extractUrlMetadata(pageUrl) {
     // URLs genéricas:
     // Microlink image → (si falta/logoLike) /api/page-images → (si no) screenshot Fase 1 → fallbacks.
     let meta = await fetchMicrolinkMetadata(pageUrl);
-    if (!meta) return null;
+    if (!meta) {
+      return fallbackDegradedGenericToAdvancedExtract(pageUrl, null);
+    }
 
     const primary = meta.microlink?.image;
     const primaryUrl = (primary && primary.url) || '';
@@ -1002,9 +1144,10 @@ async function extractUrlMetadata(pageUrl) {
         logoUrl,
       });
 
-    // Imagen Microlink usable y no logo → conservar (no page-images ni screenshot)
+    // Imagen Microlink usable y no logo → no page-images ni screenshot;
+    // si el título/desc siguen degradados, el fallback avanzado aún aplica.
     if (!imageMissingOrLogoLike) {
-      return meta;
+      return fallbackDegradedGenericToAdvancedExtract(pageUrl, meta);
     }
 
     // Fase 2: candidatos HTML puntuados (solo si falta imagen o es logo-like)
@@ -1012,7 +1155,7 @@ async function extractUrlMetadata(pageUrl) {
       const pageBest = await fetchPageImagesBest(pageUrl);
       if (pageBest?.url) {
         const pageCandidates = Array.isArray(pageBest.candidates) ? pageBest.candidates : [];
-        return {
+        return fallbackDegradedGenericToAdvancedExtract(pageUrl, {
           ...meta,
           image: pageBest.url,
           imageSource: 'page-html',
@@ -1022,7 +1165,7 @@ async function extractUrlMetadata(pageUrl) {
             ...pageCandidates,
           ],
           pageImageBest: pageBest.candidate || null,
-        };
+        });
       }
     } catch (_) {
       /* page-images opcional; continuar a screenshot Fase 1 */
@@ -1071,9 +1214,9 @@ async function extractUrlMetadata(pageUrl) {
       /* screenshot opcional */
     }
 
-    return meta;
+    return fallbackDegradedGenericToAdvancedExtract(pageUrl, meta);
   } catch (_) {
-    return null;
+    return fallbackDegradedGenericToAdvancedExtract(pageUrl, null);
   }
 }
 
@@ -1715,6 +1858,28 @@ function updateAuthChrome(user) {
   renderDashboardGreeting(currentAuthUser);
 }
 
+async function applyPendingNameIfAny(user) {
+  if (!user || !user.email || !user.id) return;
+  try {
+    const key = `inboxzero_pending_name_${String(user.email).trim().toLowerCase()}`;
+    const pendingName = String(localStorage.getItem(key) || '').trim();
+    if (!pendingName) return;
+    const supabase = getSupabaseClient();
+    if (!supabase) return;
+    const { error } = await supabase
+      .from('profiles')
+      .update({ nombre: pendingName })
+      .eq('id', user.id);
+    if (error) {
+      console.warn('[InboxZero] No se pudo aplicar el nombre pendiente', error);
+      return;
+    }
+    localStorage.removeItem(key);
+  } catch (err) {
+    console.warn('[InboxZero] Error aplicando nombre pendiente', err);
+  }
+}
+
 async function signInWithEmailPassword(email, password) {
   const supabase = getSupabaseClient();
   if (!supabase) {
@@ -1746,6 +1911,7 @@ async function signInWithEmailPassword(email, password) {
     }
 
     setLoginAuthMessage(t('auth.signInSuccess'), false);
+    await applyPendingNameIfAny(data.user);
     document.getElementById('modal-login')?.classList.remove('active');
     updateAuthChrome(data.user);
   } finally {
@@ -1754,7 +1920,65 @@ async function signInWithEmailPassword(email, password) {
   }
 }
 
-async function signUpWithEmailPassword(email, password) {
+async function requestPasswordReset(email) {
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    setLoginAuthMessage(t('auth.notConfigured'), true);
+    return false;
+  }
+  const trimmedEmail = String(email || '').trim();
+  if (!trimmedEmail) {
+    setLoginAuthMessage(t('login.forgotPasswordNeedsEmail'), true);
+    return false;
+  }
+  const captchaToken = takeTurnstileTokenForAuth();
+  if (!captchaToken) {
+    setLoginAuthMessage(t('auth.captchaRequired'), true);
+    return false;
+  }
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
+      redirectTo: window.location.origin + window.location.pathname,
+      captchaToken,
+    });
+    if (error) {
+      setLoginAuthMessage(error.message, true);
+      return false;
+    }
+    setLoginAuthMessage(t('login.forgotPasswordSent'), false);
+    return true;
+  } finally {
+    resetTurnstileWidget();
+  }
+}
+
+async function saveNewPassword(newPassword) {
+  const supabase = getSupabaseClient();
+  if (!supabase) return false;
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+  const msgEl = document.getElementById('new-password-message');
+  if (error) {
+    if (msgEl) {
+      msgEl.textContent = error.message;
+      msgEl.hidden = false;
+      msgEl.classList.toggle('auth-message--error', true);
+      msgEl.classList.toggle('auth-message--success', false);
+    }
+    return false;
+  }
+  if (msgEl) {
+    msgEl.textContent = t('newPassword.success');
+    msgEl.hidden = false;
+    msgEl.classList.toggle('auth-message--error', false);
+    msgEl.classList.toggle('auth-message--success', true);
+  }
+  window.setTimeout(() => {
+    document.getElementById('modal-new-password')?.classList.remove('active');
+  }, 2000);
+  return true;
+}
+
+async function signUpWithEmailPassword(email, password, fullName) {
   const supabase = getSupabaseClient();
   if (!supabase) {
     setLoginAuthMessage(t('auth.notConfigured'), true);
@@ -1790,10 +2014,32 @@ async function signUpWithEmailPassword(email, password) {
       setLoginAuthMessage(t('auth.signUpSuccess'), false);
       document.getElementById('modal-login')?.classList.remove('active');
       updateAuthChrome(data.user);
+      if (fullName) {
+        const supabase = getSupabaseClient();
+        if (supabase) {
+          const { error: nombreError } = await supabase
+            .from('profiles')
+            .update({ nombre: fullName })
+            .eq('id', data.user.id);
+          if (nombreError) {
+            console.warn('[InboxZero] No se pudo guardar profiles.nombre', nombreError);
+          }
+        }
+      }
       return;
     }
 
     setLoginAuthMessage(t('auth.signUpConfirmEmail'), false);
+    if (fullName) {
+      try {
+        localStorage.setItem(
+          `inboxzero_pending_name_${String(email || '').trim().toLowerCase()}`,
+          fullName
+        );
+      } catch (_) {
+        /* quota / private mode */
+      }
+    }
   } finally {
     resetTurnstileWidget();
     if (registerBtn) registerBtn.disabled = false;
@@ -1899,6 +2145,59 @@ function setupRevokedSessionResumeProbe() {
   });
 }
 
+function initLanguageDropdown() {
+  const toggle = document.getElementById('lang-dropdown-toggle');
+  const menu = document.getElementById('lang-dropdown-menu');
+  const flagEl = document.getElementById('lang-dropdown-flag');
+  const labelEl = document.getElementById('lang-dropdown-label');
+  const nativeSelect = document.getElementById('language-select');
+  if (!toggle || !menu || !flagEl || !labelEl || !nativeSelect) return;
+  const options = Array.from(menu.querySelectorAll('li[data-lang]'));
+  function closeMenu() {
+    menu.hidden = true;
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+  function openMenu() {
+    menu.hidden = false;
+    toggle.setAttribute('aria-expanded', 'true');
+  }
+  function syncDisplay(langCode) {
+    const match = options.find((li) => li.dataset.lang === langCode) || options[0];
+    if (!match) return;
+    flagEl.className = `fi fi-${match.dataset.flag} lang-flag`;
+    labelEl.textContent = match.querySelector('span:last-child')?.textContent || '';
+    options.forEach((li) => {
+      li.setAttribute('aria-selected', li.dataset.lang === langCode ? 'true' : 'false');
+    });
+  }
+  toggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (menu.hidden) openMenu(); else closeMenu();
+  });
+  options.forEach((li) => {
+    li.addEventListener('click', () => {
+      const langCode = li.dataset.lang;
+      if (nativeSelect.value !== langCode) {
+        nativeSelect.value = langCode;
+        nativeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      syncDisplay(langCode);
+      closeMenu();
+    });
+  });
+  document.addEventListener('click', closeMenu);
+  nativeSelect.addEventListener('change', () => {
+    syncDisplay(nativeSelect.value);
+  });
+  window.addEventListener('localechange', () => {
+    syncDisplay(nativeSelect.value);
+  });
+  document.addEventListener('i18n:ready', (e) => {
+    syncDisplay(e.detail?.locale || nativeSelect.value);
+  });
+  syncDisplay(nativeSelect.value);
+}
+
 function setupSupabaseAuth() {
   const form = document.getElementById('login-form');
   const registerBtn = document.getElementById('btn-register-login');
@@ -1924,13 +2223,42 @@ function setupSupabaseAuth() {
   if (registerBtn) {
     registerBtn.addEventListener('click', () => {
       const { email, password } = readLoginCredentials();
+      const fullName = document.getElementById('login-fullname')?.value.trim() || '';
       if (!email || !password) {
         setLoginAuthMessage(t('auth.missingCredentials'), true);
         return;
       }
-      signUpWithEmailPassword(email, password);
+      signUpWithEmailPassword(email, password, fullName);
     });
   }
+
+  document.getElementById('btn-forgot-password')?.addEventListener('click', async () => {
+    const email = document.getElementById('login-email')?.value.trim() || '';
+    const btn = document.getElementById('btn-forgot-password');
+    if (btn) btn.disabled = true;
+    await requestPasswordReset(email);
+    if (btn) btn.disabled = false;
+  });
+
+  document.getElementById('new-password-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const password = document.getElementById('new-password-input')?.value || '';
+    const confirm = document.getElementById('new-password-confirm')?.value || '';
+    const msgEl = document.getElementById('new-password-message');
+    if (password !== confirm) {
+      if (msgEl) {
+        msgEl.textContent = t('newPassword.mismatch');
+        msgEl.hidden = false;
+        msgEl.classList.toggle('auth-message--error', true);
+        msgEl.classList.toggle('auth-message--success', false);
+      }
+      return;
+    }
+    const btn = document.getElementById('btn-save-new-password');
+    if (btn) btn.disabled = true;
+    await saveNewPassword(password);
+    if (btn) btn.disabled = false;
+  });
 
   if (logoutBtn) {
     logoutBtn.addEventListener('click', (e) => {
@@ -1974,6 +2302,10 @@ function setupSupabaseAuth() {
     return;
   }
 
+  const authSyncChannel = (typeof BroadcastChannel !== 'undefined')
+    ? new BroadcastChannel('inboxzero_auth_sync')
+    : null;
+
   supabase.auth.getSession().then(({ data: { session } }) => {
     updateAuthChrome(session?.user ?? null);
     notifyLibraryAuthSync(session?.user ?? null);
@@ -1981,7 +2313,18 @@ function setupSupabaseAuth() {
 
   supabase.auth.onAuthStateChange((event, session) => {
     const prevUid = currentAuthUser?.id ? String(currentAuthUser.id) : '';
-    updateAuthChrome(session?.user ?? null);
+    const user = session?.user ?? null;
+    if (user && (event === 'INITIAL_SESSION' || event === 'SIGNED_IN')) {
+      void applyPendingNameIfAny(user);
+    }
+    if (event === 'SIGNED_IN' && user && authSyncChannel) {
+      authSyncChannel.postMessage({ type: 'signed_in' });
+    }
+    if (event === 'PASSWORD_RECOVERY') {
+      document.getElementById('modal-login')?.classList.remove('active');
+      document.getElementById('modal-new-password')?.classList.add('active');
+    }
+    updateAuthChrome(user);
     if (event === 'SIGNED_OUT') {
       notifyGuestMigrationLifecycle('SIGNED_OUT', prevUid);
     }
@@ -1991,9 +2334,19 @@ function setupSupabaseAuth() {
       event === 'SIGNED_OUT' ||
       event === 'USER_UPDATED'
     ) {
-      notifyLibraryAuthSync(session?.user ?? null);
+      notifyLibraryAuthSync(user);
     }
   });
+
+  if (authSyncChannel) {
+    authSyncChannel.onmessage = async (event) => {
+      if (event.data?.type !== 'signed_in') return;
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user ?? null;
+      updateAuthChrome(user);
+      notifyLibraryAuthSync(user);
+    };
+  }
 
   setupRevokedSessionResumeProbe();
 }
@@ -2095,6 +2448,22 @@ document.addEventListener('i18n:ready', () => {
 
   const cardsGrid = document.getElementById('cards-grid');
   const trialPlanText = document.getElementById('trial-plan-text');
+  const premiumPlanBadge = document.getElementById('premium-plan-badge');
+  if (premiumPlanBadge && !premiumPlanBadge.dataset.tooltipBound) {
+    premiumPlanBadge.dataset.tooltipBound = '1';
+    premiumPlanBadge.addEventListener('mouseenter', () => {
+      const title = premiumPlanBadge.getAttribute('title');
+      if (title) {
+        premiumPlanBadge.dataset.titleBackup = title;
+        premiumPlanBadge.removeAttribute('title');
+      }
+    });
+    premiumPlanBadge.addEventListener('mouseleave', () => {
+      if (premiumPlanBadge.dataset.titleBackup) {
+        premiumPlanBadge.setAttribute('title', premiumPlanBadge.dataset.titleBackup);
+      }
+    });
+  }
   const progressFill = document.getElementById('progress-fill');
   const showingCounter = document.getElementById('showing-counter');
   const sectionTitle = document.getElementById('section-title');
@@ -2258,6 +2627,56 @@ document.addEventListener('i18n:ready', () => {
     // S1.4-D: Premium ilimitado en UI. Sin tipo_plan (Guest / Offline) → tope 20.
     if (isPremiumPlan()) return false;
     return userCards().length >= TRIAL_MAX;
+  }
+
+  async function refreshOwnProfileOnly(user) {
+    const uid = user?.id ? String(user.id) : '';
+    if (!uid) return;
+    const profileRes = await fetchOwnProfileRepo(uid);
+    if (profileRes.ok && profileRes.data) {
+      currentProfile = profileRes.data;
+      updateAuthChrome(user);
+      updateTrialPlanLabel(userCards().length);
+    }
+  }
+
+  let billingReturnHandled = false;
+  let premiumWelcomeTimer = null;
+
+  function showPremiumWelcomeToast() {
+    const toast = document.getElementById('premium-welcome-toast');
+    if (!toast) return;
+    const label = toast.querySelector('[data-i18n="header.premiumWelcome"]');
+    if (label) label.textContent = t('header.premiumWelcome');
+    toast.hidden = false;
+    if (premiumWelcomeTimer) window.clearTimeout(premiumWelcomeTimer);
+    premiumWelcomeTimer = window.setTimeout(() => {
+      toast.hidden = true;
+      premiumWelcomeTimer = null;
+    }, 4500);
+  }
+
+  function maybeRefreshProfileAfterCheckoutReturn(user) {
+    if (billingReturnHandled) return;
+    let billing = '';
+    try {
+      const url = new URL(window.location.href);
+      billing = String(url.searchParams.get('billing') || '');
+      if (!billing) return;
+      url.searchParams.delete('billing');
+      url.searchParams.delete('checkout_session_id');
+      const qs = url.searchParams.toString();
+      window.history.replaceState({}, '', `${url.pathname}${qs ? `?${qs}` : ''}${url.hash}`);
+    } catch (_) {
+      return;
+    }
+    billingReturnHandled = true;
+    if (billing !== 'success') return;
+    refreshOwnProfileOnly(user);
+    showPremiumWelcomeToast();
+    window.setTimeout(() => {
+      refreshOwnProfileOnly(user);
+    }, 1800);
   }
 
   function libraryHasDuplicateUrl(url) {
@@ -2654,21 +3073,60 @@ document.addEventListener('i18n:ready', () => {
 
   function openSubscribeModal() {
     closeModal('modal-trial-limit');
+    prefillSubscribeForm();
     openModal('modal-subscribe');
   }
 
+  function prefillSubscribeForm() {
+    const nameInput = document.getElementById('subscribe-fullname');
+    const emailInput = document.getElementById('subscribe-email');
+    if (nameInput && currentAuthUser) {
+      const name = resolveGreetingDisplayName();
+      if (name && name !== DEFAULT_GREETING_NAME) {
+        nameInput.value = name;
+      }
+    }
+    if (emailInput && currentAuthUser && currentAuthUser.email) {
+      emailInput.value = currentAuthUser.email;
+    }
+  }
+
   function updateTrialPlanLabel(current) {
+    const subscribeBtn = document.getElementById('btn-subscribe-modal');
+    if (subscribeBtn) subscribeBtn.hidden = isPremiumPlan();
     if (!trialPlanText) return;
     const progressBox = trialPlanText.closest('.progress-container');
     if (isPremiumPlan()) {
       progressBox?.classList.add('progress-container--unlimited');
+      trialPlanText.hidden = true;
       trialPlanText.removeAttribute('data-i18n-vars');
       trialPlanText.setAttribute('data-i18n', 'header.premiumPlan');
       trialPlanText.textContent = t('header.premiumPlan');
+      if (premiumPlanBadge) {
+        premiumPlanBadge.hidden = false;
+        premiumPlanBadge.setAttribute('aria-label', t('header.premiumPlan'));
+        const tipText = t('header.premiumBadgeTitle');
+        premiumPlanBadge.setAttribute('title', tipText);
+        premiumPlanBadge.setAttribute('data-tooltip', tipText);
+        const badgeLabel = premiumPlanBadge.querySelector('[data-i18n="header.premiumBadge"]');
+        if (badgeLabel) badgeLabel.textContent = t('header.premiumBadge');
+        const tip = premiumPlanBadge.querySelector('.premium-plan-badge-tooltip');
+        if (tip) tip.textContent = tipText;
+      }
       if (progressFill) progressFill.style.width = '0%';
       return;
     }
     progressBox?.classList.remove('progress-container--unlimited');
+    trialPlanText.hidden = false;
+    if (premiumPlanBadge) {
+      premiumPlanBadge.hidden = true;
+      premiumPlanBadge.removeAttribute('aria-label');
+      premiumPlanBadge.removeAttribute('title');
+      premiumPlanBadge.removeAttribute('data-tooltip');
+      delete premiumPlanBadge.dataset.titleBackup;
+      const tip = premiumPlanBadge.querySelector('.premium-plan-badge-tooltip');
+      if (tip) tip.textContent = '';
+    }
     const vars = { current, max: TRIAL_MAX };
     trialPlanText.setAttribute('data-i18n', 'header.trialPlan');
     trialPlanText.setAttribute('data-i18n-vars', JSON.stringify(vars));
@@ -3167,6 +3625,7 @@ document.addEventListener('i18n:ready', () => {
       }
       if (uid && libraryHydratedAsAuth && librarySessionReady) {
         scheduleGuestMigrationOffer();
+        maybeRefreshProfileAfterCheckoutReturn(user);
       }
     }
   }
@@ -4500,9 +4959,21 @@ document.addEventListener('i18n:ready', () => {
     });
   }
 
-  function openRetentionModal() {
+  async function openRetentionModal() {
     resetRetentionModalView();
     openModal('modal-retention');
+    const billingStatus = await fetchBillingStatus();
+    if (billingStatus && billingStatus.cancelAtPeriodEnd) {
+      const formView = document.getElementById('retention-form-view');
+      const scheduledView = document.getElementById('retention-scheduled-view');
+      const scheduledMessageEl = document.getElementById('retention-scheduled-message');
+      if (scheduledMessageEl && billingStatus.currentPeriodEnd) {
+        const fecha = new Date(billingStatus.currentPeriodEnd).toLocaleDateString();
+        scheduledMessageEl.textContent = t('retention.scheduledMessageWithDate', { fecha });
+      }
+      if (formView) formView.hidden = true;
+      if (scheduledView) scheduledView.hidden = false;
+    }
   }
 
   function closeRetentionModal() {
@@ -4516,21 +4987,41 @@ document.addEventListener('i18n:ready', () => {
     );
   }
 
-  function confirmRetentionCancel() {
+  async function confirmRetentionCancel() {
     const reasons = getRetentionReasons();
     console.log('[InboxZero] Solicitud de baja de suscripción', {
       reasons,
       at: new Date().toISOString(),
     });
-
-    const formView = document.getElementById('retention-form-view');
-    const successView = document.getElementById('retention-success-view');
-    if (formView) formView.hidden = true;
-    if (successView) successView.hidden = false;
-
-    window.setTimeout(() => {
-      closeRetentionModal();
-    }, 2200);
+    const confirmBtn = document.getElementById('btn-retention-confirm');
+    if (confirmBtn) {
+      confirmBtn.disabled = true;
+      confirmBtn.setAttribute('aria-busy', 'true');
+    }
+    try {
+      const result = await cancelBillingSubscription();
+      if (!result || !result.currentPeriodEnd) {
+        alert(t('retention.cancelError'));
+        return;
+      }
+      const formView = document.getElementById('retention-form-view');
+      const successView = document.getElementById('retention-success-view');
+      const successMessageEl = successView?.querySelector('[data-i18n="retention.successMessage"]');
+      if (successMessageEl) {
+        const fecha = new Date(result.currentPeriodEnd).toLocaleDateString();
+        successMessageEl.textContent = t('retention.successMessageWithDate', { fecha });
+      }
+      if (formView) formView.hidden = true;
+      if (successView) successView.hidden = false;
+      window.setTimeout(() => {
+        closeRetentionModal();
+      }, 2200);
+    } finally {
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.removeAttribute('aria-busy');
+      }
+    }
   }
 
   document.getElementById('btn-unsubscribe-side')?.addEventListener('click', (e) => {
@@ -4543,12 +5034,32 @@ document.addEventListener('i18n:ready', () => {
   });
 
   document.getElementById('btn-retention-support')?.addEventListener('click', () => {
-    console.log('[InboxZero] Retención: usuario eligió hablar con soporte');
+    const userEmail =
+      (currentAuthUser && currentAuthUser.email) ||
+      (currentProfile && currentProfile.email) ||
+      '';
+    const reasonLabels = getRetentionReasons().map(
+      (value) => t(`retention.reasons.${value}`) || value
+    );
+    const lines = ['Hola,', '', 'Quiero consultar sobre mi suscripción InboxZero.'];
+    if (userEmail) {
+      lines.push('', `Email de la cuenta: ${userEmail}`);
+    }
+    if (reasonLabels.length) {
+      lines.push('', `Motivos indicados: ${reasonLabels.join(', ')}`);
+    }
+    const subject = encodeURIComponent('Consulta sobre mi suscripción InboxZero');
+    const body = encodeURIComponent(lines.join('\n'));
+    window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
     closeRetentionModal();
   });
 
   document.getElementById('btn-retention-confirm')?.addEventListener('click', () => {
     confirmRetentionCancel();
+  });
+
+  document.getElementById('btn-retention-scheduled-close')?.addEventListener('click', () => {
+    closeRetentionModal();
   });
 
   document.getElementById('btn-retention-success-close')?.addEventListener('click', () => {
@@ -4720,7 +5231,14 @@ document.addEventListener('i18n:ready', () => {
       mountLoginTurnstile();
     });
   }
-  setupModal('btn-subscribe-modal', 'modal-subscribe');
+  const subscribeModalBtn = document.getElementById('btn-subscribe-modal');
+  const subscribeModalEl = document.getElementById('modal-subscribe');
+  if (subscribeModalBtn && subscribeModalEl) {
+    subscribeModalBtn.addEventListener('click', () => {
+      prefillSubscribeForm();
+      subscribeModalEl.classList.add('active');
+    });
+  }
 
   const SUPPORT_EMAIL = 'soporte@inboxzero.es';
   const LEGAL_DOC_KEYS = ['legal', 'privacy', 'cookies', 'terms'];
@@ -4815,15 +5333,60 @@ document.addEventListener('i18n:ready', () => {
 
   const subscribeForm = document.getElementById('subscribe-form');
   if (subscribeForm) {
-    subscribeForm.addEventListener('submit', (e) => {
+    subscribeForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const captcha = document.getElementById('subscribe-captcha')?.value.trim();
       if (captcha !== '7') {
         alert(t('subscribe.captchaError'));
         return;
       }
-      // Placeholder Stripe Checkout (modo pruebas) hasta conectar la pasarela real
-      window.open('https://checkout.stripe.com/test', '_blank', 'noopener,noreferrer');
+      const uid = currentAuthUser?.id ? String(currentAuthUser.id) : '';
+      if (!uid) {
+        alert(t('subscribe.needAuth'));
+        document.getElementById('modal-subscribe')?.classList.remove('active');
+        document.getElementById('modal-login')?.classList.add('active');
+        mountLoginTurnstile();
+        return;
+      }
+      const submitBtn = document.getElementById('btn-stripe-checkout');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.setAttribute('aria-busy', 'true');
+      }
+      try {
+        const fullName = document.getElementById('subscribe-fullname')?.value.trim() || '';
+        if (fullName) {
+          const supabase = getSupabaseClient();
+          if (supabase) {
+            const { error: nombreError } = await supabase
+              .from('profiles')
+              .update({ nombre: fullName })
+              .eq('id', uid);
+            if (nombreError) {
+              console.warn('[InboxZero] No se pudo guardar profiles.nombre', nombreError);
+            }
+          }
+        }
+        const selectedPlan = document.querySelector('input[name="subscribe-plan"]:checked')?.value || 'monthly';
+        const result = await createBillingCheckoutSession(selectedPlan);
+        if (result && result.url) {
+          window.location.href = result.url;
+          return;
+        }
+        if (result && result.alreadyPremium) {
+          document.getElementById('modal-subscribe')?.classList.remove('active');
+          alert(t('subscribe.alreadyPremium'));
+          return;
+        }
+        alert(t('subscribe.checkoutError'));
+      } catch (_) {
+        alert(t('subscribe.checkoutError'));
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.removeAttribute('aria-busy');
+        }
+      }
     });
   }
 
@@ -4915,3 +5478,5 @@ document.addEventListener('i18n:ready', () => {
   renderDashboardGreeting(currentAuthUser);
   // renderCards lo dispara hydrateLibraryForAuthUser tras resolver Auth (S1.3)
 });
+
+document.addEventListener('DOMContentLoaded', initLanguageDropdown);

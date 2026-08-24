@@ -2,14 +2,13 @@
  * Validación SSRF centralizada. Única fuente de rangos IP / esquemas / redirects.
  * No filtrar por el bind local del servidor: el riesgo es el DESTINO saliente.
  *
- * Limitación residual: undici/fetch vuelve a resolver DNS al conectar, así que
- * no se puede fijar la conexión a la IP ya comprobada sin un dispatcher propio.
- * Se hace lookup inmediatamente antes de cada hop y se rechaza cualquier IP no
- * global. Queda una ventana corta de DNS rebinding.
+ * Cada hop de fetchSafeHttp fija la conexión a la IP ya validada con un
+ * undici.Agent (connect.lookup pinneado). Así fetch no vuelve a resolver DNS.
  */
 
 import dns from 'node:dns/promises';
 import net from 'node:net';
+import { Agent } from 'undici';
 import { fetchWithTimeout } from './fetch-timeout.js';
 
 export const SSRF_CODE = 'URL_NOT_ALLOWED';
@@ -174,11 +173,46 @@ function parseHttpUrl(input) {
   return parsed;
 }
 
+function normalizeLookupHost(hostname) {
+  return String(hostname || '')
+    .trim()
+    .toLowerCase()
+    .replace(/^\[|\]$/g, '')
+    .replace(/\.+$/, '');
+}
+
+function recordAddress(rec) {
+  if (!rec) return '';
+  if (typeof rec === 'string') return rec;
+  return rec.address ? String(rec.address) : '';
+}
+
+function recordFamily(rec, address) {
+  const fromRec = rec && typeof rec === 'object' ? Number(rec.family) : 0;
+  if (fromRec === 4 || fromRec === 6) return fromRec;
+  const kind = net.isIP(address);
+  if (kind === 4 || kind === 6) return kind;
+  return parseCanonicalIPv4(address) ? 4 : 0;
+}
+
+function attachPinnedAddress(parsed, address, family) {
+  const addr = String(address || '')
+    .trim()
+    .replace(/^\[|\]$/g, '');
+  let fam = Number(family);
+  if (fam !== 4 && fam !== 6) fam = recordFamily(null, addr);
+  if (!addr || (fam !== 4 && fam !== 6)) blocked();
+  parsed.pinnedAddress = addr;
+  parsed.pinnedFamily = fam;
+  return parsed;
+}
+
 /**
  * Valida esquema, host, literales IP y DNS. No realiza HTTP.
+ * El URL retornado incluye pinnedAddress y pinnedFamily (4 o 6).
  * @param {string} input
  * @param {{ lookup?: typeof defaultLookup }} [options]
- * @returns {Promise<URL>}
+ * @returns {Promise<URL & { pinnedAddress: string, pinnedFamily: 4|6 }>}
  */
 export async function assertSafeHttpUrl(input, options = {}) {
   const parsed = parseHttpUrl(input);
@@ -186,7 +220,8 @@ export async function assertSafeHttpUrl(input, options = {}) {
 
   if (net.isIP(hostname) || parseCanonicalIPv4(hostname)) {
     if (isBlockedIpAddress(hostname)) blocked();
-    return parsed;
+    const canonical = parseCanonicalIPv4(hostname);
+    return attachPinnedAddress(parsed, canonical || hostname, net.isIP(canonical || hostname));
   }
 
   const lookupFn = options.lookup || defaultLookup;
@@ -199,10 +234,60 @@ export async function assertSafeHttpUrl(input, options = {}) {
   const list = Array.isArray(records) ? records : records ? [records] : [];
   if (!list.length) blocked();
   for (const rec of list) {
-    const address = rec && rec.address ? rec.address : rec;
+    const address = recordAddress(rec);
     if (isBlockedIpAddress(address)) blocked();
   }
-  return parsed;
+  const first = list[0];
+  const pinned = recordAddress(first);
+  return attachPinnedAddress(parsed, pinned, recordFamily(first, pinned));
+}
+
+/**
+ * Agent undici cuya resolución DNS de `hostname` queda fijada a pinnedAddress.
+ * Cualquier otro hostname en lookup falla (no hay DNS real).
+ * @param {string} hostname
+ * @param {string} pinnedAddress
+ * @param {4|6|number} pinnedFamily
+ * @returns {import('undici').Agent}
+ */
+export function createPinnedDispatcher(hostname, pinnedAddress, pinnedFamily) {
+  const expectedHost = normalizeLookupHost(hostname);
+  const address = String(pinnedAddress || '')
+    .trim()
+    .replace(/^\[|\]$/g, '');
+  const family = Number(pinnedFamily) === 6 ? 6 : 4;
+  if (!expectedHost || !address) blocked();
+
+  return new Agent({
+    connect: {
+      lookup(host, options, callback) {
+        const cb = typeof options === 'function' ? options : callback;
+        const resolved = normalizeLookupHost(host);
+        if (resolved !== expectedHost) {
+          cb(new SsrfError());
+          return;
+        }
+        cb(null, address, family);
+      },
+    },
+  });
+}
+
+function closeDispatcher(dispatcher, { destroy = false } = {}) {
+  if (!dispatcher) return;
+  try {
+    if (destroy && typeof dispatcher.destroy === 'function') {
+      dispatcher.destroy();
+      return;
+    }
+    if (typeof dispatcher.close === 'function') {
+      dispatcher.close();
+      return;
+    }
+    if (typeof dispatcher.destroy === 'function') dispatcher.destroy();
+  } catch (_) {
+    /* ignore */
+  }
 }
 
 export function resolveRedirectUrl(currentHref, locationHeader) {
@@ -225,6 +310,7 @@ async function discardBody(res) {
 
 /**
  * fetch HTTP(S) con validación SSRF en cada hop. redirect: 'manual'.
+ * Cada hop usa un dispatcher pinneado a la IP validada en ese hop.
  * @returns {Promise<{ response: Response, finalUrl: string }>}
  */
 export async function fetchSafeHttp(url, options = {}, deps = {}) {
@@ -236,17 +322,33 @@ export async function fetchSafeHttp(url, options = {}, deps = {}) {
 
   let current = await assertSafeHttpUrl(url, { lookup: deps.lookup });
   for (let hop = 0; hop <= maxRedirects; hop += 1) {
-    const response = await doFetch(current.href, {
-      ...options,
-      redirect: 'manual',
-    });
+    const host = String(current.hostname || '').replace(/^\[|\]$/g, '');
+    if (!current.pinnedAddress) blocked();
+    const pinnedDispatcher = createPinnedDispatcher(
+      host,
+      current.pinnedAddress,
+      current.pinnedFamily
+    );
+    let response;
+    try {
+      response = await doFetch(current.href, {
+        ...options,
+        redirect: 'manual',
+        dispatcher: pinnedDispatcher,
+      });
+    } catch (err) {
+      closeDispatcher(pinnedDispatcher, { destroy: true });
+      throw err;
+    }
     const status = Number(response.status);
     if (status >= 300 && status < 400) {
       const nextHref = resolveRedirectUrl(current.href, response.headers.get('location'));
       await discardBody(response);
+      closeDispatcher(pinnedDispatcher, { destroy: true });
       current = await assertSafeHttpUrl(nextHref, { lookup: deps.lookup });
       continue;
     }
+    closeDispatcher(pinnedDispatcher);
     return { response, finalUrl: current.href };
   }
   blocked();

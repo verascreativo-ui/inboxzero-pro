@@ -1,7 +1,11 @@
 /**
  * fetch() con timeout de servidor.
  * Destinos de usuario deben pasar antes por ssrf-guard (fetchSafeHttp).
+ * Reenvía options al completo (incl. dispatcher). Si hay dispatcher de undici,
+ * usa fetch de undici para que el pin de IP no se ignore.
  */
+
+import { fetch as undiciFetch } from 'undici';
 
 export function getExtractFetchTimeoutMs() {
   const n = Number(process.env.EXTRACT_FETCH_TIMEOUT_MS);
@@ -16,8 +20,9 @@ export async function fetchWithTimeout(url, options = {}, timeoutMs = getExtract
     if (parent.aborted) controller.abort();
     else parent.addEventListener('abort', () => controller.abort(), { once: true });
   }
+  const fetchImpl = options.dispatcher ? undiciFetch : fetch;
   try {
-    return await fetch(url, { ...options, signal: controller.signal });
+    return await fetchImpl(url, { ...options, signal: controller.signal });
   } catch (err) {
     if (err && (err.name === 'AbortError' || err.name === 'TimeoutError')) {
       const timeoutErr = new Error('Tiempo de espera agotado');

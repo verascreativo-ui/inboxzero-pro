@@ -7,6 +7,10 @@ import { analyzePageImages } from './parse/page-images.js';
 import { requireUser } from './require-user.js';
 import { rateLimitExtract } from './rate-limit.js';
 import { assertSafeHttpUrl, SSRF_CODE, SSRF_MESSAGE } from './ssrf-guard.js';
+import { handleCreateCheckoutSession } from './billing/checkout.js';
+import { handleBillingWebhook } from './billing/webhook.js';
+import { handleCancelSubscription } from './billing/cancel.js';
+import { handleBillingStatus } from './billing/status.js';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 8787;
@@ -44,11 +48,18 @@ app.use(
       if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(null, false);
     },
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Stripe-Signature'],
     methods: ['GET', 'POST', 'OPTIONS'],
     maxAge: 600,
   })
 );
+
+app.post(
+  '/api/billing/webhook',
+  express.raw({ type: 'application/json' }),
+  handleBillingWebhook
+);
+
 app.use(express.json({ limit: JSON_LIMIT }));
 
 app.get('/health', (_req, res) => {
@@ -140,11 +151,14 @@ async function handlePageImages(req, res) {
   }
 }
 
-const extractGuards = [rateLimitExtract, requireUser];
+const extractGuards = [requireUser, rateLimitExtract];
 
 app.get('/api/extract', ...extractGuards, handleExtract);
 app.post('/api/extract', ...extractGuards, handleExtract);
 app.get('/api/page-images', ...extractGuards, handlePageImages);
+app.post('/api/billing/create-checkout-session', requireUser, handleCreateCheckoutSession);
+app.post('/api/billing/cancel-subscription', requireUser, handleCancelSubscription);
+app.get('/api/billing/status', requireUser, handleBillingStatus);
 
 app.listen(PORT, HOST, () => {
   const status = getProviderStatus();

@@ -25,6 +25,9 @@
   "header": {
     "trialPlan": "Plano de teste gratuito: {{current}} / {{max}} fichas",
     "premiumPlan": "Premium · Fichas ilimitadas",
+    "premiumBadge": "És Premium",
+    "premiumBadgeTitle": "Podes guardar fichas ilimitadas",
+    "premiumWelcome": "Bem-vindo ao Premium! Já tem fichas ilimitadas",
     "libraryDropdown": "A minha biblioteca ▾",
     "help": "Ajuda em 3 passos",
     "login": "Iniciar sessão",
@@ -101,26 +104,44 @@
     "talkToSupport": "Falar com o suporte",
     "confirmCancel": "Confirmar cancelamento da subscrição",
     "successTitle": "Pedido registado",
-    "successMessage": "Registámos o seu pedido de cancelamento. Obrigado pelo feedback; acompanhá-lo-emos no processo."
+    "successMessage": "Registámos o seu pedido de cancelamento. Obrigado pelo feedback; acompanhá-lo-emos no processo.",
+    "successMessageWithDate": "Você manterá o Premium até {{fecha}}. Depois disso, passará automaticamente para o Plano Gratuito.",
+    "scheduledTitle": "Cancelamento já agendado",
+    "scheduledMessage": "A sua subscrição Premium continuará ativa até ao fim do período já pago.",
+    "scheduledMessageWithDate": "Você manterá o Premium até {{fecha}}. Depois disso, passará automaticamente para o Plano Gratuito.",
+    "cancelError": "Não foi possível processar o cancelamento. Tente novamente ou entre em contato com o suporte."
   },
   "help": {
     "title": "Como funciona o InboxZero",
     "step1Title": "Guarde os seus links ou ideias",
-    "step1Body": "Cole qualquer URL ou escreva a sua ideia na barra superior e prima \"Guardar ficha\" para capturá-la instantaneamente.",
-    "step2Title": "Organize e personalize",
-    "step2Body": "Edite as suas fichas clicando no lápis: atribua categorias personalizadas, notas privadas ou marque-as como favoritas ou pendentes.",
-    "step3Title": "Filtre e consulte",
-    "step3Body": "Aceda rapidamente às suas fichas a partir da barra lateral ou do menu \"A minha biblioteca\" na barra superior sem perder nada."
+    "step1Body": "Cole qualquer URL ou escreva a sua ideia na barra de pesquisa acima e pressione \"Guardar Ficha\" para a capturar instantaneamente. Pode experimentar sem se registar, até 20 fichas grátis.",
+    "step2Title": "Crie a sua conta gratuita",
+    "step2Body": "Registe-se com o seu email para guardar as suas fichas permanentemente na nuvem, sem depender deste navegador. Continua gratuito até 20 fichas.",
+    "step3Title": "Organize, filtre e consulte",
+    "step3Body": "Aceda rapidamente às suas fichas a partir do menu lateral ou do menu \"A Minha Biblioteca\" na barra superior, sem perder nada."
   },
   "login": {
     "title": "Iniciar sessão",
-    "subtitle": "Acesso exclusivo para utilizadores subscritos ou em período de teste ativo.",
+    "subtitle": "Inicie sessão se já tem conta, ou crie uma grátis para guardar as suas fichas na nuvem.",
+    "fullNameLabel": "Nome completo:",
+    "fullNamePlaceholder": "ex. João Silva",
     "emailLabel": "E-mail:",
     "emailPlaceholder": "voce@email.com",
     "passwordLabel": "Palavra-passe:",
     "passwordPlaceholder": "••••••••",
+    "forgotPassword": "Esqueceste a tua palavra-passe?",
+    "forgotPasswordNeedsEmail": "Escreve o teu email acima para te enviarmos o link de recuperação.",
+    "forgotPasswordSent": "Enviámos-te um email com um link para repor a tua palavra-passe. Verifica a tua caixa de entrada.",
     "submit": "Aceder à minha biblioteca",
     "registerBtn": "Criar conta"
+  },
+  "newPassword": {
+    "title": "Cria a tua nova password",
+    "label": "Nova password:",
+    "confirmLabel": "Confirma a password:",
+    "submit": "Guardar nova password",
+    "success": "Password atualizada com sucesso.",
+    "mismatch": "As passwords não coincidem."
   },
   "subscribe": {
     "title": "Registo / Subscrição",
@@ -131,9 +152,18 @@
     "emailPlaceholder": "exemplo@dominio.com",
     "captchaLabel": "Segurança (Captcha): Quanto é 3 + 4?",
     "captchaPlaceholder": "Resposta numérica (7)",
+    "planLegend": "Escolhe o teu plano:",
+    "planMonthlyTitle": "Mensal — 4,99€/mês",
+    "planMonthlySubtitle": "Cancela quando quiseres",
+    "planAnnualTitle": "Anual — 3,99€/mês",
+    "planAnnualSubtitle": "47,90€/ano, faturado de uma vez · Poupa 20%",
     "termsHtml": "Li e aceito a <a href=\"#\">Política de privacidade</a>, os <a href=\"#\">Termos e condições</a> e a autorização de utilização.",
-    "stripeButton": "Continuar para Stripe (modo de teste) 💳",
-    "captchaError": "Resposta do captcha incorreta. Deve ser 7."
+    "stripeButton": "Continuar para Stripe 💳",
+    "captchaError": "Resposta do captcha incorreta. Deve ser 7.",
+    "needAuth": "Inicie sessão para subscrever o Premium.",
+    "checkoutError": "Não foi possível iniciar o pagamento. Tente novamente.",
+    "alreadyPremium": "A sua conta já é Premium.",
+    "pendingSync": "A sua subscrição Premium já está paga. Será ativada dentro de segundos."
   },
   "trialLimit": {
     "title": "Limite do Plano de Teste",

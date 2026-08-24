@@ -25,6 +25,9 @@
   "header": {
     "trialPlan": "Kostenloser Testplan: {{current}} / {{max}} Karten",
     "premiumPlan": "Premium · Unbegrenzte Karten",
+    "premiumBadge": "Sie sind Premium",
+    "premiumBadgeTitle": "Sie können unbegrenzt Karten speichern",
+    "premiumWelcome": "Willkommen bei Premium! Sie haben jetzt unbegrenzt Karten",
     "libraryDropdown": "Meine Bibliothek ▾",
     "help": "Hilfe in 3 Schritten",
     "login": "Anmelden",
@@ -101,26 +104,44 @@
     "talkToSupport": "Support kontaktieren",
     "confirmCancel": "Kündigung des Abonnements bestätigen",
     "successTitle": "Anfrage erfasst",
-    "successMessage": "Wir haben Ihre Kündigungsanfrage erfasst. Danke für Ihr Feedback; wir begleiten Sie im weiteren Prozess."
+    "successMessage": "Wir haben Ihre Kündigungsanfrage erfasst. Danke für Ihr Feedback; wir begleiten Sie im weiteren Prozess.",
+    "successMessageWithDate": "Du behältst Premium bis zum {{fecha}}. Danach wechselst du automatisch zum kostenlosen Plan.",
+    "scheduledTitle": "Kündigung bereits geplant",
+    "scheduledMessage": "Dein Premium-Abo bleibt bis zum Ende des bereits bezahlten Zeitraums aktiv.",
+    "scheduledMessageWithDate": "Du behältst Premium bis zum {{fecha}}. Danach wechselst du automatisch zum kostenlosen Plan.",
+    "cancelError": "Die Kündigung konnte nicht bearbeitet werden. Bitte versuche es erneut oder kontaktiere den Support."
   },
   "help": {
     "title": "So funktioniert InboxZero",
-    "step1Title": "Links oder Ideen speichern",
-    "step1Body": "Fügen Sie eine beliebige URL ein oder tippen Sie Ihre Idee in die obere Leiste und drücken Sie „Karte speichern“, um sie sofort zu erfassen.",
-    "step2Title": "Organisieren und anpassen",
-    "step2Body": "Bearbeiten Sie Ihre Karten per Klick auf den Stift: Weisen Sie eigene Kategorien, private Notizen zu oder markieren Sie sie als Favoriten oder ausstehend.",
-    "step3Title": "Filtern und durchsuchen",
-    "step3Body": "Greifen Sie schnell auf Ihre Karten über die Seitenleiste oder das Menü „Meine Bibliothek“ in der oberen Leiste zu, ohne etwas zu verlieren."
+    "step1Title": "Speichere deine Links oder Ideen",
+    "step1Body": "Füge eine beliebige URL ein oder schreibe deine Idee oben in die Suchleiste und klicke auf „Karte speichern“, um sie sofort zu erfassen. Du kannst es ohne Registrierung ausprobieren, bis zu 20 kostenlose Karten.",
+    "step2Title": "Erstelle dein kostenloses Konto",
+    "step2Body": "Registriere dich mit deiner E-Mail-Adresse, um deine Karten dauerhaft in der Cloud zu speichern, unabhängig von diesem Browser. Weiterhin kostenlos bis zu 20 Karten.",
+    "step3Title": "Organisieren, filtern und durchsuchen",
+    "step3Body": "Greife schnell über das Seitenmenü oder das Dropdown „Meine Bibliothek“ in der oberen Leiste auf deine Karten zu, ohne etwas zu verlieren."
   },
   "login": {
     "title": "Anmelden",
-    "subtitle": "Exklusiver Zugang für abonnierte Nutzer oder Nutzer mit aktiver Testphase.",
+    "subtitle": "Melde dich an, wenn du bereits ein Konto hast, oder erstelle kostenlos eines, um deine Karten in der Cloud zu speichern.",
+    "fullNameLabel": "Vollständiger Name:",
+    "fullNamePlaceholder": "z. B. Max Mustermann",
     "emailLabel": "E-Mail:",
     "emailPlaceholder": "sie@email.com",
     "passwordLabel": "Passwort:",
     "passwordPlaceholder": "••••••••",
+    "forgotPassword": "Passwort vergessen?",
+    "forgotPasswordNeedsEmail": "Gib oben deine E-Mail-Adresse ein, damit wir dir den Link zusenden können.",
+    "forgotPasswordSent": "Wir haben dir eine E-Mail mit einem Link zum Zurücksetzen deines Passworts geschickt. Schau in dein Postfach.",
     "submit": "Zugang zu meiner Bibliothek",
     "registerBtn": "Konto erstellen"
+  },
+  "newPassword": {
+    "title": "Erstelle dein neues Passwort",
+    "label": "Neues Passwort:",
+    "confirmLabel": "Passwort bestätigen:",
+    "submit": "Neues Passwort speichern",
+    "success": "Passwort erfolgreich aktualisiert.",
+    "mismatch": "Die Passwörter stimmen nicht überein."
   },
   "subscribe": {
     "title": "Registrierung / Abonnement",
@@ -131,9 +152,18 @@
     "emailPlaceholder": "beispiel@domain.com",
     "captchaLabel": "Sicherheit (Captcha): Was ist 3 + 4?",
     "captchaPlaceholder": "Numerische Antwort (7)",
+    "planLegend": "Wähle deinen Plan:",
+    "planMonthlyTitle": "Monatlich — 4,99€/Monat",
+    "planMonthlySubtitle": "Jederzeit kündbar",
+    "planAnnualTitle": "Jährlich — 3,99€/Monat",
+    "planAnnualSubtitle": "47,90€/Jahr, einmalig abgerechnet · Spare 20%",
     "termsHtml": "Ich habe die <a href=\"#\">Datenschutzerklärung</a>, die <a href=\"#\">Allgemeinen Geschäftsbedingungen</a> und die Nutzungsgenehmigung gelesen und akzeptiere sie.",
-    "stripeButton": "Weiter zu Stripe (Testmodus) 💳",
-    "captchaError": "Falsche Captcha-Antwort. Es muss 7 sein."
+    "stripeButton": "Weiter zu Stripe 💳",
+    "captchaError": "Falsche Captcha-Antwort. Es muss 7 sein.",
+    "needAuth": "Melden Sie sich an, um Premium zu abonnieren.",
+    "checkoutError": "Zahlung konnte nicht gestartet werden. Bitte erneut versuchen.",
+    "alreadyPremium": "Ihr Konto ist bereits Premium.",
+    "pendingSync": "Ihr Premium-Abo ist bereits bezahlt. Es wird in wenigen Sekunden aktiviert."
   },
   "trialLimit": {
     "title": "Limit des Testplans erreicht",
