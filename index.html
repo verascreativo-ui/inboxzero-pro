@@ -3,87 +3,162 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>InboxZero: Tu biblioteca inteligente de conocimiento</title>
+  <title data-i18n="meta.pageTitle">InboxZero: Tu biblioteca inteligente de conocimiento</title>
+  <link rel="icon" type="image/png" href="genfavicon-256.png" sizes="256x256">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icons/7.5.0/css/flag-icons.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      corePlugins: { preflight: false },
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Source Sans 3"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            retention: '0 25px 50px -12px rgba(0, 0, 0, 0.28)',
+          },
+        },
+      },
+    };
+  </script>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <!-- HEADER SUPERIOR -->
   <header class="top-header">
     <div class="header-brand-box">
-      <img src="logo.png" class="brand-logo-img" alt="Logo">
+      <img src="logo.png" class="brand-logo-img" data-i18n-alt="meta.logoAlt" alt="Logo">
       <div class="brand-title-box">
-        <a href="#" class="brand-title">InboxZero.es</a>
-        <span class="brand-tagline">Tu conocimiento a 1 Clic</span>
+        <a href="#" class="brand-title" data-i18n="brand.name">InboxZero.es</a>
+        <span class="brand-tagline" data-i18n="brand.tagline">Tu conocimiento a 1 Clic</span>
       </div>
     </div>
 
     <div class="progress-container">
-      <span>Plan de Prueba Gratuito: <span id="ficha-counter">3</span> / 15 Fichas</span>
+      <span id="trial-plan-text" data-i18n="header.trialPlan" data-i18n-vars='{"current":0,"max":20}'>Plan de Prueba Gratuito: 0 / 20 Fichas</span>
+      <span id="premium-plan-badge" class="premium-plan-badge" hidden>
+        <span class="premium-plan-badge-shine" aria-hidden="true"></span>
+        <span class="premium-plan-badge-icon" aria-hidden="true">👑</span>
+        <span data-i18n="header.premiumBadge">Eres Premium</span>
+        <span class="premium-plan-badge-tooltip" aria-hidden="true"></span>
+      </span>
       <div class="progress-bar-bg">
-        <div class="progress-bar-fill" id="progress-fill" style="width: 20%;"></div>
+        <div class="progress-bar-fill" id="progress-fill" style="width: 0%;"></div>
       </div>
     </div>
 
     <nav class="top-nav">
-      <!-- Menú Desplegable Mi Biblioteca -->
-      <div class="dropdown-wrapper">
-        <button id="btn-library-drop">Mi Biblioteca ▾</button>
-        <div class="dropdown-content">
-          <div class="dropdown-section-title">VISTAS PRINCIPALES</div>
-          <a href="#" class="filter-link" data-filter="all">📁 Todas las fichas <span class="badge" id="badge-all">3</span></a>
-          <a href="#" class="filter-link" data-filter="favorites">⭐ Favoritos <span class="badge" id="badge-fav">1</span></a>
-          <a href="#" class="filter-link" data-filter="readLater">⏰ Leer más tarde <span class="badge" id="badge-read">1</span></a>
-          <div class="dropdown-divider"></div>
-          <div class="dropdown-section-title">POR CATEGORÍAS</div>
-          <a href="#" class="filter-cat" data-cat="Ejercicios en Casa">📁 Ejercicios en Casa <span class="badge">1</span></a>
-          <a href="#" class="filter-cat" data-cat="Vídeos Divertidos">📁 Vídeos Divertidos <span class="badge">1</span></a>
-          <a href="#" class="filter-cat" data-cat="Comida Sana">📁 Comida Sana <span class="badge">1</span></a>
+      <!-- Menú Desplegable de 5 Idiomas -->
+      <div class="idioma-container" style="display: flex; align-items: center; margin-right: 15px;">
+        <select id="language-select" class="visually-hidden-select">
+          <option value="es">Español</option>
+          <option value="en">English</option>
+          <option value="fr">Français</option>
+          <option value="de">Deutsch</option>
+          <option value="pt">Português</option>
+        </select>
+        <div class="lang-dropdown" id="lang-dropdown">
+          <button type="button" class="lang-dropdown-toggle" id="lang-dropdown-toggle" aria-haspopup="listbox" aria-expanded="false">
+            <span class="fi fi-es lang-flag" id="lang-dropdown-flag"></span>
+            <span id="lang-dropdown-label">Español</span>
+            <span class="lang-dropdown-caret" aria-hidden="true">▾</span>
+          </button>
+          <ul class="lang-dropdown-menu" id="lang-dropdown-menu" role="listbox" hidden>
+            <li role="option" data-lang="es" data-flag="es"><span class="fi fi-es lang-flag"></span><span>Español</span></li>
+            <li role="option" data-lang="en" data-flag="gb"><span class="fi fi-gb lang-flag"></span><span>English</span></li>
+            <li role="option" data-lang="fr" data-flag="fr"><span class="fi fi-fr lang-flag"></span><span>Français</span></li>
+            <li role="option" data-lang="de" data-flag="de"><span class="fi fi-de lang-flag"></span><span>Deutsch</span></li>
+            <li role="option" data-lang="pt" data-flag="pt"><span class="fi fi-pt lang-flag"></span><span>Português</span></li>
+          </ul>
         </div>
       </div>
 
-      <button id="btn-help-modal">Ayuda en 3 pasos</button>
-      <button id="btn-login-modal">Iniciar Sesión</button>
-      <button id="btn-subscribe-modal" class="btn-primary">Suscríbete</button>
+      <!-- Menú Desplegable Mi Biblioteca -->
+      <div class="dropdown-wrapper">
+        <button id="btn-library-drop" data-i18n="header.libraryDropdown">Mi Biblioteca ▾</button>
+        <div class="dropdown-content">
+          <div class="dropdown-section-title" data-i18n="dropdown.mainViews">VISTAS PRINCIPALES</div>
+          <a href="#" class="filter-link" data-filter="all"><span data-i18n="filters.all">📁 Todas las fichas</span> <span class="badge" id="badge-all">0</span></a>
+          <a href="#" class="filter-link" data-filter="favorites"><span data-i18n="filters.favorites">⭐ Favoritos</span> <span class="badge" id="badge-fav">0</span></a>
+          <a href="#" class="filter-link" data-filter="readLater"><span data-i18n="filters.readLater">⏰ Leer más tarde</span> <span class="badge" id="badge-read">0</span></a>
+          <div class="dropdown-divider" id="dropdown-welcome-divider" hidden></div>
+          <a href="#" id="link-show-welcome" class="dropdown-welcome-restore" hidden>
+            <span data-i18n="welcome.showAgain">Mostrar Ficha Modelo</span>
+          </a>
+          <div class="dropdown-divider" id="dropdown-categories-divider" hidden></div>
+          <div class="dropdown-section-title" id="dropdown-categories-title" data-i18n="dropdown.byCategory" hidden>POR CATEGORÍAS</div>
+          <div id="dropdown-category-list"></div>
+        </div>
+      </div>
+
+      <button id="btn-help-modal" data-i18n="header.help">Ayuda en 3 pasos</button>
+      <button id="btn-login-modal" data-i18n="header.login">Iniciar Sesión</button>
+      <div id="account-menu-wrapper" class="dropdown-wrapper account-menu-wrapper" hidden>
+        <button type="button" id="btn-account-menu" class="btn-account-menu" aria-haspopup="true" aria-expanded="false" data-i18n-title="auth.accountMenuAria" title="Cuenta">
+          <span id="account-menu-trigger-label"></span>
+        </button>
+        <div class="dropdown-content account-menu-content" role="menu" aria-labelledby="btn-account-menu">
+          <div class="account-menu-identity">
+            <div id="account-menu-name" class="account-menu-name" hidden></div>
+            <div id="account-menu-email" class="account-menu-email"></div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <button type="button" id="btn-logout" class="account-menu-action" role="menuitem" data-i18n="auth.logout">Cerrar sesión</button>
+          <button type="button" id="btn-logout-others" class="account-menu-action" role="menuitem" data-i18n="auth.logoutOthers">Cerrar sesión en otros dispositivos</button>
+          <p id="account-menu-status" class="account-menu-status" hidden role="status" aria-live="polite"></p>
+        </div>
+      </div>
+      <button id="btn-subscribe-modal" class="btn-primary" data-i18n="header.subscribe">Suscríbete</button>
     </nav>
   </header>
 
   <div class="app-layout">
     <!-- BARRA LATERAL -->
     <aside class="sidebar">
-      <div class="nav-section">NAVEGACIÓN</div>
+      <div class="nav-section" data-i18n="sidebar.navigation">NAVEGACIÓN</div>
       <ul class="nav-links">
-        <li><a href="#" class="active filter-link" data-filter="all">📌 Últimas incorporaciones</a></li>
-        <li><a href="#" class="filter-link" data-filter="all">📁 Todas las fichas <span class="badge">3</span></a></li>
-        <li><a href="#" class="filter-link" data-filter="favorites">⭐ Favoritos <span class="badge">1</span></a></li>
-        <li><a href="#" class="filter-link" data-filter="readLater">⏰ Leer más tarde <span class="badge">1</span></a></li>
+        <li><a href="#" class="active filter-link" data-filter="all" data-i18n="filters.latest">📌 Últimas incorporaciones</a></li>
+        <li><a href="#" class="filter-link" data-filter="all"><span data-i18n="filters.all">📁 Todas las fichas</span> <span class="badge">0</span></a></li>
+        <li><a href="#" class="filter-link" data-filter="favorites"><span data-i18n="filters.favorites">⭐ Favoritos</span> <span class="badge">0</span></a></li>
+        <li><a href="#" class="filter-link" data-filter="readLater"><span data-i18n="filters.readLater">⏰ Leer más tarde</span> <span class="badge">0</span></a></li>
       </ul>
 
-      <div class="nav-section">CATEGORÍAS</div>
-      <ul class="category-links" id="sidebar-category-list">
-        <li><a href="#" class="filter-cat" data-cat="Ejercicios en Casa">📁 Ejercicios en Casa</a> <span class="badge">1</span></li>
-        <li><a href="#" class="filter-cat" data-cat="Vídeos Divertidos">📁 Vídeos Divertidos</a> <span class="badge">1</span></li>
-        <li><a href="#" class="filter-cat" data-cat="Comida Sana">📁 Comida Sana</a> <span class="badge">1</span></li>
-      </ul>
+      <div class="nav-section" id="sidebar-categories-heading" data-i18n="sidebar.categories" hidden>CATEGORÍAS</div>
+      <ul class="category-links" id="sidebar-category-list"></ul>
 
-      <button class="btn-unsubscribe-side">Solicitar baja de suscripción</button>
+      <button type="button" id="btn-unsubscribe-side" class="btn-unsubscribe-side" data-i18n="sidebar.unsubscribe">Solicitar baja de suscripción</button>
     </aside>
 
     <!-- CONTENIDO PRINCIPAL -->
     <main class="main-content">
+
+      <!-- Saludo dinámico según zona horaria / hora local -->
+      <div class="dashboard-greeting" id="dashboard-greeting" aria-live="polite">
+        <p class="dashboard-greeting-eyebrow" data-i18n="greeting.eyebrow">Tu biblioteca inteligente</p>
+        <h1 class="dashboard-greeting-text" id="dashboard-greeting-text">
+          ¡Buenos días, <span class="greeting-name">Creador</span>! <span class="greeting-emoji" aria-hidden="true">☀️</span> ¿Qué quieres guardar hoy?
+        </h1>
+      </div>
       
       <!-- BARRA UNIFICADA -->
       <div class="top-action-bar">
         <div class="add-card-container">
-          <input type="text" id="url-input" placeholder="Pega un enlace (https://...) o título...">
-          <button id="btn-save-card" class="btn-save-custom">Guardar Ficha</button>
+          <input type="text" id="url-input" data-i18n-placeholder="main.urlPlaceholder" placeholder="Pega un enlace (https://...) o título...">
+          <button id="btn-save-card" class="btn-save-custom" data-i18n="main.analyzeUrl">Analizar URL</button>
         </div>
       </div>
 
       <section class="cards-section">
         <div class="section-header-row">
-          <h2 id="section-title">Últimas Fichas Incorporadas</h2>
-          <span id="showing-counter" class="showing-counter">Mostrando 3 ficha(s)</span>
+          <h2 id="section-title" data-i18n="sections.latest">Últimas Fichas Incorporadas</h2>
+          <span id="showing-counter" class="showing-counter" data-i18n="main.showingCards" data-i18n-vars='{"count":0}'>Mostrando 0 ficha(s)</span>
         </div>
+        <p id="cards-flag-error" class="field-error preview-save-error cards-flag-error" hidden role="alert" aria-live="assertive"></p>
         <div class="cards-grid" id="cards-grid">
           <!-- Las fichas se cargarán dinámicamente -->
         </div>
@@ -94,14 +169,14 @@
   <!-- FOOTER -->
   <footer>
     <div class="footer-left">
-      <img src="logo.png" class="brand-logo-img" alt="Logo">
-      <span>InboxZero.es — Tu biblioteca inteligente de conocimiento</span>
+      <img src="logo.png" class="brand-logo-img" data-i18n-alt="meta.logoAlt" alt="Logo">
+      <span data-i18n="brand.footerTagline">InboxZero.es — Tu biblioteca inteligente de conocimiento</span>
     </div>
     <div class="footer-links">
-      <a href="#">Aviso Legal</a>
-      <a href="#">Política de Privacidad</a>
-      <a href="#">Cookies</a>
-      <a href="#">Términos y Condiciones</a>
+      <a href="#" data-legal="legal" data-i18n="footer.legal">Aviso Legal</a>
+      <a href="#" data-legal="privacy" data-i18n="footer.privacy">Política de Privacidad</a>
+      <a href="#" data-legal="cookies" data-i18n="footer.cookies">Cookies</a>
+      <a href="#" data-legal="terms" data-i18n="footer.terms">Términos y Condiciones</a>
     </div>
   </footer>
 
@@ -110,166 +185,475 @@
   <!-- Modal Ayuda en 3 pasos -->
   <div id="modal-help" class="modal-overlay">
     <div class="modal-box">
-      <div class="modal-header">
-        <div class="modal-title-box">
-          <span class="modal-icon-badge">🎯</span>
-          <h3>Cómo funciona InboxZero</h3>
+      <div class="modal-header modal-header-edit">
+        <div class="edit-modal-brand">
+          <img src="logo.png" class="edit-modal-logo" data-i18n-alt="meta.logoAlt" alt="Logo">
+          <span class="edit-modal-brand-name" data-i18n="brand.name">InboxZero.es</span>
         </div>
-        <button class="modal-close" data-close="modal-help">✕</button>
+        <div class="modal-title-box edit-modal-title">
+          <span class="modal-icon-badge">🎯</span>
+          <h3 data-i18n="help.title">Cómo funciona InboxZero</h3>
+        </div>
+        <button type="button" class="modal-close" data-close="modal-help" data-i18n="modals.close">✕</button>
       </div>
       <div class="modal-body">
         <div class="help-step">
           <div class="step-num">1</div>
           <div class="step-content">
-            <h4>Guarda tus enlaces o conceptos</h4>
-            <p>Pega cualquier dirección URL o escribe tu idea en el buscador superior y presiona "Guardar Ficha" para capturarlo al instante.</p>
+            <h4 data-i18n="help.step1Title">Guarda tus enlaces o conceptos</h4>
+            <p data-i18n="help.step1Body">Pega cualquier dirección URL o escribe tu idea en el buscador superior y presiona "Guardar Ficha" para capturarlo al instante.</p>
           </div>
         </div>
         <div class="help-step">
           <div class="step-num">2</div>
           <div class="step-content">
-            <h4>Organiza y Personaliza</h4>
-            <p>Edita tus fichas haciendo clic en el lápiz: asigna categorías personalizadas, notas privadas, o márcalas como favoritas o pendientes.</p>
+            <h4 data-i18n="help.step2Title">Organiza y Personaliza</h4>
+            <p data-i18n="help.step2Body">Edita tus fichas haciendo clic en el lápiz: asigna categorías personalizadas, notas privadas, o márcalas como favoritas o pendientes.</p>
           </div>
         </div>
         <div class="help-step">
           <div class="step-num">3</div>
           <div class="step-content">
-            <h4>Filtra y Consulta</h4>
-            <p>Accede rápidamente a tus fichas desde el menú lateral o desde el desplegable "Mi Biblioteca" en la barra superior sin perder nada.</p>
+            <h4 data-i18n="help.step3Title">Filtra y Consulta</h4>
+            <p data-i18n="help.step3Body">Accede rápidamente a tus fichas desde el menú lateral o desde el desplegable "Mi Biblioteca" en la barra superior sin perder nada.</p>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn-primary modal-action-btn" data-close="modal-help">¡Entendido!</button>
+        <button class="btn-primary modal-action-btn" data-close="modal-help" data-i18n="modals.understood">¡Entendido!</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal Iniciar Sesión (Con botón Cancelar restaurado) -->
+  <!-- Modal Iniciar Sesión -->
   <div id="modal-login" class="modal-overlay">
-    <div class="modal-box">
-      <div class="modal-header">
-        <div class="modal-title-box">
+    <div class="modal-box modal-box-login">
+      <div class="modal-header modal-header-edit">
+        <div class="edit-modal-brand">
+          <img src="logo.png" class="edit-modal-logo" data-i18n-alt="meta.logoAlt" alt="Logo">
+          <span class="edit-modal-brand-name" data-i18n="brand.name">InboxZero.es</span>
+        </div>
+        <div class="modal-title-box edit-modal-title">
           <span class="modal-icon-badge">🔐</span>
-          <h3>Iniciar Sesión</h3>
+          <div>
+            <h3 data-i18n="login.title">Iniciar Sesión / Registro</h3>
+            <p class="modal-subtitle" data-i18n="login.subtitle">Inicia sesión si ya tienes cuenta, o crea una gratis para guardar tus fichas en la nube.</p>
+          </div>
         </div>
-        <button class="modal-close" data-close="modal-login">✕</button>
+        <button type="button" class="modal-close" data-close="modal-login" data-i18n="modals.close">✕</button>
       </div>
-      <div class="modal-body">
-        <p class="modal-subtitle">Acceso exclusivo para usuarios suscritos o en periodo de prueba activo.</p>
-        <div class="form-group">
-          <label>Correo Electrónico:</label>
-          <input type="email" placeholder="tu@email.com">
-        </div>
-        <div class="form-group">
-          <label>Contraseña:</label>
-          <input type="password" placeholder="••••••••">
-        </div>
-      </div>
-      <div class="modal-footer" style="flex-direction: column; gap: 8px;">
-        <button class="btn-primary modal-action-btn" data-close="modal-login" style="width: 100%;">Acceder a mi Biblioteca</button>
-        <button class="modal-action-btn" data-close="modal-login" style="width: 100%; background: #f3f4f6; border: 1px solid #d1d5db; color: #374151;">Cancelar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Suscríbete -->
-  <div id="modal-subscribe" class="modal-overlay">
-    <div class="modal-box">
-      <div class="modal-header">
-        <div class="modal-title-box">
-          <span class="modal-icon-badge">⭐</span>
-          <h3>Registro / Suscripción</h3>
-        </div>
-        <button class="modal-close" data-close="modal-subscribe">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="alert-box">
-          💡 <strong>Periodo de Uso Gratuito Limitado:</strong> Cuentas con un periodo de prueba para guardar hasta 15 fichas. Finalizado el periodo o completado el cupo, deberás suscribirte para continuar disfrutando de la aplicación.
-        </div>
-        <div class="form-group">
-          <label>Nombre y Apellidos:</label>
-          <input type="text" placeholder="Ej. Juan Pérez">
-        </div>
-        <div class="form-group">
-          <label>Correo Electrónico Válido:</label>
-          <input type="email" placeholder="ejemplo@dominio.com">
-        </div>
-        <div class="form-group">
-          <label>Seguridad (Captcha): ¿Cuánto es 3 + 4?</label>
-          <input type="text" placeholder="Respuesta numérica (7)">
-        </div>
-        <div class="form-check">
-          <input type="checkbox" id="terms-check">
-          <label for="terms-check">He leído y acepto la <a href="#">Política de Privacidad</a>, los <a href="#">Términos y Condiciones</a> y la autorización de uso.</label>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-primary modal-action-btn stripe-btn" data-close="modal-subscribe">Continuar a Stripe (Modo Pruebas) 💳</button>
+      <div class="modal-body modal-body-login">
+        <p id="login-auth-message" class="auth-message" hidden role="status" aria-live="polite"></p>
+        <form id="login-form" class="login-form">
+          <div class="form-group">
+            <label for="login-fullname" data-i18n="login.fullNameLabel">Nombre y Apellidos:</label>
+            <input type="text" id="login-fullname" data-i18n-placeholder="login.fullNamePlaceholder" placeholder="Ej. Juan Pérez" autocomplete="name">
+          </div>
+          <div class="form-group">
+            <label for="login-email" data-i18n="login.emailLabel">Email:</label>
+            <input type="email" id="login-email" data-i18n-placeholder="login.emailPlaceholder" placeholder="tu@email.com" required autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label for="login-password" data-i18n="login.passwordLabel">Contraseña:</label>
+            <input type="password" id="login-password" data-i18n-placeholder="login.passwordPlaceholder" placeholder="••••••••" required minlength="6" autocomplete="current-password">
+          </div>
+          <div class="login-forgot-password">
+            <button type="button" id="btn-forgot-password" class="link-button" data-i18n="login.forgotPassword">¿Olvidaste tu contraseña?</button>
+          </div>
+          <div class="form-group login-turnstile-group">
+            <div id="login-turnstile" class="login-turnstile" aria-live="polite"></div>
+          </div>
+          <div class="login-modal-actions">
+            <button type="submit" id="btn-submit-login" class="btn-primary modal-action-btn" data-i18n="login.submit">Acceder a mi Biblioteca</button>
+            <button type="button" id="btn-register-login" class="modal-action-btn modal-btn-cancel" data-i18n="login.registerBtn">Crear cuenta</button>
+            <button type="button" class="modal-action-btn modal-btn-cancel" data-close="modal-login" data-i18n="modals.cancel">Cancelar</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
 
-  <!-- Modal Personaliza tu Ficha (Edición Completa Restaurada) -->
+  <!-- Modal Nueva Contraseña (tras enlace de recuperación) -->
+  <div id="modal-new-password" class="modal-overlay">
+    <div class="modal-box modal-box-login">
+      <div class="modal-header modal-header-edit">
+        <div class="edit-modal-brand">
+          <img src="logo.png" class="edit-modal-logo" data-i18n-alt="meta.logoAlt" alt="Logo">
+          <span class="edit-modal-brand-name" data-i18n="brand.name">InboxZero.es</span>
+        </div>
+        <div class="modal-title-box edit-modal-title">
+          <span class="modal-icon-badge">🔑</span>
+          <h3 data-i18n="newPassword.title">Crea tu nueva contraseña</h3>
+        </div>
+      </div>
+      <div class="modal-body modal-body-login">
+        <p id="new-password-message" class="auth-message" hidden role="status" aria-live="polite"></p>
+        <form id="new-password-form" class="login-form">
+          <div class="form-group">
+            <label for="new-password-input" data-i18n="newPassword.label">Nueva contraseña:</label>
+            <input type="password" id="new-password-input" placeholder="••••••••" required minlength="6" autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label for="new-password-confirm" data-i18n="newPassword.confirmLabel">Confirma la contraseña:</label>
+            <input type="password" id="new-password-confirm" placeholder="••••••••" required minlength="6" autocomplete="new-password">
+          </div>
+          <div class="login-modal-actions">
+            <button type="submit" id="btn-save-new-password" class="btn-primary modal-action-btn" data-i18n="newPassword.submit">Guardar nueva contraseña</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Personaliza tu Ficha -->
   <div id="modal-edit" class="modal-overlay">
-    <div class="modal-box">
-      <div class="modal-header">
-        <div class="modal-title-box">
+    <div class="modal-box modal-box-edit">
+      <div class="modal-header modal-header-edit">
+        <div class="edit-modal-brand">
+          <img src="logo.png" class="edit-modal-logo" data-i18n-alt="meta.logoAlt" alt="Logo">
+          <span class="edit-modal-brand-name" data-i18n="brand.name">InboxZero.es</span>
+        </div>
+        <div class="modal-title-box edit-modal-title">
           <span class="modal-icon-badge">✏️</span>
-          <h3>Personaliza tu Ficha</h3>
+          <h3 data-i18n="edit.title">Personaliza tu Ficha</h3>
         </div>
-        <button class="modal-close" data-close="modal-edit">✕</button>
+        <button type="button" class="modal-close" data-close="modal-edit" data-i18n="modals.close">✕</button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body modal-body-edit">
         <input type="hidden" id="edit-card-id">
-        <div class="form-group">
-          <label>Vista Previa del Sitio</label>
-          <img id="edit-preview-img" src="" class="modal-preview-thumb" alt="Vista previa">
-        </div>
-        <div class="form-group">
-          <label>Título:</label>
-          <input type="text" id="edit-title-input">
-        </div>
-        <div class="form-group">
-          <label>Descripción:</label>
-          <textarea id="edit-desc-input" rows="2" class="modal-textarea"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Categoría (Selecciona existente):</label>
-          <select id="edit-category-select" class="modal-select">
-            <option value="Comida Sana">Comida Sana</option>
-            <option value="Ejercicios en Casa">Ejercicios en Casa</option>
-            <option value="Vídeos Divertidos">Vídeos Divertidos</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Nueva Categoría de Usuario:</label>
-          <input type="text" id="edit-new-category-input" placeholder="O escribe una nueva categoría aquí...">
-        </div>
-        <div class="form-group">
-          <label>URL de Imagen:</label>
-          <input type="text" id="edit-image-input">
-        </div>
-        <div class="modal-checkbox-row">
-          <label class="check-label"><input type="checkbox" id="edit-fav-check"> ⭐ Favorito</label>
-          <label class="check-label"><input type="checkbox" id="edit-read-check"> ⏰ Leer más tarde</label>
-        </div>
-        <div class="form-group">
-          <label>Notas:</label>
-          <textarea id="edit-notes-input" rows="2" placeholder="Notas privadas..." class="modal-textarea"></textarea>
-        </div>
-      </div>
-      <div class="modal-footer modal-footer-between">
-        <a id="edit-visit-link" href="#" target="_blank" class="visit-web-link">Visitar Web original ↗</a>
-        <div style="display: flex; gap: 10px;">
-          <button class="btn-primary modal-action-btn" id="btn-save-edit">Guardar Cambios</button>
-          <button class="modal-action-btn modal-btn-cancel" data-close="modal-edit">Cancelar</button>
+        <div class="edit-modal-columns">
+          <div class="edit-modal-preview">
+            <label data-i18n="edit.previewLabel">Vista Previa del Sitio</label>
+            <div class="edit-preview-frame">
+              <img id="edit-preview-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Crect width='140' height='140' rx='12' fill='%23eef2f7'/%3E%3C/svg%3E" class="modal-preview-thumb edit-preview-large edit-preview--photo" data-i18n-alt="edit.previewAlt" alt="Vista previa" referrerpolicy="no-referrer">
+            </div>
+          </div>
+          <div class="edit-modal-fields">
+            <div class="form-group">
+              <label for="edit-title-input" data-i18n="edit.titleLabel">Título:</label>
+              <input type="text" id="edit-title-input">
+            </div>
+            <div class="form-group">
+              <label for="edit-desc-input" data-i18n="edit.descriptionLabel">Descripción:</label>
+              <textarea id="edit-desc-input" rows="2" class="modal-textarea"></textarea>
+            </div>
+            <div class="form-group" id="edit-category-group">
+              <label for="edit-category-select" data-i18n="edit.categorySelectLabel">Categoría (Selecciona existente):</label>
+              <select id="edit-category-select" class="modal-select"></select>
+              <p id="edit-category-error" class="field-error" hidden data-i18n="edit.categoryRequired">Selecciona o escribe una categoría antes de guardar.</p>
+            </div>
+            <div class="form-group">
+              <label for="edit-new-category-input" data-i18n="edit.newCategoryLabel">Nueva Categoría de Usuario:</label>
+              <input type="text" id="edit-new-category-input" data-i18n-placeholder="edit.newCategoryPlaceholder" placeholder="O escribe una nueva categoría aquí...">
+            </div>
+            <div class="form-group">
+              <label for="edit-image-input" data-i18n="edit.imageUrlLabel">URL de Imagen:</label>
+              <input type="text" id="edit-image-input">
+            </div>
+            <div class="modal-checkbox-row">
+              <label class="check-label"><input type="checkbox" id="edit-fav-check"> <span data-i18n="edit.favorite">⭐ Favorito</span></label>
+              <label class="check-label"><input type="checkbox" id="edit-read-check"> <span data-i18n="edit.readLater">⏰ Leer más tarde</span></label>
+            </div>
+            <div class="form-group">
+              <label for="edit-notes-input" data-i18n="edit.notesLabel">Notas:</label>
+              <textarea id="edit-notes-input" rows="2" data-i18n-placeholder="edit.notesPlaceholder" placeholder="Notas privadas..." class="modal-textarea"></textarea>
+            </div>
+            <p id="preview-save-error" class="field-error preview-save-error" hidden role="alert" aria-live="assertive"></p>
+            <div class="edit-modal-actions">
+              <a id="edit-visit-link" href="#" target="_blank" class="visit-web-link" data-i18n="edit.visitOriginal">Visitar Web original ↗</a>
+              <div class="edit-modal-action-btns">
+                <button type="button" class="btn-primary modal-action-btn" id="btn-save-edit" data-i18n="edit.saveChanges">Guardar Cambios</button>
+                <button type="button" class="modal-action-btn modal-btn-cancel" data-close="modal-edit" data-i18n="modals.cancel">Cancelar</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <!-- Modal límite freemium / venta -->
+  <div id="modal-trial-limit" class="modal-overlay">
+    <div class="modal-box modal-box-upsell">
+      <div class="upsell-glow" aria-hidden="true"></div>
+      <div class="modal-header modal-header-upsell">
+        <div class="modal-title-box">
+          <span class="modal-icon-badge">🚀</span>
+          <h3 data-i18n="trialLimit.title">Límite del Plan de Prueba</h3>
+        </div>
+        <button type="button" class="modal-close" data-close="modal-trial-limit" data-i18n="modals.close">✕</button>
+      </div>
+      <div class="modal-body modal-body-upsell">
+        <div class="upsell-badge" data-i18n="trialLimit.badge">Plan de Prueba · 20 / 20</div>
+        <p class="upsell-message" data-i18n="trialLimit.message">¡Has alcanzado el límite de tu Plan de Prueba! 🚀 Si quieres seguir guardando y organizando todo tu conocimiento a un clic y sin límites, suscríbete a nuestro Plan Pro.</p>
+      </div>
+      <div class="modal-footer modal-footer-upsell">
+        <button type="button" class="modal-action-btn modal-btn-cancel" data-close="modal-trial-limit" data-i18n="trialLimit.later">Ahora no</button>
+        <button type="button" class="btn-primary modal-action-btn btn-upsell-cta" id="btn-upsell-subscribe" data-i18n="trialLimit.cta">Suscribirme Ahora</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- S1.4-D: URL duplicada — Cancelar | Guardar igualmente -->
+  <div id="modal-duplicate-url" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="duplicate-url-message">
+    <div class="modal-box modal-box-duplicate">
+      <button type="button" class="modal-close" data-close="modal-duplicate-url" data-i18n="modals.close" aria-label="Cerrar">✕</button>
+      <p id="duplicate-url-message" class="duplicate-url-message" data-i18n="duplicateUrl.message">Esta URL ya está en tu biblioteca.</p>
+      <div class="modal-footer modal-footer-duplicate">
+        <button type="button" class="modal-action-btn modal-btn-cancel" data-close="modal-duplicate-url" data-i18n="duplicateUrl.cancel">Cancelar</button>
+        <button type="button" class="btn-primary modal-action-btn" id="btn-duplicate-save-anyway" data-i18n="duplicateUrl.saveAnyway">Guardar igualmente</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- S2.0: importar fichas Guest → Cloud -->
+  <div id="modal-guest-migration" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="guest-migration-title">
+    <div class="modal-box modal-box-guest-migration">
+      <button type="button" class="modal-close" data-close="modal-guest-migration" data-i18n="modals.close" aria-label="Cerrar">✕</button>
+
+      <div id="guest-migration-view-consent">
+        <div class="modal-header">
+          <div class="modal-title-box">
+            <span class="modal-icon-badge" aria-hidden="true">📥</span>
+            <h3 id="guest-migration-title" data-i18n="guestMigration.title">Fichas guardadas como invitado</h3>
+          </div>
+        </div>
+        <div class="modal-body">
+          <p id="guest-migration-intro" class="guest-migration-intro"></p>
+          <ul class="guest-migration-bullets">
+            <li data-i18n="guestMigration.bulletAccount">Se incorporarán a la cuenta con la que has iniciado sesión en este dispositivo.</li>
+            <li data-i18n="guestMigration.bulletDuplicates">Las URLs que ya estén en tu biblioteca Cloud no se volverán a insertar.</li>
+            <li data-i18n="guestMigration.bulletLimit">El plan gratuito puede limitar cuántas fichas se importan (máximo 20 en Cloud).</li>
+            <li data-i18n="guestMigration.bulletProgress">El proceso es progresivo: cada ficha se importa de una en una.</li>
+          </ul>
+        </div>
+        <div class="modal-footer guest-migration-footer">
+          <button type="button" class="modal-action-btn modal-btn-cancel" id="btn-guest-migration-later" data-i18n="guestMigration.later">Ahora no</button>
+          <button type="button" class="btn-primary modal-action-btn" id="btn-guest-migration-import" data-i18n="guestMigration.import">Importar mis fichas</button>
+        </div>
+      </div>
+
+      <div id="guest-migration-view-progress" hidden>
+        <div class="modal-header">
+          <div class="modal-title-box">
+            <span class="modal-icon-badge" aria-hidden="true">⏳</span>
+            <h3 data-i18n="guestMigration.progressTitle">Importando fichas</h3>
+          </div>
+        </div>
+        <div class="modal-body">
+          <p id="guest-migration-progress-text" class="guest-migration-intro" role="status"></p>
+        </div>
+      </div>
+
+      <div id="guest-migration-view-result" hidden>
+        <div class="modal-header">
+          <div class="modal-title-box">
+            <span class="modal-icon-badge" aria-hidden="true">✅</span>
+            <h3 id="guest-migration-result-title"></h3>
+          </div>
+        </div>
+        <div class="modal-body">
+          <p id="guest-migration-result-body" class="guest-migration-intro"></p>
+        </div>
+        <div class="modal-footer guest-migration-footer">
+          <button type="button" class="modal-action-btn modal-btn-cancel" id="btn-guest-migration-retry" hidden data-i18n="guestMigration.retry">Reintentar</button>
+          <button type="button" class="btn-primary modal-action-btn" id="btn-guest-migration-done" data-i18n="guestMigration.done">Entendido</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Suscripción / Stripe -->
+  <div id="modal-subscribe" class="modal-overlay">
+    <div class="modal-box modal-box-login">
+      <div class="modal-header modal-header-edit">
+        <div class="edit-modal-brand">
+          <img src="logo.png" class="edit-modal-logo" data-i18n-alt="meta.logoAlt" alt="Logo">
+          <span class="edit-modal-brand-name" data-i18n="brand.name">InboxZero.es</span>
+        </div>
+        <div class="modal-title-box edit-modal-title">
+          <span class="modal-icon-badge">💎</span>
+          <h3 data-i18n="subscribe.title">Registro / Suscripción</h3>
+        </div>
+        <button type="button" class="modal-close" data-close="modal-subscribe" data-i18n="modals.close">✕</button>
+      </div>
+      <div class="modal-body modal-body-login">
+        <p class="subscribe-trial-alert" data-i18n-html="subscribe.trialAlert">💡 <strong>Periodo de Uso Gratuito Limitado:</strong> Cuentas con un periodo de prueba para guardar hasta 20 fichas.</p>
+        <form id="subscribe-form" class="login-form">
+          <div class="form-group">
+            <label for="subscribe-fullname" data-i18n="subscribe.fullNameLabel">Nombre y Apellidos:</label>
+            <input type="text" id="subscribe-fullname" data-i18n-placeholder="subscribe.fullNamePlaceholder" placeholder="Ej. Juan Pérez" required autocomplete="name">
+          </div>
+          <div class="form-group">
+            <label for="subscribe-email" data-i18n="subscribe.emailLabel">Correo Electrónico Válido:</label>
+            <input type="email" id="subscribe-email" data-i18n-placeholder="subscribe.emailPlaceholder" placeholder="ejemplo@dominio.com" required autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label for="subscribe-captcha" data-i18n="subscribe.captchaLabel">Seguridad (Captcha): ¿Cuánto es 3 + 4?</label>
+            <input type="text" id="subscribe-captcha" data-i18n-placeholder="subscribe.captchaPlaceholder" placeholder="Respuesta numérica (7)" required inputmode="numeric">
+          </div>
+          <fieldset class="form-group subscribe-plan-fieldset">
+            <legend data-i18n="subscribe.planLegend">Elige tu plan:</legend>
+            <label class="subscribe-plan-option">
+              <input type="radio" name="subscribe-plan" value="monthly" checked>
+              <span>
+                <strong data-i18n="subscribe.planMonthlyTitle">Mensual — 4,99€/mes</strong>
+                <small data-i18n="subscribe.planMonthlySubtitle">Cancela cuando quieras</small>
+              </span>
+            </label>
+            <label class="subscribe-plan-option">
+              <input type="radio" name="subscribe-plan" value="annual">
+              <span>
+                <strong data-i18n="subscribe.planAnnualTitle">Anual — 3,99€/mes</strong>
+                <small data-i18n="subscribe.planAnnualSubtitle">47,90€/año, facturado de una vez · Ahorra un 20%</small>
+              </span>
+            </label>
+          </fieldset>
+          <label class="check-label subscribe-terms">
+            <input type="checkbox" id="subscribe-terms" required>
+            <span data-i18n-html="subscribe.termsHtml">He leído y acepto la Política de Privacidad y los Términos.</span>
+          </label>
+          <div class="login-modal-actions">
+            <button type="submit" id="btn-stripe-checkout" class="btn-primary modal-action-btn" data-i18n="subscribe.stripeButton">Continuar a Stripe (Modo Pruebas) 💳</button>
+            <button type="button" class="modal-action-btn modal-btn-cancel" data-close="modal-subscribe" data-i18n="modals.cancel">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal documentos legales (estructura visual dinámica) -->
+  <div id="modal-legal" class="modal-overlay">
+    <div class="modal-box modal-box-legal">
+      <div class="legal-modal-header">
+        <div class="legal-modal-brand">
+          <img src="logo.png" class="legal-modal-logo" data-i18n-alt="meta.logoAlt" alt="Logo">
+          <span class="legal-modal-brand-name" data-i18n="brand.name">InboxZero.es</span>
+        </div>
+        <button type="button" class="modal-close legal-modal-close" data-close="modal-legal" data-i18n="modals.close" aria-label="Cerrar">✕</button>
+      </div>
+
+      <div class="legal-modal-title-row">
+        <span class="legal-modal-icon" id="legal-modal-icon" aria-hidden="true">📄</span>
+        <h3 class="legal-modal-title" id="legal-modal-title">Documento legal</h3>
+      </div>
+
+      <div class="modal-body modal-body-legal" id="legal-modal-body" tabindex="0">
+        <!-- Contenido legal inyectado dinámicamente -->
+        <p class="legal-doc-intro">El texto legal se cargará aquí según el enlace del footer.</p>
+        <section class="legal-section">
+          <h4>Sección de ejemplo</h4>
+          <p>Estructura lista para los documentos: Aviso Legal, Privacidad, Cookies y Términos.</p>
+        </section>
+      </div>
+
+      <div class="modal-footer modal-footer-legal">
+        <a class="legal-support-link" id="legal-support-link" href="mailto:soporte@inboxzero.es">soporte@inboxzero.es</a>
+        <button type="button" class="btn-primary modal-action-btn" data-close="modal-legal" data-i18n="modals.understood">¡Entendido!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- P3: confirmar cierre de sesión en otros dispositivos -->
+  <div id="modal-logout-others" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="logout-others-title">
+    <div class="modal-box modal-box-logout-others">
+      <button type="button" class="modal-close" data-close="modal-logout-others" data-i18n="modals.close" aria-label="Cerrar">✕</button>
+      <h3 id="logout-others-title" class="logout-others-title" data-i18n="auth.logoutOthersTitle">¿Cerrar sesión en otros dispositivos?</h3>
+      <p class="logout-others-message" data-i18n="auth.logoutOthersMessage">Se cerrarán las sesiones de InboxZero abiertas en otros dispositivos. Tu sesión actual seguirá abierta.</p>
+      <div class="modal-footer modal-footer-logout-others">
+        <button type="button" class="btn-primary modal-action-btn" data-close="modal-logout-others" data-i18n="modals.cancel">Cancelar</button>
+        <button type="button" class="modal-action-btn modal-btn-logout-others" id="btn-confirm-logout-others" data-i18n="auth.logoutOthersConfirm">Cerrar sesión en otros dispositivos</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal confirmación eliminar ficha (sin confirm() nativo) -->
+  <div id="modal-confirm-delete" class="modal-overlay modal-overlay--delete" role="dialog" aria-modal="true" aria-labelledby="confirm-delete-title">
+    <div class="modal-box modal-box-confirm-delete">
+      <button type="button" class="modal-close confirm-delete-close" id="btn-cancel-delete-x" data-close="modal-confirm-delete" data-i18n="modals.close" aria-label="Cerrar">✕</button>
+      <div class="confirm-delete-icon" aria-hidden="true">🗑️</div>
+      <h3 id="confirm-delete-title" class="confirm-delete-title" data-i18n="deleteConfirm.title">¿Eliminar esta ficha?</h3>
+      <p class="confirm-delete-message" data-i18n="deleteConfirm.message">
+        Esta acción no se puede deshacer y la ficha se borrará permanentemente de tu biblioteca.
+      </p>
+      <p id="delete-save-error" class="field-error preview-save-error delete-save-error" hidden role="alert" aria-live="assertive"></p>
+      <div class="modal-footer modal-footer-confirm-delete">
+        <button type="button" class="modal-action-btn modal-btn-cancel" id="btn-cancel-delete" data-close="modal-confirm-delete" data-i18n="modals.cancel">Cancelar</button>
+        <button type="button" class="modal-action-btn btn-confirm-delete" id="btn-confirm-delete" data-i18n="deleteConfirm.confirm">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal retención / baja de suscripción (Tailwind) -->
+  <div id="modal-retention" class="modal-overlay modal-overlay--retention" role="dialog" aria-modal="true" aria-labelledby="retention-title">
+    <div class="relative w-full max-w-md rounded-xl border border-slate-200 bg-white px-6 py-5 font-sans shadow-retention">
+      <button type="button" class="absolute right-2.5 top-2.5 z-10 rounded-md px-2 py-1 text-base leading-none text-slate-400 transition hover:bg-slate-100 hover:text-slate-700" data-close="modal-retention" data-i18n="modals.close" aria-label="Cerrar">✕</button>
+
+      <div id="retention-form-view">
+        <div class="mb-2.5 flex flex-row items-center justify-center gap-2">
+          <img src="logo.png" alt="Logo" class="brand-logo-img" data-i18n-alt="meta.logoAlt">
+          <span class="brand-title" data-i18n="brand.name">InboxZero.es</span>
+        </div>
+        <h3 id="retention-title" class="mb-1.5 text-center text-base font-bold leading-snug tracking-tight text-slate-900" data-i18n="retention.title">¿Estás seguro de que deseas cancelar tu suscripción premium?</h3>
+        <p class="mx-auto mb-3 max-w-[42ch] text-center text-sm leading-tight text-slate-500" data-i18n="retention.message">Al darte de baja, tu límite volverá a un máximo de 20 fichas y perderás las funciones de extracción avanzada de enlaces automáticos.</p>
+
+        <fieldset class="mb-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+          <legend class="mb-1 px-1 text-sm font-semibold text-slate-700" data-i18n="retention.surveyLegend">¿Podrías decirnos el motivo? Nos ayuda a mejorar:</legend>
+          <label class="mb-0.5 flex cursor-pointer items-start gap-2 rounded-md px-1 py-0.5 text-sm leading-snug text-slate-600 transition hover:bg-slate-100">
+            <input type="checkbox" name="retention-reason" value="price" class="mt-0.5 h-[15px] w-[15px] shrink-0 cursor-pointer accent-blue-600">
+            <span data-i18n="retention.reasons.price">El precio es muy elevado.</span>
+          </label>
+          <label class="mb-0.5 flex cursor-pointer items-start gap-2 rounded-md px-1 py-0.5 text-sm leading-snug text-slate-600 transition hover:bg-slate-100">
+            <input type="checkbox" name="retention-reason" value="extract" class="mt-0.5 h-[15px] w-[15px] shrink-0 cursor-pointer accent-blue-600">
+            <span data-i18n="retention.reasons.extract">No extrae la información de los sitios que uso.</span>
+          </label>
+          <label class="mb-0.5 flex cursor-pointer items-start gap-2 rounded-md px-1 py-0.5 text-sm leading-snug text-slate-600 transition hover:bg-slate-100">
+            <input type="checkbox" name="retention-reason" value="ux" class="mt-0.5 h-[15px] w-[15px] shrink-0 cursor-pointer accent-blue-600">
+            <span data-i18n="retention.reasons.ux">Me cuesta entender cómo funciona la app.</span>
+          </label>
+          <label class="flex cursor-pointer items-start gap-2 rounded-md px-1 py-0.5 text-sm leading-snug text-slate-600 transition hover:bg-slate-100">
+            <input type="checkbox" name="retention-reason" value="other" class="mt-0.5 h-[15px] w-[15px] shrink-0 cursor-pointer accent-blue-600">
+            <span data-i18n="retention.reasons.other">Otro motivo / No lo uso lo suficiente.</span>
+          </label>
+        </fieldset>
+
+        <div class="flex flex-col gap-1.5">
+          <button type="button" id="btn-retention-keep" class="w-full rounded-md border border-blue-600 bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-[0_8px_18px_rgba(37,99,235,0.28)] transition hover:border-blue-700 hover:bg-blue-700" data-i18n="retention.keepPlan">Mantener mi Plan Premium</button>
+          <button type="button" id="btn-retention-support" class="w-full rounded-md border border-emerald-600 bg-emerald-600 px-4 py-2 text-sm font-bold text-white shadow-[0_8px_18px_rgba(5,150,105,0.22)] transition hover:border-emerald-700 hover:bg-emerald-700" data-i18n="retention.talkToSupport">Hablar con Soporte</button>
+          <button type="button" id="btn-retention-confirm" class="w-full rounded-md border-0 bg-transparent px-2 py-1.5 text-[0.8125rem] font-medium text-red-400 shadow-none transition hover:bg-red-50 hover:text-red-600" data-i18n="retention.confirmCancel">Confirmar cancelación de suscripción</button>
+        </div>
+      </div>
+
+      <div id="retention-success-view" class="text-center" hidden>
+        <div class="mx-auto mb-2.5 flex items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 text-lg font-bold text-emerald-600" style="width:2.75rem;height:2.75rem;" aria-hidden="true">✓</div>
+        <h3 class="mb-1.5 text-center text-base font-bold leading-snug tracking-tight text-slate-900" data-i18n="retention.successTitle">Solicitud registrada</h3>
+        <p class="mx-auto mb-3 max-w-[42ch] text-center text-sm leading-tight text-slate-500" data-i18n="retention.successMessage">Hemos registrado tu solicitud de baja. Gracias por tu feedback; te acompañaremos en el proceso.</p>
+        <div class="flex flex-col gap-1.5">
+          <button type="button" id="btn-retention-success-close" class="w-full rounded-md border border-blue-600 bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-[0_8px_18px_rgba(37,99,235,0.28)] transition hover:border-blue-700 hover:bg-blue-700" data-i18n="modals.understood">¡Entendido!</button>
+        </div>
+      </div>
+      <div id="retention-scheduled-view" class="text-center" hidden>
+        <div class="mx-auto mb-2.5 flex items-center justify-center rounded-full border border-amber-200 bg-amber-50 text-lg font-bold text-amber-600" style="width:2.75rem;height:2.75rem;" aria-hidden="true">⏳</div>
+        <h3 class="mb-1.5 text-center text-base font-bold leading-snug tracking-tight text-slate-900" data-i18n="retention.scheduledTitle">Baja ya programada</h3>
+        <p class="mx-auto mb-3 max-w-[42ch] text-center text-sm leading-tight text-slate-500" id="retention-scheduled-message" data-i18n="retention.scheduledMessage">Tu suscripción Premium seguirá activa hasta el fin del periodo ya pagado.</p>
+        <div class="flex flex-col gap-1.5">
+          <button type="button" id="btn-retention-scheduled-close" class="w-full rounded-md border border-blue-600 bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-[0_8px_18px_rgba(37,99,235,0.28)] transition hover:border-blue-700 hover:bg-blue-700" data-i18n="modals.understood">¡Entendido!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="premium-welcome-toast" class="premium-welcome-toast" hidden role="status" aria-live="polite">
+    <span data-i18n="header.premiumWelcome">¡Bienvenido a Premium! Ya tienes fichas ilimitadas</span>
+  </div>
+
+  <!-- CONECTORES Y LOGICA SCRIPT -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=inboxZeroTurnstileOnload" async defer></script>
+  <script src="js/extract-config.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
+

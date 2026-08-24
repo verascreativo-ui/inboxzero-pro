@@ -1,0 +1,515 @@
+{
+  "meta": {
+    "pageTitle": "InboxZero : Votre bibliothèque intelligente de connaissances",
+    "logoAlt": "Logo"
+  },
+  "brand": {
+    "name": "InboxZero.es",
+    "tagline": "Vos connaissances en 1 clic",
+    "footerTagline": "InboxZero.es — Votre bibliothèque intelligente de connaissances"
+  },
+  "welcome": {
+    "title": "🚀 Bienvenue sur Inbox Zero ! Voici comment organiser vos connaissances",
+    "description": "Voici votre fiche modèle. Enregistrez des liens ci-dessus, organisez-les par catégories et marquez-les en favoris ou à lire plus tard. Votre bureau commence à 0 fiches.",
+    "notes": "Fiche de bienvenue du système. Elle ne peut pas être supprimée et ne compte pas dans l'essai gratuit.",
+    "category": "Fiche modèle",
+    "hide": "Masquer",
+    "showAgain": "Afficher la fiche modèle"
+  },
+  "categories": {
+    "health": "Alimentation saine",
+    "sports": "Exercices à la maison",
+    "videos": "Vidéos amusantes",
+    "uncategorized": "Non classé"
+  },
+  "header": {
+    "trialPlan": "Forfait d'essai gratuit : {{current}} / {{max}} fiches",
+    "premiumPlan": "Premium · Fiches illimitées",
+    "premiumBadge": "Vous êtes Premium",
+    "premiumBadgeTitle": "Vous pouvez enregistrer des fiches illimitées",
+    "premiumWelcome": "Bienvenue dans Premium ! Vous avez désormais des fiches illimitées",
+    "libraryDropdown": "Ma bibliothèque ▾",
+    "help": "Aide en 3 étapes",
+    "login": "Se connecter",
+    "subscribe": "S'abonner"
+  },
+  "dropdown": {
+    "mainViews": "VUES PRINCIPALES",
+    "byCategory": "PAR CATÉGORIE"
+  },
+  "sidebar": {
+    "navigation": "NAVIGATION",
+    "categories": "CATÉGORIES",
+    "unsubscribe": "Demander la résiliation de l'abonnement"
+  },
+  "filters": {
+    "latest": "📌 Derniers ajouts",
+    "all": "📁 Toutes les fiches",
+    "favorites": "⭐ Favoris",
+    "readLater": "⏰ À lire plus tard"
+  },
+  "greeting": {
+    "eyebrow": "Votre bibliothèque intelligente",
+    "morning": "Bonjour, {{name}} ! ☀️ Que voulez-vous enregistrer aujourd'hui ?",
+    "afternoon": "Bon après-midi, {{name}} ! ☕ Que voulez-vous classer maintenant ?",
+    "night": "Bonsoir, {{name}} ! 🌙 On remet votre boîte à zéro ?"
+  },
+  "main": {
+    "urlPlaceholder": "Collez un lien (https://...) ou un titre...",
+    "analyzeUrl": "Analyser l'URL",
+    "analyzingUrl": "Analyse…",
+    "saveCard": "Enregistrer la fiche",
+    "sectionLatest": "Dernières fiches enregistrées",
+    "showingCards": "Affichage de {{count}} fiche(s)",
+    "emptyView": "Aucune fiche dans cette vue."
+  },
+  "sections": {
+    "category": "Catégorie : {{name}}",
+    "favorites": "Fiches favorites",
+    "readLater": "À lire plus tard",
+    "latest": "Dernières fiches enregistrées"
+  },
+  "footer": {
+    "legal": "Mentions légales",
+    "privacy": "Politique de confidentialité",
+    "cookies": "Cookies",
+    "terms": "Conditions générales"
+  },
+  "modals": {
+    "close": "✕",
+    "cancel": "Annuler",
+    "understood": "Compris !"
+  },
+  "deleteConfirm": {
+    "title": "Supprimer cette fiche ?",
+    "message": "Cette action est irréversible et la fiche sera définitivement retirée de votre bibliothèque.",
+    "confirm": "Supprimer"
+  },
+  "delete": {
+    "saveErrorGeneric": "Impossible de supprimer la fiche. Veuillez réessayer.",
+    "saveErrorNetwork": "Connexion impossible. Vérifiez votre connexion et réessayez.",
+    "saveErrorSession": "Votre session n'est pas disponible. Connectez-vous et réessayez. La fiche n'a pas été supprimée."
+  },
+  "retention": {
+    "title": "Êtes-vous sûr de vouloir résilier votre abonnement premium ?",
+    "message": "En résiliant, votre limite reviendra à un maximum de 20 fiches et vous perdrez les fonctions d'extraction avancée de liens automatiques.",
+    "surveyLegend": "Pourriez-vous nous dire pourquoi ? Cela nous aide à nous améliorer :",
+    "reasons": {
+      "price": "Le prix est trop élevé.",
+      "extract": "Cela n'extrait pas les informations des sites que j'utilise.",
+      "ux": "J'ai du mal à comprendre comment fonctionne l'application.",
+      "other": "Autre raison / Je ne l'utilise pas assez."
+    },
+    "keepPlan": "Garder mon forfait Premium",
+    "talkToSupport": "Parler au support",
+    "confirmCancel": "Confirmer la résiliation de l'abonnement",
+    "successTitle": "Demande enregistrée",
+    "successMessage": "Nous avons enregistré votre demande de résiliation. Merci pour votre retour ; nous vous accompagnerons dans la suite.",
+    "successMessageWithDate": "Vous conserverez Premium jusqu'au {{fecha}}. Ensuite, vous passerez automatiquement au Plan Gratuit.",
+    "scheduledTitle": "Résiliation déjà programmée",
+    "scheduledMessage": "Votre abonnement Premium restera actif jusqu'à la fin de la période déjà payée.",
+    "scheduledMessageWithDate": "Vous conserverez Premium jusqu'au {{fecha}}. Vous passerez ensuite automatiquement au Plan Gratuit.",
+    "cancelError": "Impossible de traiter l'annulation. Veuillez réessayer ou contacter le support."
+  },
+  "help": {
+    "title": "Comment fonctionne InboxZero",
+    "step1Title": "Enregistrez vos liens ou idées",
+    "step1Body": "Collez n'importe quelle URL ou saisissez votre idée dans la barre de recherche en haut et appuyez sur « Enregistrer la fiche » pour la capturer instantanément. Vous pouvez essayer sans vous inscrire, jusqu'à 20 fiches gratuites.",
+    "step2Title": "Créez votre compte gratuit",
+    "step2Body": "Inscrivez-vous avec votre e-mail pour conserver vos fiches de façon permanente dans le cloud, sans dépendre de ce navigateur. Toujours gratuit jusqu'à 20 fiches.",
+    "step3Title": "Organisez, filtrez et consultez",
+    "step3Body": "Accédez rapidement à vos fiches depuis le menu latéral ou le menu déroulant « Ma Bibliothèque » dans la barre supérieure, sans rien perdre."
+  },
+  "login": {
+    "title": "Se connecter",
+    "subtitle": "Connectez-vous si vous avez déjà un compte, ou créez-en un gratuitement pour enregistrer vos fiches dans le cloud.",
+    "fullNameLabel": "Nom complet :",
+    "fullNamePlaceholder": "ex. Jean Dupont",
+    "emailLabel": "E-mail :",
+    "emailPlaceholder": "vous@email.com",
+    "passwordLabel": "Mot de passe :",
+    "passwordPlaceholder": "••••••••",
+    "forgotPassword": "Mot de passe oublié ?",
+    "forgotPasswordNeedsEmail": "Saisissez votre email ci-dessus pour recevoir le lien de récupération.",
+    "forgotPasswordSent": "Nous vous avons envoyé un email avec un lien pour réinitialiser votre mot de passe. Vérifiez votre boîte de réception.",
+    "submit": "Accéder à ma bibliothèque",
+    "registerBtn": "Créer un compte"
+  },
+  "newPassword": {
+    "title": "Créez votre nouveau mot de passe",
+    "label": "Nouveau mot de passe :",
+    "confirmLabel": "Confirmez le mot de passe :",
+    "submit": "Enregistrer le nouveau mot de passe",
+    "success": "Mot de passe mis à jour avec succès.",
+    "mismatch": "Les mots de passe ne correspondent pas."
+  },
+  "subscribe": {
+    "title": "Inscription / Abonnement",
+    "trialAlert": "💡 <strong>Essai gratuit limité :</strong> Vous disposez d'une période d'essai pour enregistrer jusqu'à 20 fiches. À la fin de la période ou une fois la limite atteinte, vous devez vous abonner pour continuer à utiliser l'application.",
+    "fullNameLabel": "Nom complet :",
+    "fullNamePlaceholder": "ex. Jean Dupont",
+    "emailLabel": "E-mail valide :",
+    "emailPlaceholder": "exemple@domaine.com",
+    "captchaLabel": "Sécurité (Captcha) : Combien font 3 + 4 ?",
+    "captchaPlaceholder": "Réponse numérique (7)",
+    "planLegend": "Choisissez votre forfait :",
+    "planMonthlyTitle": "Mensuel — 4,99€/mois",
+    "planMonthlySubtitle": "Annulez à tout moment",
+    "planAnnualTitle": "Annuel — 3,99€/mois",
+    "planAnnualSubtitle": "47,90€/an, facturé en une fois · Économisez 20%",
+    "termsHtml": "J'ai lu et j'accepte la <a href=\"#\">Politique de confidentialité</a>, les <a href=\"#\">Conditions générales</a> et l'autorisation d'utilisation.",
+    "stripeButton": "Continuer vers Stripe 💳",
+    "captchaError": "Réponse du captcha incorrecte. Ce doit être 7.",
+    "needAuth": "Connectez-vous pour souscrire à Premium.",
+    "checkoutError": "Impossible de lancer le paiement. Réessayez.",
+    "alreadyPremium": "Votre compte est déjà Premium.",
+    "pendingSync": "Votre abonnement Premium est déjà payé. Il sera activé dans quelques secondes."
+  },
+  "trialLimit": {
+    "title": "Limite de l'essai gratuit",
+    "badge": "Essai gratuit · 20 / 20",
+    "message": "Vous avez atteint la limite de votre plan d'essai ! 🚀 Si vous voulez continuer à enregistrer et organiser tout votre savoir en un clic et sans limites, abonnez-vous à notre Plan Pro.",
+    "cta": "M'abonner maintenant",
+    "later": "Pas maintenant"
+  },
+  "duplicateUrl": {
+    "message": "Cette URL est déjà dans votre bibliothèque.",
+    "cancel": "Annuler",
+    "saveAnyway": "Enregistrer quand même"
+  },
+  "guestMigration": {
+    "title": "Fiches enregistrées en invité",
+    "intro": "Nous avons trouvé {{count}} fiche(s) enregistrée(s) sur cet appareil en tant qu'invité.",
+    "bulletAccount": "Elles seront ajoutées au compte avec lequel vous êtes connecté sur cet appareil.",
+    "bulletDuplicates": "Les URL déjà présentes dans votre bibliothèque Cloud ne seront pas insérées à nouveau.",
+    "bulletLimit": "L'offre gratuite peut limiter le nombre de fiches importées (maximum 20 dans le Cloud).",
+    "bulletProgress": "Le processus est progressif : chaque fiche est importée une par une.",
+    "import": "Importer mes fiches",
+    "later": "Pas maintenant",
+    "progressTitle": "Importation des fiches",
+    "progress": "Traitement de {{current}} sur {{total}}…",
+    "resultTitleDone": "Importation terminée",
+    "resultTitlePartial": "Importation terminée avec des fiches restantes",
+    "resultBody": "Détectées : {{detected}}. Importées : {{imported}}. Déjà présentes : {{duplicates}}. Restantes : {{pending}}.",
+    "errorSession": "Votre session n'est pas disponible. Les fiches restantes ont été conservées.",
+    "errorNetwork": "Connexion impossible. Les fiches restantes ont été conservées.",
+    "errorLimit": "Vous avez atteint la limite de l'offre gratuite. Les fiches non importées restent en invité.",
+    "errorGeneric": "L'importation n'a pas pu aboutir. Les fiches restantes ont été conservées.",
+    "errorLock": "Une importation est déjà en cours dans un autre onglet.",
+    "retry": "Réessayer",
+    "done": "Compris"
+  },
+  "edit": {
+    "title": "Personnalisez votre fiche",
+    "previewLabel": "Aperçu du site",
+    "previewAlt": "Aperçu",
+    "titleLabel": "Titre :",
+    "descriptionLabel": "Description :",
+    "categorySelectLabel": "Catégorie (sélectionner existante) :",
+    "categoryPlaceholder": "Sélectionnez une catégorie...",
+    "categoryRequired": "Sélectionnez ou saisissez une catégorie avant d'enregistrer.",
+    "uncategorized": "Non classé",
+    "newCategoryLabel": "Nouvelle catégorie utilisateur :",
+    "newCategoryPlaceholder": "Ou saisissez une nouvelle catégorie ici...",
+    "imageUrlLabel": "URL de l'image :",
+    "favorite": "⭐ Favori",
+    "readLater": "⏰ À lire plus tard",
+    "notesLabel": "Notes :",
+    "notesPlaceholder": "Notes privées...",
+    "visitOriginal": "Visiter le site original ↗",
+    "saveChanges": "Enregistrer les modifications",
+    "savePending": "Enregistrer la fiche sera disponible à l'étape suivante. Ce bouton ne crée pas encore la fiche.",
+    "saveErrorGeneric": "Impossible d'enregistrer les modifications. Veuillez réessayer.",
+    "saveErrorNetwork": "Connexion impossible. Vérifiez votre connexion et réessayez.",
+    "saveErrorSession": "Votre session n'est pas disponible. Connectez-vous et réessayez. Les modifications n'ont pas été enregistrées."
+  },
+  "cards": {
+    "favoriteTitle": "Favori",
+    "readLaterTitle": "À lire plus tard",
+    "editTitle": "Modifier",
+    "deleteTitle": "Supprimer",
+    "thumbAlt": "Aperçu du lien",
+    "flagErrorGeneric": "Impossible de mettre à jour l'état. Veuillez réessayer.",
+    "flagErrorNetwork": "Connexion impossible. Vérifiez votre connexion et réessayez.",
+    "flagErrorSession": "Votre session n'est pas disponible. Connectez-vous et réessayez. L'état n'a pas été enregistré."
+  },
+  "messages": {
+    "invalidUrlOrTitle": "Veuillez saisir un lien ou un titre valide.",
+    "confirmDelete": "Voulez-vous vraiment supprimer cette fiche ? Cette action est irréversible.",
+    "manualCardDesc": "Fiche ajoutée manuellement depuis le panneau principal.",
+    "linkFromHost": "Lien direct enregistré depuis {{host}}",
+    "resourcesFromHost": "Ressources de {{host}}",
+    "youtubeTempTitle": "Vidéo YouTube (ID : {{id}})",
+    "youtubeCardDesc": "Vidéo enregistrée depuis YouTube",
+    "youtubeFromAuthor": "YouTube · {{author}}",
+    "saveErrorGeneric": "Impossible d'enregistrer la fiche. Veuillez réessayer.",
+    "saveErrorNetwork": "Connexion impossible. Vérifiez votre connexion et réessayez.",
+    "saveErrorSession": "Votre session n'est pas disponible. Connectez-vous et réessayez. La fiche n'a pas été enregistrée.",
+    "saveErrorLimit": "Vous avez atteint la limite de fiches de votre forfait gratuit. La fiche n'a pas été enregistrée."
+  },
+  "social": {
+    "facebook": {
+      "title": "Lien Facebook",
+      "description": "Contenu Facebook indexé correctement. Pour des raisons de confidentialité et de sécurité de la plateforme, cliquez sur le lien pour voir la publication complète dans votre compte.",
+      "smartTitle": "Groupe et contenu Facebook",
+      "smartDescription": "Lien enregistré et optimisé dans votre bibliothèque intelligente Inbox Zero."
+    },
+    "instagram": {
+      "title": "Lien Instagram",
+      "description": "Contenu enregistré depuis Instagram"
+    },
+    "linkedin": {
+      "title": "Lien LinkedIn",
+      "description": "Contenu enregistré depuis LinkedIn"
+    },
+    "twitter": {
+      "title": "Lien X (Twitter)",
+      "description": "Contenu enregistré depuis X (Twitter)"
+    }
+  },
+  "auth": {
+    "logout": "Se déconnecter",
+    "logoutOthers": "Se déconnecter des autres appareils",
+    "logoutOthersTitle": "Se déconnecter des autres appareils ?",
+    "logoutOthersMessage": "Les sessions InboxZero ouvertes sur d'autres appareils seront fermées. Votre session actuelle restera ouverte.",
+    "logoutOthersConfirm": "Se déconnecter des autres appareils",
+    "logoutOthersSuccess": "Sessions fermées sur les autres appareils.",
+    "logoutOthersError": "Impossible de fermer les autres sessions. Votre session actuelle reste ouverte.",
+    "accountMenuAria": "Compte",
+    "notConfigured": "Supabase n'est pas encore configuré. Ajoutez l'URL du projet et la clé anon dans js/supabase-config.js.",
+    "missingCredentials": "Saisissez votre e-mail et votre mot de passe.",
+    "captchaRequired": "Complétez la vérification de sécurité.",
+    "signInSuccess": "Connexion réussie.",
+    "signUpSuccess": "Compte créé. Vous êtes connecté.",
+    "signUpConfirmEmail": "Compte créé. Consultez votre e-mail pour confirmer l'adresse, puis connectez-vous."
+  },
+  "legalDocs": {
+    "legal": {
+      "title": "Mentions légales",
+      "intro": "Informations légales du site InboxZero.es. Pour toute question : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>.",
+      "sections": [
+        {
+          "heading": "1. Identification",
+          "paragraphs": [
+            "Conformément à la réglementation applicable, le titulaire du site InboxZero.es (ci-après « InboxZero ») est responsable du service numérique de bibliothèque de connaissances accessible sur https://inboxzero.es.",
+            "Coordonnées de contact : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        },
+        {
+          "heading": "2. Objet",
+          "paragraphs": [
+            "Les présentes mentions légales régissent l’accès, la navigation et l’utilisation du site, ainsi que les responsabilités liées à l’usage de ses contenus et services, y compris l’application web InboxZero."
+          ]
+        },
+        {
+          "heading": "3. Conditions d’utilisation",
+          "paragraphs": [
+            "L’accès au site confère la qualité d’utilisateur et implique l’acceptation pleine des présentes mentions et des autres politiques publiées. L’utilisateur s’engage à un usage licite et de bonne foi."
+          ],
+          "list": [
+            "Ne pas utiliser le service à des fins illicites.",
+            "Ne pas endommager, désactiver ou surcharger les systèmes d’InboxZero.",
+            "Ne pas introduire de logiciels malveillants ni tenter d’accéder sans autorisation aux comptes ou données de tiers."
+          ]
+        },
+        {
+          "heading": "4. Propriété intellectuelle",
+          "paragraphs": [
+            "Tous les contenus du site (textes, designs, logos, code, bases de données, etc.) sont protégés. Toute reproduction, distribution ou transformation sans autorisation préalable est interdite, sauf exceptions légales."
+          ]
+        },
+        {
+          "heading": "5. Responsabilité",
+          "paragraphs": [
+            "InboxZero s’efforce d’assurer la continuité du service, sans garantir l’absence totale d’interruptions ou d’erreurs. L’utilisateur est responsable de l’exactitude des informations saisies et de l’usage des liens enregistrés.",
+            "Pour signaler un incident : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        },
+        {
+          "heading": "6. Liens externes",
+          "paragraphs": [
+            "Le service permet d’enregistrer des liens vers des sites tiers. InboxZero n’en contrôle pas le contenu ni les politiques. Un lien enregistré n’implique pas d’approbation."
+          ]
+        },
+        {
+          "heading": "7. Droit applicable",
+          "paragraphs": [
+            "Les présentes mentions sont régies par le droit espagnol et européen applicable. Les litiges relèvent des juridictions compétentes, sous réserve des règles impératives de protection des consommateurs.",
+            "Support : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        }
+      ]
+    },
+    "privacy": {
+      "title": "Politique de confidentialité",
+      "intro": "Traitement des données personnelles conformément au Règlement (UE) 2016/679 (RGPD). Responsable du traitement / contact : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>.",
+      "sections": [
+        {
+          "heading": "1. Responsable du traitement",
+          "paragraphs": [
+            "Le responsable du traitement des données collectées via InboxZero.es est InboxZero.",
+            "Contact protection des données et support : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        },
+        {
+          "heading": "2. Données traitées",
+          "paragraphs": [
+            "Selon l’usage du service, nous pouvons traiter :"
+          ],
+          "list": [
+            "Données de compte : e-mail et identifiants d’authentification.",
+            "Données de profil ou de facturation liées à l’abonnement (p. ex. nom), le cas échéant.",
+            "Contenus de la bibliothèque (fiches, liens, notes, catégories et préférences).",
+            "Données techniques d’usage (IP, appareil/navigateur, journaux de sécurité) nécessaires à la prestation et à la sécurité."
+          ]
+        },
+        {
+          "heading": "3. Finalités et bases juridiques",
+          "paragraphs": [
+            "Nous traitons les données afin de :"
+          ],
+          "list": [
+            "Fournir InboxZero et gérer le compte (exécution du contrat / mesures précontractuelles).",
+            "Gérer abonnements, paiements et support (contrat et intérêt légitime).",
+            "Respecter les obligations légales.",
+            "Renforcer la sécurité et prévenir les abus (intérêt légitime).",
+            "Envoyer les communications essentielles du service ; le marketing uniquement avec consentement lorsque requis."
+          ]
+        },
+        {
+          "heading": "4. Destinataires",
+          "paragraphs": [
+            "Nous ne vendons pas de données personnelles. Elles peuvent être partagées avec des sous-traitants (hébergement, authentification, paiement, etc.) sous contrat et avec des garanties appropriées, y compris pour les transferts internationaux conformément au RGPD.",
+            "Pour en savoir plus : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        },
+        {
+          "heading": "5. Conservation",
+          "paragraphs": [
+            "Les données sont conservées pendant la durée d’activité du compte et les délais nécessaires aux obligations légales ou aux réclamations. Après résiliation, elles sont supprimées ou anonymisées lorsqu’elles ne sont plus nécessaires."
+          ]
+        },
+        {
+          "heading": "6. Vos droits",
+          "paragraphs": [
+            "Vous pouvez exercer vos droits d’accès, de rectification, d’effacement, d’opposition, de limitation et de portabilité, et retirer votre consentement le cas échéant, en écrivant à :",
+            "<a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>",
+            "Vous pouvez également introduire une réclamation auprès de l’AEPD ou d’une autre autorité de contrôle compétente."
+          ]
+        },
+        {
+          "heading": "7. Sécurité et mineurs",
+          "paragraphs": [
+            "Des mesures techniques et organisationnelles appropriées sont appliquées. Le service ne s’adresse pas aux mineurs de moins de 14 ans (ou l’âge minimum applicable). Contact : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        },
+        {
+          "heading": "8. Modifications",
+          "paragraphs": [
+            "Cette politique peut être mise à jour. La version publiée dans l’application fait foi. Contact : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        }
+      ]
+    },
+    "cookies": {
+      "title": "Politique de cookies",
+      "intro": "Informations sur les cookies et technologies similaires sur InboxZero.es. Contact : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>.",
+      "sections": [
+        {
+          "heading": "1. Qu’est-ce qu’un cookie ?",
+          "paragraphs": [
+            "Les cookies sont de petits fichiers stockés sur votre appareil. Ils peuvent mémoriser des préférences, maintenir une session ou aider à comprendre l’usage du service."
+          ]
+        },
+        {
+          "heading": "2. Types de cookies",
+          "list": [
+            "Cookies techniques/nécessaires : indispensables au fonctionnement (session, sécurité, langue, stockage local de préférences).",
+            "Cookies de préférences : mémorisent des choix tels que la langue.",
+            "Cookies analytiques (s’ils sont activés) : usage agrégé pour améliorer le service.",
+            "Cookies tiers : déposés par des prestataires (authentification, paiement) selon leurs politiques."
+          ]
+        },
+        {
+          "heading": "3. Base juridique",
+          "paragraphs": [
+            "Les cookies strictement nécessaires reposent sur l’intérêt légitime / la nécessité de fournir le service. Les autres, le cas échéant, après consentement lorsque la loi l’exige."
+          ]
+        },
+        {
+          "heading": "4. Gestion",
+          "paragraphs": [
+            "Vous pouvez configurer votre navigateur pour refuser ou supprimer les cookies. La désactivation des cookies techniques peut affecter InboxZero.",
+            "Aide : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        },
+        {
+          "heading": "5. Mises à jour",
+          "paragraphs": [
+            "Cette politique peut évoluer. Contact : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "title": "Conditions générales",
+      "intro": "Conditions d’utilisation du service InboxZero. Support : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>.",
+      "sections": [
+        {
+          "heading": "1. Acceptation",
+          "paragraphs": [
+            "En vous inscrivant, en vous abonnant ou en utilisant InboxZero, vous acceptez les présentes Conditions, les Mentions légales et la Politique de confidentialité."
+          ]
+        },
+        {
+          "heading": "2. Description du service",
+          "paragraphs": [
+            "InboxZero permet d’enregistrer, d’organiser et de consulter des liens et connaissances sous forme de fiches. Les fonctionnalités peuvent évoluer."
+          ]
+        },
+        {
+          "heading": "3. Compte utilisateur",
+          "paragraphs": [
+            "Vous êtes responsable de la confidentialité de vos identifiants. Signalez tout usage non autorisé à <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        },
+        {
+          "heading": "4. Essai gratuit et abonnement",
+          "paragraphs": [
+            "Un forfait d’essai gratuit avec des limites (p. ex. nombre de fiches) peut s’appliquer. Au-delà, certaines fonctions peuvent nécessiter un abonnement payant (p. ex. via Stripe).",
+            "Facturation / résiliation : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        },
+        {
+          "heading": "5. Contenu utilisateur",
+          "paragraphs": [
+            "Vous conservez vos droits sur le contenu enregistré et nous concédez une licence limitée pour le héberger et l’afficher afin de fournir le service."
+          ]
+        },
+        {
+          "heading": "6. Usage acceptable",
+          "paragraphs": [
+            "Sont interdits les usages illicites, le spam, les atteintes aux systèmes et la diffusion de contenus illégaux. InboxZero peut suspendre ou résilier les comptes en cas de manquement grave."
+          ]
+        },
+        {
+          "heading": "7. Disponibilité et responsabilité",
+          "paragraphs": [
+            "Le service est fourni « en l’état » dans des conditions raisonnables. Dans les limites autorisées par la loi, InboxZero n’est pas responsable des dommages indirects, sous réserve des droits impératifs des consommateurs."
+          ]
+        },
+        {
+          "heading": "8. Modifications et contact",
+          "paragraphs": [
+            "Nous pouvons modifier ces conditions en publiant une version mise à jour dans l’application.",
+            "Support : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ]
+        }
+      ]
+    }
+  },
+  "support": {
+    "email": "soporte@inboxzero.es",
+    "label": "soporte@inboxzero.es"
+  }
+}

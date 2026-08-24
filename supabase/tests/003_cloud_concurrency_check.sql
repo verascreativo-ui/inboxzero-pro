@@ -1,0 +1,52 @@
+-- =============================================================================
+-- MUST FIX #3 — Procedimiento de verificación en Supabase Cloud
+-- SOLO para una cuenta de PRUEBA. No usar cuentas reales de producción.
+-- No ejecutar contra datos de usuarios reales.
+-- =============================================================================
+
+-- A) SOLO LECTURA: confirmar que 003 está aplicada
+select pg_get_functiondef('public.enforce_free_plan_card_limit()'::regprocedure);
+-- Debe aparecer: pg_advisory_xact_lock(872001, hashtext(new.user_id::text))
+-- ANTES de: select count(*) ... where c.user_id = new.user_id
+
+-- B) Concurrencia real (dos pestañas del SQL Editor = dos sesiones)
+-- Requisitos:
+--   1. Un usuario Auth de prueba (no producción), con profiles.tipo_plan = 'free'.
+--   2. Ese usuario debe tener exactamente 19 filas en public.cards.
+--   3. Sustituir 'TEST_USER_UUID' en ambas pestañas por el mismo uuid.
+--
+-- Pestaña 1:
+--   begin;
+--   insert into public.cards (user_id, title, url)
+--   values ('TEST_USER_UUID', 'lock-test-a', 'https://example.com/a');
+--   -- NO hagas commit todavía
+--
+-- Pestaña 2 (después de que la 1 haya hecho el INSERT sin commit):
+--   begin;
+--   insert into public.cards (user_id, title, url)
+--   values ('TEST_USER_UUID', 'lock-test-b', 'https://example.com/b');
+--   -- Esta sesión debe QUEDARSE ESPERANDO el advisory lock.
+--
+-- Pestaña 1:
+--   commit;
+--
+-- Pestaña 2:
+--   -- Tras el commit de 1, esta INSERT debe FALLAR con:
+--   -- Límite del plan gratuito alcanzado (20 fichas)...
+--   rollback;  -- si llegara a insertar (no debería), deshacer
+--
+-- Limpieza (pestaña 1, tras el test):
+--   delete from public.cards
+--   where user_id = 'TEST_USER_UUID'
+--     and title in ('lock-test-a', 'lock-test-b');
+--
+-- C) Premium (cuenta de prueba distinta, tipo_plan = 'premium', >= 20 fichas):
+--   insert into public.cards (user_id, title, url)
+--   values ('PREMIUM_TEST_UUID', 'premium-ok', 'https://example.com/p');
+--   -- Debe insertar. Luego delete de esa fila de prueba.
+--
+-- D) Sin perfil:
+--   insert into public.cards (user_id, title, url)
+--   values ('00000000-0000-0000-0000-000000000000', 'no-profile', 'https://example.com/x');
+--   -- Debe fallar: Perfil no encontrado...
+--   -- (también puede fallar el FK a profiles; ambos son rechazo)
