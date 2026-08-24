@@ -20,6 +20,8 @@
     const isLocal = !host || host === 'localhost' || host === '127.0.0.1' || host === '[::1]';
     if (isLocal) {
       window.INBOXZERO_EXTRACT_API = 'http://localhost:8787';
+    } else {
+      window.INBOXZERO_EXTRACT_API = 'https://inboxzero-pro-production.up.railway.app';
     }
   } catch (_) {
     /* sin API: el frontend usa los fallbacks existentes */
