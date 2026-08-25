@@ -51,7 +51,7 @@
   "greeting": {
     "eyebrow": "Your smart library",
     "morning": "Good morning{{name}}! ☀️ What do you want to save today?",
-    "afternoon": "Good afternoon{{name}}! ☕ What do you want to organize now?",
+    "afternoon": "Good afternoon{{name}}! ☕️ What do you want to organize now?",
     "night": "Good evening{{name}}! 🌙 Shall we get your inbox to zero?"
   },
   "main": {
