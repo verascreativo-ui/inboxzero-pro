@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (rel) => fs.readFileSync(path.join(root, rel), 'utf8');
 
-const html = read('index.html');
+const html = read('app.html');
 const app = read('js/app.js');
 const config = read('js/supabase-config.js');
 const extractConfig = read('js/extract-config.js');

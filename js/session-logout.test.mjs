@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (rel) => fs.readFileSync(path.join(root, rel), 'utf8');
 const app = read('js/app.js');
-const html = read('index.html');
+const html = read('app.html');
 
 function sliceFn(name, endName) {
   const start = app.indexOf(name);
