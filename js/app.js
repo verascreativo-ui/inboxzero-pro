@@ -1660,21 +1660,25 @@ function getGreetingPeriod(date = new Date()) {
 
 /**
  * Saludo dinámico del dashboard según la hora local.
- * Mañana / tarde / noche + nombre (Creador o usuario registrado).
+ * Mañana / tarde / noche; el nombre solo se muestra con sesión activa.
  */
 function renderDashboardGreeting(user = currentAuthUser) {
   const root = document.getElementById('dashboard-greeting');
   const titleEl = document.getElementById('dashboard-greeting-text');
   if (!titleEl) return;
 
-  greetingDisplayName = resolveGreetingDisplayName(user);
   const period = getGreetingPeriod();
-  const safeName = escapeHtmlText(greetingDisplayName);
-  const raw = t(`greeting.${period}`, { name: '[[NAME]]' });
-  let html = escapeHtmlText(raw).replace(
-    '[[NAME]]',
-    `<span class="greeting-name">${safeName}</span>`
-  );
+  const isGuest = !user;
+  greetingDisplayName = isGuest ? '' : resolveGreetingDisplayName(user);
+  const raw = t(`greeting.${period}`, { name: isGuest ? '' : ', [[NAME]]' });
+  let html = escapeHtmlText(raw);
+  if (!isGuest) {
+    const safeName = escapeHtmlText(greetingDisplayName);
+    html = html.replace(
+      '[[NAME]]',
+      `<span class="greeting-name">${safeName}</span>`
+    );
+  }
   // Emojis a escala controlada (☕, ☀️, 🌙, etc.)
   html = html.replace(
     /(\p{Extended_Pictographic}\uFE0F?|\p{Emoji_Presentation})/gu,

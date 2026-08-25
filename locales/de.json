@@ -50,9 +50,9 @@
   },
   "greeting": {
     "eyebrow": "Ihre intelligente Bibliothek",
-    "morning": "Guten Morgen, {{name}}! ☀️ Was möchten Sie heute speichern?",
-    "afternoon": "Guten Tag, {{name}}! ☕ Was möchten Sie jetzt ordnen?",
-    "night": "Guten Abend, {{name}}! 🌙 Bringen wir Ihren Posteingang auf null?"
+    "morning": "Guten Morgen{{name}}! ☀️ Was möchten Sie heute speichern?",
+    "afternoon": "Guten Tag{{name}}! ☕ Was möchten Sie jetzt ordnen?",
+    "night": "Guten Abend{{name}}! 🌙 Bringen wir Ihren Posteingang auf null?"
   },
   "main": {
     "urlPlaceholder": "Link einfügen (https://...) oder Titel...",

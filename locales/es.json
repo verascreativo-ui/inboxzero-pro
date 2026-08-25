@@ -50,9 +50,9 @@
   },
   "greeting": {
     "eyebrow": "Tu biblioteca inteligente",
-    "morning": "¡Buenos días, {{name}}! ☀️ ¿Qué quieres guardar hoy?",
-    "afternoon": "¡Buenas tardes, {{name}}! ☕ ¿Qué quieres clasificar ahora?",
-    "night": "¡Buenas noches, {{name}}! 🌙 ¿Dejamos tu bandeja en cero?"
+    "morning": "¡Buenos días{{name}}! ☀️ ¿Qué quieres guardar hoy?",
+    "afternoon": "¡Buenas tardes{{name}}! ☕ ¿Qué quieres clasificar ahora?",
+    "night": "¡Buenas noches{{name}}! 🌙 ¿Dejamos tu bandeja en cero?"
   },
   "main": {
     "urlPlaceholder": "Pega un enlace (https://...) o título...",

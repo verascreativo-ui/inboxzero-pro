@@ -50,9 +50,9 @@
   },
   "greeting": {
     "eyebrow": "Votre bibliothèque intelligente",
-    "morning": "Bonjour, {{name}} ! ☀️ Que voulez-vous enregistrer aujourd'hui ?",
-    "afternoon": "Bon après-midi, {{name}} ! ☕ Que voulez-vous classer maintenant ?",
-    "night": "Bonsoir, {{name}} ! 🌙 On remet votre boîte à zéro ?"
+    "morning": "Bonjour{{name}} ! ☀️ Que voulez-vous enregistrer aujourd'hui ?",
+    "afternoon": "Bon après-midi{{name}} ! ☕ Que voulez-vous classer maintenant ?",
+    "night": "Bonsoir{{name}} ! 🌙 On remet votre boîte à zéro ?"
   },
   "main": {
     "urlPlaceholder": "Collez un lien (https://...) ou un titre...",
