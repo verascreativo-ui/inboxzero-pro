@@ -511,5 +511,133 @@
   "support": {
     "email": "soporte@inboxzero.es",
     "label": "soporte@inboxzero.es"
+  },
+  "landing": {
+    "title": "InboxZero.es — Your knowledge, one click away",
+    "nav": {
+      "brand": "InboxZero.es",
+      "howItWorks": "How it works",
+      "pricing": "Pricing",
+      "faq": "FAQ",
+      "cta": "Start for free"
+    },
+    "hero": {
+      "eyebrow": "TRY THE APP AND LIVE THE EXPERIENCE",
+      "titleLine1": "Save anything.",
+      "titleLine2": "InboxZero organizes it for you.",
+      "subtitle": "Links, articles, videos and resources, automatically turned into a tidy personal library.",
+      "placeholder": "Paste a link and see what InboxZero does with it…",
+      "saveButton": "Save",
+      "trustLine": "No card · No commitment · Free to start",
+      "seeHow": "See how it works",
+      "joinLine": "Join the change. Be among the first to adopt the InboxZero method.",
+      "cardDesign": "Design",
+      "cardCooking": "Cooking",
+      "cardDev": "Development",
+      "cardReading": "Reading"
+    },
+    "problem": {
+      "eyebrow": "The problem",
+      "title": "How many links have you saved... and no longer remember why?",
+      "subtitle": "Between loose notes, WhatsApp chats and screenshots, your knowledge gets lost.",
+      "closing": "InboxZero turns that chaos into a clear, accessible library.",
+      "chipScreenshots": "Screenshots",
+      "chipWhatsapp": "WhatsApp",
+      "chipFavorites": "Favorites",
+      "chipNotes": "Notes",
+      "chipWhereIsIt": "Where did I save it?",
+      "before": "Before",
+      "after": "With InboxZero"
+    },
+    "howItWorks": {
+      "eyebrow": "How it works",
+      "title": "Your new routine in three simple steps",
+      "step1Title": "Save your links or ideas",
+      "step1Text": "Paste any URL or type your idea in the search bar above and save it instantly.",
+      "step2Title": "Create your free account",
+      "step2Text": "Sign up in seconds to access your library from any device.",
+      "step3Title": "Organize and browse",
+      "step3Text": "Classify your entries, mark them as favorites or pending, and find them again whenever you need to."
+    },
+    "features": {
+      "title": "Everything you need, nothing you don't",
+      "extractionTitle": "Automatic extraction",
+      "extractionText": "Title, description and image, pulled automatically when you paste the link.",
+      "categoriesTitle": "Custom categories",
+      "categoriesText": "Organize your library your way, with no imposed structure.",
+      "favoritesTitle": "Favorites and \"read later\"",
+      "favoritesText": "Mark what matters and come back to it whenever you like.",
+      "tryTitle": "Try it with no strings attached",
+      "tryText": "Start for free, no card and no commitment.",
+      "languageTitle": "No language barriers",
+      "languageText": "Available in Spanish, English, French, German and Portuguese.",
+      "securityTitle": "Your data, protected",
+      "securityText": "Secure authentication and full isolation between users."
+    },
+    "forWho": {
+      "title": "InboxZero is for you if...",
+      "subtitle": "Whatever your workflow, InboxZero adapts to you.",
+      "professionalsTitle": "Professionals",
+      "professionalsText": "Save articles, references and work resources without losing track.",
+      "creativesTitle": "Creatives",
+      "creativesText": "Gather visual and content inspiration in one place.",
+      "studentsTitle": "Students",
+      "studentsText": "Organize study material and sources for your work, without losing a single link.",
+      "curiousTitle": "Curious minds",
+      "curiousText": "Save everything interesting you come across, without cluttering your memory."
+    },
+    "demo": {
+      "title": "This is what your library looks like",
+      "subtitle": "Links, social media posts and articles, organized in one place.",
+      "extractionNote": "Title, description and image, extracted automatically",
+      "languagesNote": "Available in 5 languages"
+    },
+    "pricing": {
+      "title": "Simple pricing",
+      "subtitle": "Start for free. Upgrade to Premium whenever you need to.",
+      "freeTitle": "Free Plan",
+      "freePrice": "€0",
+      "freePeriod": "Forever",
+      "freeNote": "No card required",
+      "freeFeature1": "Up to 20 entries",
+      "freeFeature2": "Automatic extraction",
+      "freeFeature3": "Categories and favorites",
+      "freeFeature4": "Access from any device",
+      "freeCta": "Start for free",
+      "premiumTitle": "Premium Plan",
+      "premiumPriceMonthly": "€4.99",
+      "premiumPriceMonthlyUnit": "/ month",
+      "premiumPriceAnnual": "€47.90",
+      "premiumPriceAnnualUnit": "/ year",
+      "premiumFeature1": "Unlimited entries",
+      "premiumFeature2": "Advanced extraction",
+      "premiumFeature3": "Advanced search",
+      "premiumFeature4": "Priority support",
+      "premiumCta": "Subscribe now",
+      "closing": "Choose your plan in seconds"
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "q1": "Can I cancel anytime?",
+      "a1": "Yes, you can cancel your Premium subscription at any time from your account, with no lock-in and no penalty.",
+      "q2": "Is my data safe?",
+      "a2": "Yes. Each user can only access their own data, protected by secure authentication and database-level isolation.",
+      "q3": "Does it work with Instagram or Facebook?",
+      "a3": "Yes, InboxZero can extract information from social media links, as well as articles, videos and web pages in general.",
+      "q4": "Do I need a card to try it?",
+      "a4": "No. The Free plan doesn't require a card and lets you save up to 20 entries at no cost.",
+      "q5": "Do I need to install anything?",
+      "a5": "No, InboxZero works directly from your browser, with no app to install.",
+      "q6": "Can I access it from my phone?",
+      "a6": "Yes, InboxZero works on any device with a browser, including phones and tablets.",
+      "q7": "Is the free plan really free?",
+      "a7": "Yes, the Free plan has no cost and never expires; it simply has a limit of 20 saved entries."
+    },
+    "ctaFinal": {
+      "title": "Stop losing links. Start now.",
+      "subtitle": "No card. No installs. Your library, ready in seconds.",
+      "button": "Create my free account"
+    },
+    "footerBrand": "InboxZero.es"
   }
 }
