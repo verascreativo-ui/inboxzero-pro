@@ -620,23 +620,23 @@
     "faq": {
       "title": "Preguntas frecuentes",
       "q1": "¿Puedo cancelar cuando quiera?",
-      "a1": "Sí, puedes cancelar tu suscripción Premium en cualquier momento desde tu cuenta, sin permanencia ni penalización.",
+      "a1": "Sí. Cancelas en cualquier momento y conservas el acceso Premium hasta el final del periodo ya pagado — sin penalizaciones ni letra pequeña.",
       "q2": "¿Mis datos están seguros?",
-      "a2": "Sí. Cada usuario solo puede acceder a sus propios datos, protegidos mediante autenticación segura y aislamiento a nivel de base de datos.",
-      "q3": "¿Funciona con Instagram o Facebook?",
-      "a3": "Sí, InboxZero puede extraer información de enlaces de redes sociales, además de artículos, vídeos y páginas web en general.",
+      "a2": "Cada cuenta accede únicamente a sus propias fichas, protegidas a nivel de base de datos, no solo de interfaz.",
+      "q3": "¿Funciona con enlaces de Instagram o Facebook?",
+      "a3": "Sí, InboxZero detecta el tipo de enlace y extrae título, imagen y descripción automáticamente, también en redes sociales.",
       "q4": "¿Necesito tarjeta para probarlo?",
-      "a4": "No. El plan Gratis no requiere tarjeta y te permite guardar hasta 20 fichas sin coste.",
+      "a4": "No. El plan gratuito no pide tarjeta, y puedes incluso probar la app en modo invitado antes de crear tu cuenta.",
       "q5": "¿Necesito instalar algo?",
-      "a5": "No, InboxZero funciona directamente desde el navegador, sin necesidad de instalar ninguna aplicación.",
+      "a5": "No. InboxZero funciona directamente desde el navegador, sin instalar ninguna aplicación.",
       "q6": "¿Puedo acceder desde el móvil?",
-      "a6": "Sí, InboxZero funciona en cualquier dispositivo con navegador, incluidos móviles y tablets.",
+      "a6": "Sí. Al ser una aplicación web, funciona desde cualquier navegador, también en tu móvil o tablet.",
       "q7": "¿El plan gratuito es realmente gratis?",
-      "a7": "Sí, el plan Gratis no tiene coste ni caduca; simplemente tiene un límite de 20 fichas guardadas."
+      "a7": "Sí, sin trucos: 20 fichas gratis para siempre, sin tarjeta y sin fecha de caducidad de la prueba."
     },
     "ctaFinal": {
       "title": "Deja de perder enlaces. Empieza ahora.",
-      "subtitle": "Sin tarjeta. Sin instalaciones. Tu biblioteca, lista en segundos.",
+      "subtitle": "Sin tarjeta. Sin instalaciones. Tu primera ficha, en menos de un minuto.",
       "button": "Crear mi cuenta gratis"
     },
     "footerBrand": "InboxZero.es"
