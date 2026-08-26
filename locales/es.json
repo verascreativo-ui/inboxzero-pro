@@ -539,12 +539,12 @@
     "problem": {
       "eyebrow": "El problema",
       "title": "¿Cuántos enlaces tienes guardados... y ya no recuerdas por qué?",
-      "subtitle": "Entre notas sueltas, chats de WhatsApp y capturas de pantalla, tu conocimiento se pierde.",
-      "closing": "InboxZero convierte ese caos en una biblioteca clara y accesible.",
-      "chipScreenshots": "Capturas",
-      "chipWhatsapp": "WhatsApp",
-      "chipFavorites": "Favoritos",
-      "chipNotes": "Notas",
+      "subtitle": "Entre notas sueltas, chats de WhatsApp, capturas de pantalla y favoritos del navegador, el contenido que un día te pareció importante termina disperso, sin estructura y —sobre todo— imposible de volver a encontrar cuando de verdad lo necesitas.",
+      "closing": "InboxZero convierte ese caos en una biblioteca ordenada, clasificada y siempre a mano.",
+      "chipScreenshots": "Capturas de pantalla",
+      "chipWhatsapp": "Enlaces en WhatsApp",
+      "chipFavorites": "Favoritos sin orden",
+      "chipNotes": "Notas sueltas",
       "chipWhereIsIt": "¿Dónde lo guardé?",
       "before": "Antes",
       "after": "Con InboxZero"
@@ -553,11 +553,11 @@
       "eyebrow": "Cómo funciona",
       "title": "Tu nueva rutina en tres sencillos pasos",
       "step1Title": "Guarda tus enlaces o conceptos",
-      "step1Text": "Pega cualquier URL o escribe tu idea en el buscador superior y guárdalo al instante.",
+      "step1Text": "Pega cualquier URL o escribe tu idea en el buscador superior y presiona \"Guardar Ficha\" para capturarlo al instante.",
       "step2Title": "Crea tu cuenta gratuita",
-      "step2Text": "Regístrate en segundos para acceder a tu biblioteca desde cualquier dispositivo.",
+      "step2Text": "Regístrate en segundos para guardar tus fichas en la nube y acceder a ellas desde cualquier dispositivo.",
       "step3Title": "Organiza y consulta",
-      "step3Text": "Clasifica tus fichas, márcalas como favoritas o pendientes, y encuéntralas cuando las necesites."
+      "step3Text": "Asigna categorías, márcalas como favoritas o \"leer más tarde\", y encuéntralas cuando las necesites."
     },
     "features": {
       "title": "Todo lo que necesitas, nada de lo que sobra",
