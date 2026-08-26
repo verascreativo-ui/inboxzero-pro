@@ -562,29 +562,29 @@
     "features": {
       "title": "Todo lo que necesitas, nada de lo que sobra",
       "extractionTitle": "Extracción automática",
-      "extractionText": "Título, descripción e imagen, obtenidos solos al pegar el enlace.",
+      "extractionText": "Título, descripción e imagen se detectan solos al pegar el enlace. Cero trabajo manual.",
       "categoriesTitle": "Categorías personalizadas",
-      "categoriesText": "Organiza tu biblioteca a tu manera, sin estructuras impuestas.",
+      "categoriesText": "Organiza tus fichas como quieras, sin estructuras rígidas impuestas.",
       "favoritesTitle": "Favoritos y \"leer más tarde\"",
-      "favoritesText": "Marca lo importante y vuelve a ello cuando quieras.",
+      "favoritesText": "Marca lo importante y lo pendiente sin perderlo entre el resto.",
       "tryTitle": "Pruébalo sin ataduras",
-      "tryText": "Empieza gratis, sin tarjeta ni compromisos.",
+      "tryText": "Empieza a guardar sin necesidad de registrarte. Crea tu cuenta cuando tú decidas.",
       "languageTitle": "Sin barreras de idioma",
-      "languageText": "Disponible en español, inglés, francés, alemán y portugués.",
+      "languageText": "Interfaz nativa en español, inglés, francés, alemán y portugués.",
       "securityTitle": "Tus datos, protegidos",
-      "securityText": "Autenticación segura y aislamiento total entre usuarios."
+      "securityText": "Cada cuenta solo ve sus propias fichas. Seguridad de verdad, no de cara a la galería."
     },
     "forWho": {
       "title": "InboxZero es para ti si...",
-      "subtitle": "Da igual cómo trabajes, InboxZero se adapta a ti.",
+      "subtitle": "Da igual cómo trabajes o qué te interese: si guardas cosas para luego, esto es para ti",
       "professionalsTitle": "Profesionales",
-      "professionalsText": "Guarda artículos, referencias y recursos de trabajo sin perder el hilo.",
+      "professionalsText": "Guardas constantemente recursos, artículos y referencias para tu trabajo.",
       "creativesTitle": "Creativos",
-      "creativesText": "Recopila inspiración visual y de contenido en un solo lugar.",
+      "creativesText": "Encuentras inspiración por todas partes y necesitas tenerla a mano.",
       "studentsTitle": "Estudiantes",
-      "studentsText": "Organiza material de estudio y fuentes para tus trabajos, sin perder ni un enlace.",
+      "studentsText": "Necesitas organizar fuentes, artículos y materiales de estudio.",
       "curiousTitle": "Personas curiosas",
-      "curiousText": "Guarda todo lo interesante que encuentras, sin saturar tu memoria."
+      "curiousText": "Guardas cientos de cosas interesantes que quieres consultar después."
     },
     "demo": {
       "title": "Así se ve tu biblioteca",
