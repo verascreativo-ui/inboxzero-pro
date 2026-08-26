@@ -511,5 +511,133 @@
   "support": {
     "email": "soporte@inboxzero.es",
     "label": "soporte@inboxzero.es"
+  },
+  "landing": {
+    "title": "InboxZero.es — O seu conhecimento, a um clique",
+    "nav": {
+      "brand": "InboxZero.es",
+      "howItWorks": "Como funciona",
+      "pricing": "Preços",
+      "faq": "FAQ",
+      "cta": "Comece grátis"
+    },
+    "hero": {
+      "eyebrow": "EXPERIMENTE A APP E VIVA A EXPERIÊNCIA",
+      "titleLine1": "Guarde qualquer coisa.",
+      "titleLine2": "O InboxZero organiza por si.",
+      "subtitle": "Links, artigos, vídeos e recursos, transformados automaticamente numa biblioteca pessoal organizada.",
+      "placeholder": "Cole um link e descubra o que o InboxZero faz com ele…",
+      "saveButton": "Guardar",
+      "trustLine": "Sem cartão · Sem compromisso · Grátis para começar",
+      "seeHow": "Ver como funciona",
+      "joinLine": "Junte-se à mudança. Seja dos primeiros a adotar o método InboxZero.",
+      "cardDesign": "Design",
+      "cardCooking": "Culinária",
+      "cardDev": "Desenvolvimento",
+      "cardReading": "Leitura"
+    },
+    "problem": {
+      "eyebrow": "O problema",
+      "title": "Quantos links tem guardados... e já não se lembra porquê?",
+      "subtitle": "Entre notas soltas, conversas de WhatsApp e capturas de ecrã, o seu conhecimento perde-se.",
+      "closing": "O InboxZero transforma esse caos numa biblioteca clara e acessível.",
+      "chipScreenshots": "Capturas de ecrã",
+      "chipWhatsapp": "WhatsApp",
+      "chipFavorites": "Favoritos",
+      "chipNotes": "Notas",
+      "chipWhereIsIt": "Onde é que guardei isto?",
+      "before": "Antes",
+      "after": "Com InboxZero"
+    },
+    "howItWorks": {
+      "eyebrow": "Como funciona",
+      "title": "A sua nova rotina em três passos simples",
+      "step1Title": "Guarde os seus links ou ideias",
+      "step1Text": "Cole qualquer URL ou escreva a sua ideia na barra de pesquisa acima e guarde-a instantaneamente.",
+      "step2Title": "Crie a sua conta gratuita",
+      "step2Text": "Registe-se em segundos para aceder à sua biblioteca a partir de qualquer dispositivo.",
+      "step3Title": "Organize e consulte",
+      "step3Text": "Classifique as suas fichas, marque-as como favoritas ou para ler mais tarde, e encontre-as sempre que precisar."
+    },
+    "features": {
+      "title": "Tudo o que precisa, nada a mais",
+      "extractionTitle": "Extração automática",
+      "extractionText": "Título, descrição e imagem, obtidos automaticamente ao colar o link.",
+      "categoriesTitle": "Categorias personalizadas",
+      "categoriesText": "Organize a sua biblioteca à sua maneira, sem estruturas impostas.",
+      "favoritesTitle": "Favoritos e \"ler mais tarde\"",
+      "favoritesText": "Marque o que é importante e volte a isso quando quiser.",
+      "tryTitle": "Experimente sem compromisso",
+      "tryText": "Comece grátis, sem cartão nem compromissos.",
+      "languageTitle": "Sem barreiras de idioma",
+      "languageText": "Disponível em espanhol, inglês, francês, alemão e português.",
+      "securityTitle": "Os seus dados, protegidos",
+      "securityText": "Autenticação segura e isolamento total entre utilizadores."
+    },
+    "forWho": {
+      "title": "O InboxZero é para si se...",
+      "subtitle": "Seja qual for a sua forma de trabalhar, o InboxZero adapta-se a si.",
+      "professionalsTitle": "Profissionais",
+      "professionalsText": "Guarde artigos, referências e recursos de trabalho sem perder o fio à meada.",
+      "creativesTitle": "Criativos",
+      "creativesText": "Reúna inspiração visual e de conteúdo num só lugar.",
+      "studentsTitle": "Estudantes",
+      "studentsText": "Organize material de estudo e fontes para os seus trabalhos, sem perder um único link.",
+      "curiousTitle": "Pessoas curiosas",
+      "curiousText": "Guarde tudo o que for interessante, sem sobrecarregar a sua memória."
+    },
+    "demo": {
+      "title": "É assim que fica a sua biblioteca",
+      "subtitle": "Links, redes sociais e artigos, organizados num só lugar.",
+      "extractionNote": "Título, descrição e imagem, extraídos automaticamente",
+      "languagesNote": "Disponível em 5 idiomas"
+    },
+    "pricing": {
+      "title": "Preços simples",
+      "subtitle": "Comece grátis. Passe a Premium quando precisar.",
+      "freeTitle": "Plano Grátis",
+      "freePrice": "0 €",
+      "freePeriod": "Para sempre",
+      "freeNote": "Sem cartão necessário",
+      "freeFeature1": "Até 20 fichas",
+      "freeFeature2": "Extração automática",
+      "freeFeature3": "Categorias e favoritos",
+      "freeFeature4": "Acesso a partir de qualquer dispositivo",
+      "freeCta": "Comece grátis",
+      "premiumTitle": "Plano Premium",
+      "premiumPriceMonthly": "4,99 €",
+      "premiumPriceMonthlyUnit": "/ mês",
+      "premiumPriceAnnual": "47,90 €",
+      "premiumPriceAnnualUnit": "/ ano",
+      "premiumFeature1": "Fichas ilimitadas",
+      "premiumFeature2": "Extração avançada",
+      "premiumFeature3": "Pesquisa avançada",
+      "premiumFeature4": "Suporte prioritário",
+      "premiumCta": "Subscrever agora",
+      "closing": "Escolha o seu plano em segundos"
+    },
+    "faq": {
+      "title": "Perguntas frequentes",
+      "q1": "Posso cancelar quando quiser?",
+      "a1": "Sim, pode cancelar a sua subscrição Premium a qualquer momento a partir da sua conta, sem fidelização nem penalização.",
+      "q2": "Os meus dados estão seguros?",
+      "a2": "Sim. Cada utilizador só pode aceder aos seus próprios dados, protegidos por autenticação segura e isolamento ao nível da base de dados.",
+      "q3": "Funciona com o Instagram ou o Facebook?",
+      "a3": "Sim, o InboxZero consegue extrair informação de links de redes sociais, bem como de artigos, vídeos e páginas web em geral.",
+      "q4": "Preciso de cartão para experimentar?",
+      "a4": "Não. O plano Grátis não exige cartão e permite guardar até 20 fichas sem custo.",
+      "q5": "Preciso de instalar alguma coisa?",
+      "a5": "Não, o InboxZero funciona diretamente no navegador, sem necessidade de instalar qualquer aplicação.",
+      "q6": "Posso aceder a partir do telemóvel?",
+      "a6": "Sim, o InboxZero funciona em qualquer dispositivo com navegador, incluindo telemóveis e tablets.",
+      "q7": "O plano gratuito é mesmo grátis?",
+      "a7": "Sim, o plano Grátis não tem custo nem expira; tem apenas um limite de 20 fichas guardadas."
+    },
+    "ctaFinal": {
+      "title": "Pare de perder links. Comece agora.",
+      "subtitle": "Sem cartão. Sem instalações. A sua biblioteca, pronta em segundos.",
+      "button": "Criar a minha conta grátis"
+    },
+    "footerBrand": "InboxZero.es"
   }
 }
