@@ -511,5 +511,133 @@
   "support": {
     "email": "soporte@inboxzero.es",
     "label": "soporte@inboxzero.es"
+  },
+  "landing": {
+    "title": "InboxZero.es — Dein Wissen, einen Klick entfernt",
+    "nav": {
+      "brand": "InboxZero.es",
+      "howItWorks": "So funktioniert's",
+      "pricing": "Preise",
+      "faq": "FAQ",
+      "cta": "Kostenlos starten"
+    },
+    "hero": {
+      "eyebrow": "TESTE DIE APP UND ERLEBE ES SELBST",
+      "titleLine1": "Speichere alles.",
+      "titleLine2": "InboxZero organisiert es für dich.",
+      "subtitle": "Links, Artikel, Videos und Ressourcen, automatisch in eine übersichtliche persönliche Bibliothek verwandelt.",
+      "placeholder": "Füge einen Link ein und entdecke, was InboxZero damit macht…",
+      "saveButton": "Speichern",
+      "trustLine": "Keine Kreditkarte · Keine Verpflichtung · Kostenloser Start",
+      "seeHow": "So funktioniert's",
+      "joinLine": "Sei dabei. Gehöre zu den Ersten, die die InboxZero-Methode nutzen.",
+      "cardDesign": "Design",
+      "cardCooking": "Kochen",
+      "cardDev": "Entwicklung",
+      "cardReading": "Lesen"
+    },
+    "problem": {
+      "eyebrow": "Das Problem",
+      "title": "Wie viele Links hast du gespeichert... und weißt schon lange nicht mehr, warum?",
+      "subtitle": "Zwischen losen Notizen, WhatsApp-Chats und Screenshots geht dein Wissen verloren.",
+      "closing": "InboxZero verwandelt dieses Chaos in eine klare, zugängliche Bibliothek.",
+      "chipScreenshots": "Screenshots",
+      "chipWhatsapp": "WhatsApp",
+      "chipFavorites": "Favoriten",
+      "chipNotes": "Notizen",
+      "chipWhereIsIt": "Wo habe ich das gespeichert?",
+      "before": "Vorher",
+      "after": "Mit InboxZero"
+    },
+    "howItWorks": {
+      "eyebrow": "So funktioniert's",
+      "title": "Deine neue Routine in drei einfachen Schritten",
+      "step1Title": "Speichere deine Links oder Ideen",
+      "step1Text": "Füge eine beliebige URL ein oder schreibe deine Idee oben in die Suchleiste und speichere sie sofort.",
+      "step2Title": "Erstelle dein kostenloses Konto",
+      "step2Text": "Registriere dich in Sekunden, um von jedem Gerät aus auf deine Bibliothek zuzugreifen.",
+      "step3Title": "Organisiere und durchstöbere",
+      "step3Text": "Ordne deine Einträge, markiere sie als Favorit oder für später, und finde sie wieder, wann immer du sie brauchst."
+    },
+    "features": {
+      "title": "Alles, was du brauchst, nichts, was überflüssig ist",
+      "extractionTitle": "Automatische Extraktion",
+      "extractionText": "Titel, Beschreibung und Bild werden automatisch übernommen, sobald du den Link einfügst.",
+      "categoriesTitle": "Individuelle Kategorien",
+      "categoriesText": "Organisiere deine Bibliothek auf deine Art, ohne vorgegebene Struktur.",
+      "favoritesTitle": "Favoriten und „Später lesen“",
+      "favoritesText": "Markiere, was wichtig ist, und komm zurück, wann immer du möchtest.",
+      "tryTitle": "Unverbindlich testen",
+      "tryText": "Kostenlos starten, ohne Kreditkarte und ohne Verpflichtung.",
+      "languageTitle": "Keine Sprachbarrieren",
+      "languageText": "Verfügbar auf Spanisch, Englisch, Französisch, Deutsch und Portugiesisch.",
+      "securityTitle": "Deine Daten, geschützt",
+      "securityText": "Sichere Authentifizierung und vollständige Trennung zwischen Nutzern."
+    },
+    "forWho": {
+      "title": "InboxZero ist genau richtig für dich, wenn...",
+      "subtitle": "Egal wie du arbeitest, InboxZero passt sich dir an.",
+      "professionalsTitle": "Berufstätige",
+      "professionalsText": "Speichere Artikel, Referenzen und Arbeitsressourcen, ohne den Überblick zu verlieren.",
+      "creativesTitle": "Kreative",
+      "creativesText": "Sammle visuelle Inspiration und Inhalte an einem Ort.",
+      "studentsTitle": "Studierende",
+      "studentsText": "Organisiere Lernmaterial und Quellen für deine Arbeiten, ohne einen einzigen Link zu verlieren.",
+      "curiousTitle": "Neugierige",
+      "curiousText": "Speichere alles Interessante, das dir begegnet, ohne dein Gedächtnis zu überlasten."
+    },
+    "demo": {
+      "title": "So sieht deine Bibliothek aus",
+      "subtitle": "Links, Social-Media-Beiträge und Artikel, an einem Ort organisiert.",
+      "extractionNote": "Titel, Beschreibung und Bild, automatisch extrahiert",
+      "languagesNote": "Verfügbar in 5 Sprachen"
+    },
+    "pricing": {
+      "title": "Einfache Preise",
+      "subtitle": "Kostenlos starten. Wechsle zu Premium, sobald du es brauchst.",
+      "freeTitle": "Kostenloser Plan",
+      "freePrice": "0 €",
+      "freePeriod": "Für immer",
+      "freeNote": "Keine Kreditkarte nötig",
+      "freeFeature1": "Bis zu 20 Einträge",
+      "freeFeature2": "Automatische Extraktion",
+      "freeFeature3": "Kategorien und Favoriten",
+      "freeFeature4": "Zugriff von jedem Gerät",
+      "freeCta": "Kostenlos starten",
+      "premiumTitle": "Premium-Plan",
+      "premiumPriceMonthly": "4,99 €",
+      "premiumPriceMonthlyUnit": "/ Monat",
+      "premiumPriceAnnual": "47,90 €",
+      "premiumPriceAnnualUnit": "/ Jahr",
+      "premiumFeature1": "Unbegrenzte Einträge",
+      "premiumFeature2": "Erweiterte Extraktion",
+      "premiumFeature3": "Erweiterte Suche",
+      "premiumFeature4": "Priorisierter Support",
+      "premiumCta": "Jetzt abonnieren",
+      "closing": "Wähle deinen Plan in Sekunden"
+    },
+    "faq": {
+      "title": "Häufig gestellte Fragen",
+      "q1": "Kann ich jederzeit kündigen?",
+      "a1": "Ja, du kannst dein Premium-Abo jederzeit über dein Konto kündigen, ohne Mindestlaufzeit und ohne Strafgebühr.",
+      "q2": "Sind meine Daten sicher?",
+      "a2": "Ja. Jeder Nutzer kann nur auf seine eigenen Daten zugreifen, geschützt durch sichere Authentifizierung und Isolation auf Datenbankebene.",
+      "q3": "Funktioniert es mit Instagram oder Facebook?",
+      "a3": "Ja, InboxZero kann Informationen aus Social-Media-Links sowie aus Artikeln, Videos und Webseiten im Allgemeinen extrahieren.",
+      "q4": "Brauche ich eine Kreditkarte zum Testen?",
+      "a4": "Nein. Der kostenlose Plan erfordert keine Kreditkarte und erlaubt dir, bis zu 20 Einträge kostenlos zu speichern.",
+      "q5": "Muss ich etwas installieren?",
+      "a5": "Nein, InboxZero funktioniert direkt im Browser, ohne dass eine App installiert werden muss.",
+      "q6": "Kann ich vom Handy aus darauf zugreifen?",
+      "a6": "Ja, InboxZero funktioniert auf jedem Gerät mit Browser, einschließlich Smartphones und Tablets.",
+      "q7": "Ist der kostenlose Plan wirklich kostenlos?",
+      "a7": "Ja, der kostenlose Plan kostet nichts und läuft nie ab; er hat lediglich ein Limit von 20 gespeicherten Einträgen."
+    },
+    "ctaFinal": {
+      "title": "Verliere keine Links mehr. Starte jetzt.",
+      "subtitle": "Keine Kreditkarte. Keine Installation. Deine Bibliothek, bereit in Sekunden.",
+      "button": "Kostenloses Konto erstellen"
+    },
+    "footerBrand": "InboxZero.es"
   }
 }
