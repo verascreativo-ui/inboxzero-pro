@@ -575,7 +575,7 @@
       "securityText": "Cada cuenta solo ve sus propias fichas. Seguridad de verdad, no de cara a la galería."
     },
     "forWho": {
-      "title": "InboxZero es para ti si...",
+      "title": "<span class=\"brand-accent\">InboxZero</span> es para ti si...",
       "subtitle": "Da igual cómo trabajes o qué te interese: si guardas cosas para luego, esto es para ti",
       "professionalsTitle": "Profesionales",
       "professionalsText": "Guardas constantemente recursos, artículos y referencias para tu trabajo.",
