@@ -114,6 +114,11 @@
       document.title = t(titleKeyEl.getAttribute('data-i18n'));
     }
 
+    const preciosImg = document.getElementById('precios-shot-img');
+    if (preciosImg) {
+      preciosImg.src = `precio_suscripcion_${locale}.jpg`;
+    }
+
     document.documentElement.lang = locale;
 
     // Sincronizar visualmente el menú desplegable con el idioma activo
