@@ -524,7 +524,7 @@
     "hero": {
       "eyebrow": "EXPERIMENTE A APP E VIVA A EXPERIÊNCIA",
       "titleLine1": "Guarde qualquer coisa.",
-      "titleLine2": "O InboxZero organiza por si.",
+      "titleLine2": "O <em>InboxZero</em> organiza por si.",
       "subtitle": "Links, artigos, vídeos e recursos, transformados automaticamente numa biblioteca pessoal organizada.",
       "placeholder": "Cole um link e descubra o que o InboxZero faz com ele…",
       "saveButton": "Guardar",
@@ -575,7 +575,7 @@
       "securityText": "Autenticação segura e isolamento total entre utilizadores."
     },
     "forWho": {
-      "title": "O InboxZero é para si se...",
+      "title": "O <span class=\"brand-accent\">InboxZero</span> é para si se...",
       "subtitle": "Seja qual for a sua forma de trabalhar, o InboxZero adapta-se a si.",
       "professionalsTitle": "Profissionais",
       "professionalsText": "Guarde artigos, referências e recursos de trabalho sem perder o fio à meada.",
@@ -609,6 +609,7 @@
       "premiumPriceMonthlyUnit": "/ mês",
       "premiumPriceAnnual": "47,90 €",
       "premiumPriceAnnualUnit": "/ ano",
+      "premiumNote": "Sem cartão · Cancele quando quiser",
       "premiumFeature1": "Fichas ilimitadas",
       "premiumFeature2": "Extração avançada",
       "premiumFeature3": "Pesquisa avançada",
@@ -631,7 +632,9 @@
       "q6": "Posso aceder a partir do telemóvel?",
       "a6": "Sim, o InboxZero funciona em qualquer dispositivo com navegador, incluindo telemóveis e tablets.",
       "q7": "O plano gratuito é mesmo grátis?",
-      "a7": "Sim, o plano Grátis não tem custo nem expira; tem apenas um limite de 20 fichas guardadas."
+      "a7": "Sim, o plano Grátis não tem custo nem expira; tem apenas um limite de 20 fichas guardadas.",
+      "qLimit": "O que acontece quando ultrapasso o limite do plano grátis?",
+      "aLimit": "Poderá continuar a consultar as suas 20 fichas guardadas, mas para adicionar novas precisará de passar a Premium. Nada é eliminado da sua biblioteca."
     },
     "ctaFinal": {
       "title": "Pare de perder links. Comece agora.",

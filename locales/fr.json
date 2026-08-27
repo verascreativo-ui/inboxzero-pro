@@ -524,7 +524,7 @@
     "hero": {
       "eyebrow": "ESSAYEZ L'APPLICATION ET VIVEZ L'EXPÉRIENCE",
       "titleLine1": "Enregistrez tout.",
-      "titleLine2": "InboxZero organise pour vous.",
+      "titleLine2": "<em>InboxZero</em> organise pour vous.",
       "subtitle": "Liens, articles, vidéos et ressources, transformés automatiquement en une bibliothèque personnelle bien rangée.",
       "placeholder": "Collez un lien et découvrez ce qu'InboxZero en fait…",
       "saveButton": "Enregistrer",
@@ -575,7 +575,7 @@
       "securityText": "Authentification sécurisée et isolation totale entre utilisateurs."
     },
     "forWho": {
-      "title": "InboxZero est fait pour vous si...",
+      "title": "<span class=\"brand-accent\">InboxZero</span> est fait pour vous si...",
       "subtitle": "Quelle que soit votre façon de travailler, InboxZero s'adapte à vous.",
       "professionalsTitle": "Professionnels",
       "professionalsText": "Enregistrez articles, références et ressources de travail sans perdre le fil.",
@@ -609,6 +609,7 @@
       "premiumPriceMonthlyUnit": "/ mois",
       "premiumPriceAnnual": "47,90 €",
       "premiumPriceAnnualUnit": "/ an",
+      "premiumNote": "Sans carte · Annulez quand vous voulez",
       "premiumFeature1": "Fiches illimitées",
       "premiumFeature2": "Extraction avancée",
       "premiumFeature3": "Recherche avancée",
@@ -631,7 +632,9 @@
       "q6": "Puis-je y accéder depuis mon téléphone ?",
       "a6": "Oui, InboxZero fonctionne sur tout appareil disposant d'un navigateur, y compris téléphones et tablettes.",
       "q7": "Le plan gratuit est-il vraiment gratuit ?",
-      "a7": "Oui, le plan Gratuit ne coûte rien et n'expire jamais ; il a simplement une limite de 20 fiches enregistrées."
+      "a7": "Oui, le plan Gratuit ne coûte rien et n'expire jamais ; il a simplement une limite de 20 fiches enregistrées.",
+      "qLimit": "Que se passe-t-il lorsque j'atteins la limite du plan gratuit ?",
+      "aLimit": "Vous pourrez continuer à consulter vos 20 fiches enregistrées, mais pour en ajouter de nouvelles il faudra passer à Premium. Rien n'est supprimé de votre bibliothèque."
     },
     "ctaFinal": {
       "title": "Arrêtez de perdre vos liens. Commencez maintenant.",

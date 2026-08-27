@@ -524,7 +524,7 @@
     "hero": {
       "eyebrow": "TRY THE APP AND LIVE THE EXPERIENCE",
       "titleLine1": "Save anything.",
-      "titleLine2": "InboxZero organizes it for you.",
+      "titleLine2": "<em>InboxZero</em> organizes it for you.",
       "subtitle": "Links, articles, videos and resources, automatically turned into a tidy personal library.",
       "placeholder": "Paste a link and see what InboxZero does with it…",
       "saveButton": "Save",
@@ -575,7 +575,7 @@
       "securityText": "Secure authentication and full isolation between users."
     },
     "forWho": {
-      "title": "InboxZero is for you if...",
+      "title": "<span class=\"brand-accent\">InboxZero</span> is for you if...",
       "subtitle": "Whatever your workflow, InboxZero adapts to you.",
       "professionalsTitle": "Professionals",
       "professionalsText": "Save articles, references and work resources without losing track.",
@@ -609,6 +609,7 @@
       "premiumPriceMonthlyUnit": "/ month",
       "premiumPriceAnnual": "€47.90",
       "premiumPriceAnnualUnit": "/ year",
+      "premiumNote": "No credit card · Cancel anytime",
       "premiumFeature1": "Unlimited entries",
       "premiumFeature2": "Advanced extraction",
       "premiumFeature3": "Advanced search",
@@ -631,7 +632,9 @@
       "q6": "Can I access it from my phone?",
       "a6": "Yes, InboxZero works on any device with a browser, including phones and tablets.",
       "q7": "Is the free plan really free?",
-      "a7": "Yes, the Free plan has no cost and never expires; it simply has a limit of 20 saved entries."
+      "a7": "Yes, the Free plan has no cost and never expires; it simply has a limit of 20 saved entries.",
+      "qLimit": "What happens when I reach the free plan limit?",
+      "aLimit": "You can still browse your 20 saved entries, but you'll need Premium to add new ones. Nothing is deleted from your library."
     },
     "ctaFinal": {
       "title": "Stop losing links. Start now.",

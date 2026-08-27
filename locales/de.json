@@ -524,7 +524,7 @@
     "hero": {
       "eyebrow": "TESTE DIE APP UND ERLEBE ES SELBST",
       "titleLine1": "Speichere alles.",
-      "titleLine2": "InboxZero organisiert es für dich.",
+      "titleLine2": "<em>InboxZero</em> organisiert es für dich.",
       "subtitle": "Links, Artikel, Videos und Ressourcen, automatisch in eine übersichtliche persönliche Bibliothek verwandelt.",
       "placeholder": "Füge einen Link ein und entdecke, was InboxZero damit macht…",
       "saveButton": "Speichern",
@@ -575,7 +575,7 @@
       "securityText": "Sichere Authentifizierung und vollständige Trennung zwischen Nutzern."
     },
     "forWho": {
-      "title": "InboxZero ist genau richtig für dich, wenn...",
+      "title": "<span class=\"brand-accent\">InboxZero</span> ist genau richtig für dich, wenn...",
       "subtitle": "Egal wie du arbeitest, InboxZero passt sich dir an.",
       "professionalsTitle": "Berufstätige",
       "professionalsText": "Speichere Artikel, Referenzen und Arbeitsressourcen, ohne den Überblick zu verlieren.",
@@ -609,6 +609,7 @@
       "premiumPriceMonthlyUnit": "/ Monat",
       "premiumPriceAnnual": "47,90 €",
       "premiumPriceAnnualUnit": "/ Jahr",
+      "premiumNote": "Keine Kreditkarte · Jederzeit kündbar",
       "premiumFeature1": "Unbegrenzte Einträge",
       "premiumFeature2": "Erweiterte Extraktion",
       "premiumFeature3": "Erweiterte Suche",
@@ -631,7 +632,9 @@
       "q6": "Kann ich vom Handy aus darauf zugreifen?",
       "a6": "Ja, InboxZero funktioniert auf jedem Gerät mit Browser, einschließlich Smartphones und Tablets.",
       "q7": "Ist der kostenlose Plan wirklich kostenlos?",
-      "a7": "Ja, der kostenlose Plan kostet nichts und läuft nie ab; er hat lediglich ein Limit von 20 gespeicherten Einträgen."
+      "a7": "Ja, der kostenlose Plan kostet nichts und läuft nie ab; er hat lediglich ein Limit von 20 gespeicherten Einträgen.",
+      "qLimit": "Was passiert, wenn ich das Limit des kostenlosen Plans erreiche?",
+      "aLimit": "Du kannst deine 20 gespeicherten Einträge weiter ansehen, aber für neue brauchst du Premium. Aus deiner Bibliothek wird nichts gelöscht."
     },
     "ctaFinal": {
       "title": "Verliere keine Links mehr. Starte jetzt.",

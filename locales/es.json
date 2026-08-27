@@ -632,7 +632,9 @@
       "q6": "¿Puedo acceder desde el móvil?",
       "a6": "Sí. Al ser una aplicación web, funciona desde cualquier navegador, también en tu móvil o tablet.",
       "q7": "¿El plan gratuito es realmente gratis?",
-      "a7": "Sí, sin trucos: 20 fichas gratis para siempre, sin tarjeta y sin fecha de caducidad de la prueba."
+      "a7": "Sí, sin trucos: 20 fichas gratis para siempre, sin tarjeta y sin fecha de caducidad de la prueba.",
+      "qLimit": "¿Qué pasa cuando supero el límite del plan gratis?",
+      "aLimit": "Podrás seguir consultando tus 20 fichas guardadas, pero para añadir nuevas necesitarás pasar a Premium. No se elimina nada de tu biblioteca."
     },
     "ctaFinal": {
       "title": "Deja de perder enlaces. Empieza ahora.",
