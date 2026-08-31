@@ -105,6 +105,8 @@
     "confirmCancel": "Confirmer la résiliation de l'abonnement",
     "successTitle": "Demande enregistrée",
     "successMessage": "Nous avons enregistré votre demande de résiliation. Merci pour votre retour ; nous vous accompagnerons dans la suite.",
+    "supportSentTitle": "E-mail préparé",
+    "supportSentMessage": "Nous avons ouvert votre logiciel de messagerie avec le message déjà rédigé pour soporte@inboxzero.es. Il ne vous reste plus qu'à cliquer sur « Envoyer » depuis là.",
     "successMessageWithDate": "Vous conserverez Premium jusqu'au {{fecha}}. Ensuite, vous passerez automatiquement au Plan Gratuit.",
     "scheduledTitle": "Résiliation déjà programmée",
     "scheduledMessage": "Votre abonnement Premium restera actif jusqu'à la fin de la période déjà payée.",

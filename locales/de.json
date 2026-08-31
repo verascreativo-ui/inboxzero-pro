@@ -105,6 +105,8 @@
     "confirmCancel": "Kündigung des Abonnements bestätigen",
     "successTitle": "Anfrage erfasst",
     "successMessage": "Wir haben Ihre Kündigungsanfrage erfasst. Danke für Ihr Feedback; wir begleiten Sie im weiteren Prozess.",
+    "supportSentTitle": "E-Mail vorbereitet",
+    "supportSentMessage": "Wir haben dein E-Mail-Programm mit einer bereits formulierten Nachricht an soporte@inboxzero.es geöffnet. Du musst dort nur noch auf „Senden“ klicken.",
     "successMessageWithDate": "Du behältst Premium bis zum {{fecha}}. Danach wechselst du automatisch zum kostenlosen Plan.",
     "scheduledTitle": "Kündigung bereits geplant",
     "scheduledMessage": "Dein Premium-Abo bleibt bis zum Ende des bereits bezahlten Zeitraums aktiv.",
