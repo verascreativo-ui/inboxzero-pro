@@ -1339,8 +1339,10 @@ footer {
   border-radius: 12px;
   width: 100%;
   max-width: 600px;
+  max-height: 90vh;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   animation: modalPop 0.25s ease-out;
 }
 
@@ -2791,4 +2793,40 @@ footer {
 .lang-dropdown-menu li[aria-selected="true"] {
   background-color: #eff6ff;
   font-weight: 600;
+}
+
+/* Ajuste compacto específico para el modal de suscripción, para que quepa sin scroll en más tamaños de pantalla */
+#modal-subscribe .modal-header-edit {
+  padding: 8px 16px;
+}
+#modal-subscribe .modal-body-login {
+  padding: 10px 16px 12px;
+  gap: 8px;
+}
+#modal-subscribe .subscribe-trial-alert {
+  padding: 8px 10px;
+  font-size: 12.5px;
+}
+#modal-subscribe .login-form .form-group {
+  gap: 2px;
+}
+#modal-subscribe .login-form .form-group label {
+  font-size: 12px;
+}
+#modal-subscribe .login-form .form-group input {
+  padding: 6px 10px;
+}
+#modal-subscribe .subscribe-plan-fieldset {
+  margin-top: 2px;
+}
+#modal-subscribe .subscribe-plan-option {
+  padding: 6px 10px;
+}
+#modal-subscribe .subscribe-terms {
+  margin-top: 2px;
+  font-size: 12px;
+}
+#modal-subscribe .login-modal-actions {
+  margin-top: 4px;
+  gap: 8px;
 }
