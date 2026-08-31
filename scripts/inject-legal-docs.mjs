@@ -206,6 +206,7 @@ const docs = {
           heading: '4. Plan de prueba y suscripción',
           paragraphs: [
             'Puede existir un plan de prueba gratuito con límites (p. ej. número de fichas). Superado el límite o finalizado el periodo, el acceso a funciones de guardado o premium puede requerir suscripción de pago gestionada a través de proveedores como Stripe.',
+            'La suscripción Premium se renueva automáticamente al final de cada periodo de facturación (mensual o anual, según el plan elegido), y el importe correspondiente se cargará automáticamente al método de pago registrado, salvo que el usuario cancele antes de la fecha de renovación. Al solicitar la baja, el acceso a las funciones Premium se mantiene activo hasta el final del periodo ya abonado, sin que se realicen cargos adicionales a partir de esa fecha; transcurrido dicho periodo, la cuenta pasará automáticamente al plan gratuito con sus límites correspondientes. Las condiciones de reembolso, cuando resulten aplicables conforme a la normativa vigente, se detallarán en el proceso de contratación.',
             `Consultas sobre facturación o baja: ${MAIL}.`,
           ],
         },
@@ -430,6 +431,7 @@ docs.en = {
         heading: '4. Free trial and subscription',
         paragraphs: [
           'A free trial plan with limits (e.g. number of cards) may apply. After the limit or trial period, saving or premium features may require a paid subscription processed via providers such as Stripe.',
+          'The Premium subscription renews automatically at the end of each billing period (monthly or annual, depending on the chosen plan), and the corresponding amount will be automatically charged to the registered payment method, unless the user cancels before the renewal date. Upon requesting cancellation, access to Premium features remains active until the end of the already-paid period, with no further charges made after that date; once that period ends, the account will automatically switch to the free plan with its corresponding limits. Refund conditions, where applicable under current regulations, will be detailed during the checkout process.',
           `Billing or cancellation enquiries: ${MAIL}.`,
         ],
       },
@@ -651,6 +653,7 @@ docs.fr = {
         heading: '4. Essai gratuit et abonnement',
         paragraphs: [
           'Un forfait d’essai gratuit avec des limites (p. ex. nombre de fiches) peut s’appliquer. Au-delà, certaines fonctions peuvent nécessiter un abonnement payant (p. ex. via Stripe).',
+          'L\'abonnement Premium se renouvelle automatiquement à la fin de chaque période de facturation (mensuelle ou annuelle, selon le forfait choisi), et le montant correspondant sera automatiquement débité du moyen de paiement enregistré, sauf si l\'utilisateur annule avant la date de renouvellement. En cas de demande de résiliation, l\'accès aux fonctionnalités Premium reste actif jusqu\'à la fin de la période déjà payée, sans frais supplémentaires après cette date ; à l\'issue de cette période, le compte basculera automatiquement vers le forfait gratuit avec ses limites correspondantes. Les conditions de remboursement, lorsqu\'elles sont applicables conformément à la réglementation en vigueur, seront précisées lors du processus de souscription.',
           `Facturation / résiliation : ${MAIL}.`,
         ],
       },
@@ -872,6 +875,7 @@ docs.de = {
         heading: '4. Testphase und Abonnement',
         paragraphs: [
           'Es kann einen kostenlosen Testplan mit Limits (z. B. Kartenanzahl) geben. Danach können Speicher- oder Premium-Funktionen ein kostenpflichtiges Abonnement erfordern (z. B. über Stripe).',
+          'Das Premium-Abonnement verlängert sich automatisch am Ende jedes Abrechnungszeitraums (monatlich oder jährlich, je nach gewähltem Plan), und der entsprechende Betrag wird automatisch der hinterlegten Zahlungsmethode belastet, sofern der Nutzer nicht vor dem Verlängerungsdatum kündigt. Bei einer Kündigung bleibt der Zugang zu den Premium-Funktionen bis zum Ende des bereits bezahlten Zeitraums aktiv, ohne dass danach weitere Kosten anfallen; nach Ablauf dieses Zeitraums wechselt das Konto automatisch zum kostenlosen Plan mit den entsprechenden Einschränkungen. Erstattungsbedingungen werden, sofern nach geltendem Recht anwendbar, im Bestellvorgang näher erläutert.',
           `Abrechnung / Kündigung: ${MAIL}.`,
         ],
       },
@@ -1093,6 +1097,7 @@ docs.pt = {
         heading: '4. Plano de teste e subscrição',
         paragraphs: [
           'Pode existir um plano de teste gratuito com limites (p. ex. número de fichas). Após o limite, funções de guardar ou premium podem exigir subscrição paga (p. ex. via Stripe).',
+          'A subscrição Premium renova-se automaticamente no final de cada período de faturação (mensal ou anual, consoante o plano escolhido), e o valor correspondente será cobrado automaticamente no método de pagamento registado, salvo se o utilizador cancelar antes da data de renovação. Ao solicitar o cancelamento, o acesso às funcionalidades Premium mantém-se ativo até ao final do período já pago, sem quaisquer cobranças adicionais a partir dessa data; após esse período, a conta passará automaticamente para o plano gratuito com os respetivos limites. As condições de reembolso, quando aplicáveis nos termos da legislação em vigor, serão detalhadas no processo de contratação.',
           `Faturação / cancelamento: ${MAIL}.`,
         ],
       },

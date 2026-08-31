@@ -477,6 +477,7 @@
           "heading": "4. Plan de prueba y suscripción",
           "paragraphs": [
             "Puede existir un plan de prueba gratuito con límites (p. ej. número de fichas). Superado el límite o finalizado el periodo, el acceso a funciones de guardado o premium puede requerir suscripción de pago gestionada a través de proveedores como Stripe.",
+            "La suscripción Premium se renueva automáticamente al final de cada periodo de facturación (mensual o anual, según el plan elegido), y el importe correspondiente se cargará automáticamente al método de pago registrado, salvo que el usuario cancele antes de la fecha de renovación. Al solicitar la baja, el acceso a las funciones Premium se mantiene activo hasta el final del periodo ya abonado, sin que se realicen cargos adicionales a partir de esa fecha; transcurrido dicho periodo, la cuenta pasará automáticamente al plan gratuito con sus límites correspondientes. Las condiciones de reembolso, cuando resulten aplicables conforme a la normativa vigente, se detallarán en el proceso de contratación.",
             "Consultas sobre facturación o baja: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
           ]
         },

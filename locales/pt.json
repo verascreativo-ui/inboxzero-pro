@@ -477,6 +477,7 @@
           "heading": "4. Plano de teste e subscrição",
           "paragraphs": [
             "Pode existir um plano de teste gratuito com limites (p. ex. número de fichas). Após o limite, funções de guardar ou premium podem exigir subscrição paga (p. ex. via Stripe).",
+            "A subscrição Premium renova-se automaticamente no final de cada período de faturação (mensal ou anual, consoante o plano escolhido), e o valor correspondente será cobrado automaticamente no método de pagamento registado, salvo se o utilizador cancelar antes da data de renovação. Ao solicitar o cancelamento, o acesso às funcionalidades Premium mantém-se ativo até ao final do período já pago, sem quaisquer cobranças adicionais a partir dessa data; após esse período, a conta passará automaticamente para o plano gratuito com os respetivos limites. As condições de reembolso, quando aplicáveis nos termos da legislação em vigor, serão detalhadas no processo de contratação.",
             "Faturação / cancelamento: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
           ]
         },

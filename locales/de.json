@@ -477,6 +477,7 @@
           "heading": "4. Testphase und Abonnement",
           "paragraphs": [
             "Es kann einen kostenlosen Testplan mit Limits (z. B. Kartenanzahl) geben. Danach können Speicher- oder Premium-Funktionen ein kostenpflichtiges Abonnement erfordern (z. B. über Stripe).",
+            "Das Premium-Abonnement verlängert sich automatisch am Ende jedes Abrechnungszeitraums (monatlich oder jährlich, je nach gewähltem Plan), und der entsprechende Betrag wird automatisch der hinterlegten Zahlungsmethode belastet, sofern der Nutzer nicht vor dem Verlängerungsdatum kündigt. Bei einer Kündigung bleibt der Zugang zu den Premium-Funktionen bis zum Ende des bereits bezahlten Zeitraums aktiv, ohne dass danach weitere Kosten anfallen; nach Ablauf dieses Zeitraums wechselt das Konto automatisch zum kostenlosen Plan mit den entsprechenden Einschränkungen. Erstattungsbedingungen werden, sofern nach geltendem Recht anwendbar, im Bestellvorgang näher erläutert.",
             "Abrechnung / Kündigung: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
           ]
         },

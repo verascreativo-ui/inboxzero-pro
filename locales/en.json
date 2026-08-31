@@ -477,6 +477,7 @@
           "heading": "4. Free trial and subscription",
           "paragraphs": [
             "A free trial plan with limits (e.g. number of cards) may apply. After the limit or trial period, saving or premium features may require a paid subscription processed via providers such as Stripe.",
+            "The Premium subscription renews automatically at the end of each billing period (monthly or annual, depending on the chosen plan), and the corresponding amount will be automatically charged to the registered payment method, unless the user cancels before the renewal date. Upon requesting cancellation, access to Premium features remains active until the end of the already-paid period, with no further charges made after that date; once that period ends, the account will automatically switch to the free plan with its corresponding limits. Refund conditions, where applicable under current regulations, will be detailed during the checkout process.",
             "Billing or cancellation enquiries: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
           ]
         },
