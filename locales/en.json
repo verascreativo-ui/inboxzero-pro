@@ -105,6 +105,8 @@
     "confirmCancel": "Confirm subscription cancellation",
     "successTitle": "Request recorded",
     "successMessage": "We have recorded your cancellation request. Thank you for your feedback; we will guide you through the process.",
+    "supportSentTitle": "Email ready",
+    "supportSentMessage": "We've opened your email app with a message already drafted for soporte@inboxzero.es. All you need to do is press \"Send\" from there.",
     "successMessageWithDate": "You'll keep Premium until {{fecha}}. After that, you'll automatically switch to the Free Plan.",
     "scheduledTitle": "Cancellation already scheduled",
     "scheduledMessage": "Your Premium subscription will stay active until the end of the period you already paid for.",

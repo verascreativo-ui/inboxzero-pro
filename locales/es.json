@@ -105,6 +105,8 @@
     "confirmCancel": "Confirmar cancelación de suscripción",
     "successTitle": "Solicitud registrada",
     "successMessage": "Hemos registrado tu solicitud de baja. Gracias por tu feedback; te acompañaremos en el proceso.",
+    "supportSentTitle": "Correo preparado",
+    "supportSentMessage": "Hemos abierto tu programa de correo con el mensaje ya redactado para soporte@inboxzero.es. Solo tienes que pulsar \"Enviar\" desde ahí.",
     "successMessageWithDate": "Seguirás teniendo Premium hasta el {{fecha}}. Después pasarás automáticamente al Plan Gratuito.",
     "scheduledTitle": "Baja ya programada",
     "scheduledMessage": "Tu suscripción Premium seguirá activa hasta el fin del periodo ya pagado.",

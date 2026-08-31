@@ -4958,6 +4958,8 @@ document.addEventListener('i18n:ready', () => {
     const successView = document.getElementById('retention-success-view');
     if (formView) formView.hidden = false;
     if (successView) successView.hidden = true;
+    const supportSentView = document.getElementById('retention-support-sent-view');
+    if (supportSentView) supportSentView.hidden = true;
     document.querySelectorAll('input[name="retention-reason"]').forEach((input) => {
       input.checked = false;
     });
@@ -5055,6 +5057,13 @@ document.addEventListener('i18n:ready', () => {
     const subject = encodeURIComponent('Consulta sobre mi suscripción InboxZero');
     const body = encodeURIComponent(lines.join('\n'));
     window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
+    const formView = document.getElementById('retention-form-view');
+    const supportSentView = document.getElementById('retention-support-sent-view');
+    if (formView) formView.hidden = true;
+    if (supportSentView) supportSentView.hidden = false;
+  });
+
+  document.getElementById('btn-retention-support-sent-close')?.addEventListener('click', () => {
     closeRetentionModal();
   });
 
