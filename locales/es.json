@@ -157,7 +157,7 @@
     "planMonthlySubtitle": "Cancela cuando quieras",
     "planAnnualTitle": "Anual — 3,99€/mes",
     "planAnnualSubtitle": "47,90€/año, facturado de una vez · Ahorra un 20%",
-    "termsHtml": "He leído y acepto la <a href=\"#\">Política de Privacidad</a>, los <a href=\"#\">Términos y Condiciones</a> y la autorización de uso.",
+    "termsHtml": "He leído y acepto la <a href=\"#\">Política de Privacidad</a>, los <a href=\"#\">Términos y Condiciones</a> (incluye garantía de reembolso de 14 días) y la autorización de uso.",
     "stripeButton": "Continuar a Stripe 💳",
     "captchaError": "Respuesta del captcha incorrecta. Debe ser 7.",
     "needAuth": "Inicia sesión para suscribirte a Premium.",
@@ -478,6 +478,7 @@
           "paragraphs": [
             "Puede existir un plan de prueba gratuito con límites (p. ej. número de fichas). Superado el límite o finalizado el periodo, el acceso a funciones de guardado o premium puede requerir suscripción de pago gestionada a través de proveedores como Stripe.",
             "La suscripción Premium se renueva automáticamente al final de cada periodo de facturación (mensual o anual, según el plan elegido), y el importe correspondiente se cargará automáticamente al método de pago registrado, salvo que el usuario cancele antes de la fecha de renovación. Al solicitar la baja, el acceso a las funciones Premium se mantiene activo hasta el final del periodo ya abonado, sin que se realicen cargos adicionales a partir de esa fecha; transcurrido dicho periodo, la cuenta pasará automáticamente al plan gratuito con sus límites correspondientes. Las condiciones de reembolso, cuando resulten aplicables conforme a la normativa vigente, se detallarán en el proceso de contratación.",
+            "El usuario dispone de un plazo de catorce (14) días naturales desde la confirmación del pago inicial de la suscripción para ejercer su derecho de desistimiento y solicitar el reembolso íntegro del importe abonado, sin necesidad de justificación, escribiendo a soporte@inboxzero.es. Transcurrido dicho plazo, no se realizarán reembolsos por el periodo en curso; no obstante, el usuario podrá cancelar en cualquier momento, manteniendo el acceso Premium hasta el final del periodo ya abonado, tal como se indica en el párrafo anterior. Este derecho de desistimiento se aplica a la contratación inicial de la suscripción; las renovaciones automáticas de un servicio ya contratado no generan un nuevo plazo de desistimiento independiente.",
             "Consultas sobre facturación o baja: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
           ]
         },

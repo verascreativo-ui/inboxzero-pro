@@ -157,7 +157,7 @@
     "planMonthlySubtitle": "Annulez à tout moment",
     "planAnnualTitle": "Annuel — 3,99€/mois",
     "planAnnualSubtitle": "47,90€/an, facturé en une fois · Économisez 20%",
-    "termsHtml": "J'ai lu et j'accepte la <a href=\"#\">Politique de confidentialité</a>, les <a href=\"#\">Conditions générales</a> et l'autorisation d'utilisation.",
+    "termsHtml": "J'ai lu et j'accepte la <a href=\"#\">Politique de confidentialité</a>, les <a href=\"#\">Conditions générales</a> (inclut une garantie de remboursement de 14 jours) et l'autorisation d'utilisation.",
     "stripeButton": "Continuer vers Stripe 💳",
     "captchaError": "Réponse du captcha incorrecte. Ce doit être 7.",
     "needAuth": "Connectez-vous pour souscrire à Premium.",
@@ -478,6 +478,7 @@
           "paragraphs": [
             "Un forfait d’essai gratuit avec des limites (p. ex. nombre de fiches) peut s’appliquer. Au-delà, certaines fonctions peuvent nécessiter un abonnement payant (p. ex. via Stripe).",
             "L'abonnement Premium se renouvelle automatiquement à la fin de chaque période de facturation (mensuelle ou annuelle, selon le forfait choisi), et le montant correspondant sera automatiquement débité du moyen de paiement enregistré, sauf si l'utilisateur annule avant la date de renouvellement. En cas de demande de résiliation, l'accès aux fonctionnalités Premium reste actif jusqu'à la fin de la période déjà payée, sans frais supplémentaires après cette date ; à l'issue de cette période, le compte basculera automatiquement vers le forfait gratuit avec ses limites correspondantes. Les conditions de remboursement, lorsqu'elles sont applicables conformément à la réglementation en vigueur, seront précisées lors du processus de souscription.",
+            "L'utilisateur dispose d'un délai de quatorze (14) jours calendaires à compter de la confirmation du paiement initial de l'abonnement pour exercer son droit de rétractation et demander le remboursement intégral du montant payé, sans avoir à se justifier, en écrivant à soporte@inboxzero.es. Passé ce délai, aucun remboursement ne sera effectué pour la période en cours ; l'utilisateur pourra néanmoins résilier à tout moment, en conservant l'accès Premium jusqu'à la fin de la période déjà payée, comme indiqué au paragraphe précédent. Ce droit de rétractation s'applique à la souscription initiale de l'abonnement ; les renouvellements automatiques d'un service déjà souscrit ne génèrent pas de nouveau délai de rétractation indépendant.",
             "Facturation / résiliation : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
           ]
         },

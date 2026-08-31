@@ -157,7 +157,7 @@
     "planMonthlySubtitle": "Cancela quando quiseres",
     "planAnnualTitle": "Anual — 3,99€/mês",
     "planAnnualSubtitle": "47,90€/ano, faturado de uma vez · Poupa 20%",
-    "termsHtml": "Li e aceito a <a href=\"#\">Política de privacidade</a>, os <a href=\"#\">Termos e condições</a> e a autorização de utilização.",
+    "termsHtml": "Li e aceito a <a href=\"#\">Política de privacidade</a>, os <a href=\"#\">Termos e condições</a> (inclui garantia de reembolso de 14 dias) e a autorização de utilização.",
     "stripeButton": "Continuar para Stripe 💳",
     "captchaError": "Resposta do captcha incorreta. Deve ser 7.",
     "needAuth": "Inicie sessão para subscrever o Premium.",
@@ -478,6 +478,7 @@
           "paragraphs": [
             "Pode existir um plano de teste gratuito com limites (p. ex. número de fichas). Após o limite, funções de guardar ou premium podem exigir subscrição paga (p. ex. via Stripe).",
             "A subscrição Premium renova-se automaticamente no final de cada período de faturação (mensal ou anual, consoante o plano escolhido), e o valor correspondente será cobrado automaticamente no método de pagamento registado, salvo se o utilizador cancelar antes da data de renovação. Ao solicitar o cancelamento, o acesso às funcionalidades Premium mantém-se ativo até ao final do período já pago, sem quaisquer cobranças adicionais a partir dessa data; após esse período, a conta passará automaticamente para o plano gratuito com os respetivos limites. As condições de reembolso, quando aplicáveis nos termos da legislação em vigor, serão detalhadas no processo de contratação.",
+            "O utilizador dispõe de um prazo de catorze (14) dias de calendário a partir da confirmação do pagamento inicial da subscrição para exercer o seu direito de livre resolução e solicitar o reembolso integral do valor pago, sem necessidade de justificação, através do contacto soporte@inboxzero.es. Decorrido esse prazo, não serão efetuados reembolsos relativos ao período em curso; no entanto, o utilizador poderá cancelar a qualquer momento, mantendo o acesso Premium até ao final do período já pago, conforme indicado no parágrafo anterior. Este direito de livre resolução aplica-se à contratação inicial da subscrição; as renovações automáticas de um serviço já contratado não geram um novo prazo de resolução independente.",
             "Faturação / cancelamento: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
           ]
         },

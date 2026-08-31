@@ -157,7 +157,7 @@
     "planMonthlySubtitle": "Jederzeit kündbar",
     "planAnnualTitle": "Jährlich — 3,99€/Monat",
     "planAnnualSubtitle": "47,90€/Jahr, einmalig abgerechnet · Spare 20%",
-    "termsHtml": "Ich habe die <a href=\"#\">Datenschutzerklärung</a>, die <a href=\"#\">Allgemeinen Geschäftsbedingungen</a> und die Nutzungsgenehmigung gelesen und akzeptiere sie.",
+    "termsHtml": "Ich habe die <a href=\"#\">Datenschutzerklärung</a>, die <a href=\"#\">Allgemeinen Geschäftsbedingungen</a> (beinhaltet eine 14-tägige Geld-zurück-Garantie) und die Nutzungsgenehmigung gelesen und akzeptiere sie.",
     "stripeButton": "Weiter zu Stripe 💳",
     "captchaError": "Falsche Captcha-Antwort. Es muss 7 sein.",
     "needAuth": "Melden Sie sich an, um Premium zu abonnieren.",
@@ -478,6 +478,7 @@
           "paragraphs": [
             "Es kann einen kostenlosen Testplan mit Limits (z. B. Kartenanzahl) geben. Danach können Speicher- oder Premium-Funktionen ein kostenpflichtiges Abonnement erfordern (z. B. über Stripe).",
             "Das Premium-Abonnement verlängert sich automatisch am Ende jedes Abrechnungszeitraums (monatlich oder jährlich, je nach gewähltem Plan), und der entsprechende Betrag wird automatisch der hinterlegten Zahlungsmethode belastet, sofern der Nutzer nicht vor dem Verlängerungsdatum kündigt. Bei einer Kündigung bleibt der Zugang zu den Premium-Funktionen bis zum Ende des bereits bezahlten Zeitraums aktiv, ohne dass danach weitere Kosten anfallen; nach Ablauf dieses Zeitraums wechselt das Konto automatisch zum kostenlosen Plan mit den entsprechenden Einschränkungen. Erstattungsbedingungen werden, sofern nach geltendem Recht anwendbar, im Bestellvorgang näher erläutert.",
+            "Der Nutzer hat ab Bestätigung der ersten Abonnementzahlung eine Frist von vierzehn (14) Kalendertagen, um sein Widerrufsrecht auszuüben und die vollständige Rückerstattung des gezahlten Betrags zu verlangen, ohne eine Begründung angeben zu müssen, indem er sich an soporte@inboxzero.es wendet. Nach Ablauf dieser Frist erfolgen keine Rückerstattungen für den laufenden Zeitraum; der Nutzer kann jedoch jederzeit kündigen und behält den Premium-Zugang bis zum Ende des bereits bezahlten Zeitraums, wie im vorherigen Absatz beschrieben. Dieses Widerrufsrecht gilt für den ursprünglichen Abschluss des Abonnements; automatische Verlängerungen eines bereits abgeschlossenen Dienstes begründen keine neue, eigenständige Widerrufsfrist.",
             "Abrechnung / Kündigung: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
           ]
         },
