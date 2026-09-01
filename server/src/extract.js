@@ -1,6 +1,7 @@
 import { fetchPageViaProvider } from './providers/index.js';
 import { detectPlatform, parseScrapedPage } from './parse/social.js';
 import { assertSafeHttpUrl, SSRF_CODE, SSRF_MESSAGE } from './ssrf-guard.js';
+import { assertGuardedUrl } from './security/url-guard.js';
 
 /**
  * Extracción avanzada de metadatos para redes con muro de login.
@@ -16,6 +17,7 @@ import { assertSafeHttpUrl, SSRF_CODE, SSRF_MESSAGE } from './ssrf-guard.js';
 export async function extractAdvancedMetadata(pageUrl) {
   let normalized;
   try {
+    assertGuardedUrl(pageUrl);
     const safe = await assertSafeHttpUrl(pageUrl);
     normalized = safe.href;
   } catch (err) {
