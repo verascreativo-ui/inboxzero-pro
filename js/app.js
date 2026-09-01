@@ -2050,6 +2050,15 @@ async function signUpWithEmailPassword(email, password, fullName) {
   }
 }
 
+function resetLoginForm() {
+  const fullnameInput = document.getElementById('login-fullname');
+  const emailInput = document.getElementById('login-email');
+  const passwordInput = document.getElementById('login-password');
+  if (fullnameInput) fullnameInput.value = '';
+  if (emailInput) emailInput.value = '';
+  if (passwordInput) passwordInput.value = '';
+}
+
 async function signOutCurrentUser() {
   const supabase = getSupabaseClient();
   if (!supabase) return;
@@ -2060,6 +2069,7 @@ async function signOutCurrentUser() {
   currentProfile = null;
   updateAuthChrome(null);
   setLoginAuthMessage('', false);
+  resetLoginForm();
   notifyLibraryAuthSync(null);
 }
 
@@ -5246,6 +5256,7 @@ document.addEventListener('i18n:ready', () => {
   if (loginModalBtn && loginModal) {
     loginModalBtn.addEventListener('click', () => {
       if (currentAuthUser) return;
+      resetLoginForm();
       loginModal.classList.add('active');
       mountLoginTurnstile();
     });
