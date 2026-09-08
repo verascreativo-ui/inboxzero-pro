@@ -996,7 +996,10 @@
   // Al enviarla, dirige al registro/modo invitado de la app real.
   document.getElementById('try-form').addEventListener('submit', function (e) {
     e.preventDefault();
-    window.location.href = '#'; // TODO: enlazar a la URL real de la app cuando se decida el dominio (sesión de Vercel)
+    const input = this.querySelector('input');
+    const val = input ? input.value.trim() : '';
+    if (!val) return;
+    window.location.href = 'app.html?url=' + encodeURIComponent(val);
   });
 </script>
 

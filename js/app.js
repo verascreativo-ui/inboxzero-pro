@@ -3815,6 +3815,20 @@ document.addEventListener('i18n:ready', () => {
     });
   }
 
+  // Prefill desde landing.html: ?url=... dispara el Analyze automáticamente
+  if (urlInput && btnSave) {
+    try {
+      const prefillUrl = new URLSearchParams(window.location.search).get('url');
+      if (prefillUrl) {
+        urlInput.value = prefillUrl;
+        window.history.replaceState({}, '', window.location.pathname);
+        btnSave.click();
+      }
+    } catch (_) {
+      /* prefill opcional: si falla, no bloquea la carga normal de la app */
+    }
+  }
+
   async function enrichYoutubeCardMetadata(cardId, pageUrl, videoId) {
     const meta = await fetchYoutubeOEmbed(pageUrl);
     const card = cards.find((c) => cardIdsEqual(c.id, cardId));
