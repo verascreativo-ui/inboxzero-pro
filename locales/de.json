@@ -4,8 +4,8 @@
     "logoAlt": "Logo"
   },
   "brand": {
-    "name": "InboxZero.es",
-    "tagline": "Ihr Wissen mit 1 Klick",
+    "name": "<span class=\"brand-inbox\">Inbox</span><span class=\"brand-accent\">Zero</span>.es",
+    "tagline": "Ihr Wissen in einem Klick",
     "footerTagline": "InboxZero.es — Ihre intelligente Wissensbibliothek"
   },
   "welcome": {
@@ -155,10 +155,10 @@
     "captchaLabel": "Sicherheit (Captcha): Was ist 3 + 4?",
     "captchaPlaceholder": "Numerische Antwort (7)",
     "planLegend": "Wähle deinen Plan:",
-    "planMonthlyTitle": "Monatlich — 4,99€/Monat",
+    "planMonthlyTitle": "Monatlich — 3,99€/Monat",
     "planMonthlySubtitle": "Jederzeit kündbar",
-    "planAnnualTitle": "Jährlich — 3,99€/Monat",
-    "planAnnualSubtitle": "47,90€/Jahr, einmalig abgerechnet · Spare 20%",
+    "planAnnualTitle": "Jährlich — 2,50€/Monat",
+    "planAnnualSubtitle": "29,99€/Jahr, einmalig abgerechnet · Spare 37%",
     "termsHtml": "Ich habe die <a href=\"#\">Datenschutzerklärung</a>, die <a href=\"#\">Allgemeinen Geschäftsbedingungen</a> und die Nutzungsgenehmigung gelesen und akzeptiere sie.",
     "stripeButton": "Weiter zu Stripe 💳",
     "captchaError": "Falsche Captcha-Antwort. Es muss 7 sein.",
@@ -515,9 +515,9 @@
     "label": "soporte@inboxzero.es"
   },
   "landing": {
-    "title": "InboxZero.es — Dein Wissen, einen Klick entfernt",
+    "title": "InboxZero.es — Dein Wissen in einem Klick",
     "nav": {
-      "brand": "InboxZero.es",
+      "brand": "<span class=\"brand-inbox\">Inbox</span><span class=\"brand-accent\">Zero</span>.es",
       "howItWorks": "So funktioniert's",
       "pricing": "Preise",
       "faq": "FAQ",
@@ -607,9 +607,9 @@
       "freeFeature4": "Zugriff von jedem Gerät",
       "freeCta": "Kostenlos starten",
       "premiumTitle": "Premium-Plan",
-      "premiumPriceMonthly": "4,99 €",
+      "premiumPriceMonthly": "3,99 €",
       "premiumPriceMonthlyUnit": "/ Monat",
-      "premiumPriceAnnual": "47,90 €",
+      "premiumPriceAnnual": "29,99 €",
       "premiumPriceAnnualUnit": "/ Jahr",
       "premiumFeature1": "Unbegrenzte Einträge",
       "premiumFeature2": "Erweiterte Extraktion",

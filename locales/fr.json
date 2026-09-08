@@ -4,8 +4,8 @@
     "logoAlt": "Logo"
   },
   "brand": {
-    "name": "InboxZero.es",
-    "tagline": "Vos connaissances en 1 clic",
+    "name": "<span class=\"brand-inbox\">Inbox</span><span class=\"brand-accent\">Zero</span>.es",
+    "tagline": "Vos connaissances en un Clic",
     "footerTagline": "InboxZero.es — Votre bibliothèque intelligente de connaissances"
   },
   "welcome": {
@@ -155,10 +155,10 @@
     "captchaLabel": "Sécurité (Captcha) : Combien font 3 + 4 ?",
     "captchaPlaceholder": "Réponse numérique (7)",
     "planLegend": "Choisissez votre forfait :",
-    "planMonthlyTitle": "Mensuel — 4,99€/mois",
+    "planMonthlyTitle": "Mensuel — 3,99€/mois",
     "planMonthlySubtitle": "Annulez à tout moment",
-    "planAnnualTitle": "Annuel — 3,99€/mois",
-    "planAnnualSubtitle": "47,90€/an, facturé en une fois · Économisez 20%",
+    "planAnnualTitle": "Annuel — 2,50€/mois",
+    "planAnnualSubtitle": "29,99€/an, facturé en une fois · Économisez 37%",
     "termsHtml": "J'ai lu et j'accepte la <a href=\"#\">Politique de confidentialité</a>, les <a href=\"#\">Conditions générales</a> et l'autorisation d'utilisation.",
     "stripeButton": "Continuer vers Stripe 💳",
     "captchaError": "Réponse du captcha incorrecte. Ce doit être 7.",
@@ -517,7 +517,7 @@
   "landing": {
     "title": "InboxZero.es — Votre savoir, à un clic",
     "nav": {
-      "brand": "InboxZero.es",
+      "brand": "<span class=\"brand-inbox\">Inbox</span><span class=\"brand-accent\">Zero</span>.es",
       "howItWorks": "Comment ça marche",
       "pricing": "Tarifs",
       "faq": "FAQ",
@@ -607,9 +607,9 @@
       "freeFeature4": "Accès depuis n'importe quel appareil",
       "freeCta": "Commencer gratuitement",
       "premiumTitle": "Plan Premium",
-      "premiumPriceMonthly": "4,99 €",
+      "premiumPriceMonthly": "3,99 €",
       "premiumPriceMonthlyUnit": "/ mois",
-      "premiumPriceAnnual": "47,90 €",
+      "premiumPriceAnnual": "29,99 €",
       "premiumPriceAnnualUnit": "/ an",
       "premiumFeature1": "Fiches illimitées",
       "premiumFeature2": "Extraction avancée",

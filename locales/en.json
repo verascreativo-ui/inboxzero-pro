@@ -4,8 +4,8 @@
     "logoAlt": "Logo"
   },
   "brand": {
-    "name": "InboxZero.es",
-    "tagline": "Your knowledge in 1 click",
+    "name": "<span class=\"brand-inbox\">Inbox</span><span class=\"brand-accent\">Zero</span>.es",
+    "tagline": "Your knowledge in one Click",
     "footerTagline": "InboxZero.es — Your smart knowledge library"
   },
   "welcome": {
@@ -155,10 +155,10 @@
     "captchaLabel": "Security (Captcha): What is 3 + 4?",
     "captchaPlaceholder": "Numeric answer (7)",
     "planLegend": "Choose your plan:",
-    "planMonthlyTitle": "Monthly — €4.99/mo",
+    "planMonthlyTitle": "Monthly — €3.99/mo",
     "planMonthlySubtitle": "Cancel anytime",
-    "planAnnualTitle": "Annual — €3.99/mo",
-    "planAnnualSubtitle": "€47.90/year, billed once · Save 20%",
+    "planAnnualTitle": "Annual — €2.50/mo",
+    "planAnnualSubtitle": "€29.99/year, billed once · Save 37%",
     "termsHtml": "I have read and accept the <a href=\"#\">Privacy Policy</a>, the <a href=\"#\">Terms and Conditions</a>, and the authorization of use.",
     "stripeButton": "Continue to Stripe 💳",
     "captchaError": "Incorrect captcha answer. It must be 7.",
@@ -515,9 +515,9 @@
     "label": "soporte@inboxzero.es"
   },
   "landing": {
-    "title": "InboxZero.es — Your knowledge, one click away",
+    "title": "InboxZero.es — Your knowledge in one Click",
     "nav": {
-      "brand": "InboxZero.es",
+      "brand": "<span class=\"brand-inbox\">Inbox</span><span class=\"brand-accent\">Zero</span>.es",
       "howItWorks": "How it works",
       "pricing": "Pricing",
       "faq": "FAQ",
@@ -607,9 +607,9 @@
       "freeFeature4": "Access from any device",
       "freeCta": "Start for free",
       "premiumTitle": "Premium Plan",
-      "premiumPriceMonthly": "€4.99",
+      "premiumPriceMonthly": "€3.99",
       "premiumPriceMonthlyUnit": "/ month",
-      "premiumPriceAnnual": "€47.90",
+      "premiumPriceAnnual": "€29.99",
       "premiumPriceAnnualUnit": "/ year",
       "premiumFeature1": "Unlimited entries",
       "premiumFeature2": "Advanced extraction",
