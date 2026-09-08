@@ -8,6 +8,11 @@
     "tagline": "Your knowledge in one Click",
     "footerTagline": "InboxZero.es — Your smart knowledge library"
   },
+  "share": {
+    "buttonLabel": "Share InboxZero",
+    "text": "InboxZero — automatically organizes your saved links. Try it:",
+    "copied": "Link copied to clipboard"
+  },
   "welcome": {
     "title": "🚀 Welcome to Inbox Zero! This is how you organize your knowledge",
     "description": "This is your model card. Save links above, organize them by category, and mark them as favorites or read later. Your desk starts at 0 cards.",
