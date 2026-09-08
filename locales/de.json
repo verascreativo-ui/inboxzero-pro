@@ -8,6 +8,11 @@
     "tagline": "Ihr Wissen in einem Klick",
     "footerTagline": "InboxZero.es — Ihre intelligente Wissensbibliothek"
   },
+  "share": {
+    "buttonLabel": "InboxZero teilen",
+    "text": "InboxZero — organisiert automatisch deine gespeicherten Links. Probier's aus:",
+    "copied": "Link in die Zwischenablage kopiert"
+  },
   "welcome": {
     "title": "🚀 Willkommen bei Inbox Zero! So organisieren Sie Ihr Wissen",
     "description": "Das ist Ihre Modellkarte. Speichern Sie oben Links, ordnen Sie sie nach Kategorien und markieren Sie sie als Favoriten oder für später. Ihr Schreibtisch startet bei 0 Karten.",

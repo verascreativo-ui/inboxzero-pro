@@ -168,3 +168,24 @@
     initI18n();
   }
 })();
+window.shareInboxZero = async function shareInboxZero() {
+  const shareData = {
+    title: 'InboxZero.es',
+    text: (typeof window.t === 'function' && window.t('share.text')) || 'InboxZero — organiza tus enlaces guardados automáticamente.',
+    url: 'https://www.inboxzero.es'
+  };
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData);
+    } catch (_) {
+      /* el usuario canceló el menú de compartir, no hacer nada */
+    }
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(shareData.url);
+    alert((typeof window.t === 'function' && window.t('share.copied')) || 'Enlace copiado al portapapeles');
+  } catch (_) {
+    alert(shareData.url);
+  }
+};

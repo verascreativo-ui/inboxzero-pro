@@ -8,6 +8,11 @@
     "tagline": "Tu conocimiento en un Clic",
     "footerTagline": "InboxZero.es — Tu biblioteca inteligente de conocimiento"
   },
+  "share": {
+    "buttonLabel": "Compartir InboxZero",
+    "text": "InboxZero — organiza tus enlaces guardados automáticamente. Pruébalo:",
+    "copied": "Enlace copiado al portapapeles"
+  },
   "welcome": {
     "title": "🚀 ¡Bienvenido a Inbox Zero! Así se organiza tu conocimiento",
     "description": "Esta es tu ficha modelo. Guarda enlaces arriba, organízalos por categorías y márcalos como favoritos o para leer más tarde. Tu escritorio empieza en 0 fichas.",
