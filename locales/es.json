@@ -4,8 +4,8 @@
     "logoAlt": "Logo"
   },
   "brand": {
-    "name": "InboxZero.es",
-    "tagline": "Tu conocimiento a 1 Clic",
+    "name": "<span class=\"brand-inbox\">Inbox</span><span class=\"brand-accent\">Zero</span>.es",
+    "tagline": "Tu conocimiento en un Clic",
     "footerTagline": "InboxZero.es — Tu biblioteca inteligente de conocimiento"
   },
   "welcome": {
@@ -155,10 +155,10 @@
     "captchaLabel": "Seguridad (Captcha): ¿Cuánto es 3 + 4?",
     "captchaPlaceholder": "Respuesta numérica (7)",
     "planLegend": "Elige tu plan:",
-    "planMonthlyTitle": "Mensual — 4,99€/mes",
+    "planMonthlyTitle": "Mensual — 3,99€/mes",
     "planMonthlySubtitle": "Cancela cuando quieras",
-    "planAnnualTitle": "Anual — 3,99€/mes",
-    "planAnnualSubtitle": "47,90€/año, facturado de una vez · Ahorra un 20%",
+    "planAnnualTitle": "Anual — 2,50€/mes",
+    "planAnnualSubtitle": "29,99€/año, facturado de una vez · Ahorra un 37%",
     "termsHtml": "He leído y acepto la <a href=\"#\">Política de Privacidad</a>, los <a href=\"#\">Términos y Condiciones</a> y la autorización de uso.",
     "stripeButton": "Continuar a Stripe 💳",
     "captchaError": "Respuesta del captcha incorrecta. Debe ser 7.",
@@ -515,9 +515,9 @@
     "label": "soporte@inboxzero.es"
   },
   "landing": {
-    "title": "InboxZero.es — Tu conocimiento, a un clic de distancia",
+    "title": "InboxZero.es — Tu conocimiento en un Clic",
     "nav": {
-      "brand": "InboxZero.es",
+      "brand": "<span class=\"brand-inbox\">Inbox</span><span class=\"brand-accent\">Zero</span>.es",
       "howItWorks": "Cómo funciona",
       "pricing": "Precios",
       "faq": "FAQ",
@@ -607,10 +607,10 @@
       "freeFeature4": "Acceso desde cualquier dispositivo",
       "freeCta": "Empieza gratis",
       "premiumTitle": "Plan Premium",
-      "premiumPriceMonthly": "4,99€",
+      "premiumPriceMonthly": "3,99€",
       "premiumPriceMonthlyUnit": "/ mes",
-      "premiumPriceAnnual": "47,90€",
-      "premiumPriceAnnualUnit": "/año (ahorra 20%)",
+      "premiumPriceAnnual": "29,99€",
+      "premiumPriceAnnualUnit": "/año (ahorra 37%)",
       "premiumNote": "Sin tarjeta · Cancela cuando quieras",
       "premiumFeature1": "Fichas ilimitadas",
       "premiumFeature2": "Todo lo del plan Gratis",

@@ -4,8 +4,8 @@
     "logoAlt": "Logo"
   },
   "brand": {
-    "name": "InboxZero.es",
-    "tagline": "O seu conhecimento a 1 clique",
+    "name": "<span class=\"brand-inbox\">Inbox</span><span class=\"brand-accent\">Zero</span>.es",
+    "tagline": "O seu conhecimento num Clique",
     "footerTagline": "InboxZero.es — A sua biblioteca inteligente de conhecimento"
   },
   "welcome": {
@@ -155,10 +155,10 @@
     "captchaLabel": "Segurança (Captcha): Quanto é 3 + 4?",
     "captchaPlaceholder": "Resposta numérica (7)",
     "planLegend": "Escolhe o teu plano:",
-    "planMonthlyTitle": "Mensal — 4,99€/mês",
+    "planMonthlyTitle": "Mensal — 3,99€/mês",
     "planMonthlySubtitle": "Cancela quando quiseres",
-    "planAnnualTitle": "Anual — 3,99€/mês",
-    "planAnnualSubtitle": "47,90€/ano, faturado de uma vez · Poupa 20%",
+    "planAnnualTitle": "Anual — 2,50€/mês",
+    "planAnnualSubtitle": "29,99€/ano, faturado de uma vez · Poupa 37%",
     "termsHtml": "Li e aceito a <a href=\"#\">Política de privacidade</a>, os <a href=\"#\">Termos e condições</a> e a autorização de utilização.",
     "stripeButton": "Continuar para Stripe 💳",
     "captchaError": "Resposta do captcha incorreta. Deve ser 7.",
@@ -515,9 +515,9 @@
     "label": "soporte@inboxzero.es"
   },
   "landing": {
-    "title": "InboxZero.es — O seu conhecimento, a um clique",
+    "title": "InboxZero.es — O seu conhecimento num Clique",
     "nav": {
-      "brand": "InboxZero.es",
+      "brand": "<span class=\"brand-inbox\">Inbox</span><span class=\"brand-accent\">Zero</span>.es",
       "howItWorks": "Como funciona",
       "pricing": "Preços",
       "faq": "FAQ",
@@ -607,9 +607,9 @@
       "freeFeature4": "Acesso a partir de qualquer dispositivo",
       "freeCta": "Comece grátis",
       "premiumTitle": "Plano Premium",
-      "premiumPriceMonthly": "4,99 €",
+      "premiumPriceMonthly": "3,99 €",
       "premiumPriceMonthlyUnit": "/ mês",
-      "premiumPriceAnnual": "47,90 €",
+      "premiumPriceAnnual": "29,99 €",
       "premiumPriceAnnualUnit": "/ ano",
       "premiumFeature1": "Fichas ilimitadas",
       "premiumFeature2": "Extração avançada",
