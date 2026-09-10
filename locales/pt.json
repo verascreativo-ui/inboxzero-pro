@@ -533,7 +533,7 @@
     "hero": {
       "eyebrow": "EXPERIMENTE A APP E VIVA A EXPERIÊNCIA",
       "titleLine1": "Guarde qualquer coisa.",
-      "titleLine2": "O InboxZero organiza por si.",
+      "titleLine2": "O <em>InboxZero</em> organiza por si.",
       "subtitle": "Links, artigos, vídeos e recursos, transformados automaticamente numa biblioteca pessoal organizada.",
       "placeholder": "Cole um link e descubra o que o InboxZero faz com ele…",
       "saveButton": "Guardar",
