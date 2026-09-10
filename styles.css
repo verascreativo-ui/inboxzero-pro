@@ -1272,7 +1272,8 @@ footer {
 }
 
 #modal-trial-limit.active,
-#modal-duplicate-url.active {
+#modal-duplicate-url.active,
+#modal-login.active {
   z-index: 1100;
 }
 
@@ -1979,6 +1980,42 @@ footer {
   gap: 6px;
   min-height: 0;
   height: 100%;
+}
+
+/* Brand Book: azul-suave #eff6ff, azul-profundo #294F78, azul-principal #2563eb */
+.edit-guest-banner {
+  display: none;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 4px;
+  padding: 10px 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  color: #294F78;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.edit-guest-banner span {
+  flex: 1;
+}
+
+.edit-guest-banner button {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.edit-guest-banner button:hover {
+  background: #294F78;
 }
 
 .edit-modal-fields .form-group {

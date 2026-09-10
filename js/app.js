@@ -926,6 +926,9 @@ async function fetchAdvancedExtractApi(pageUrl) {
       headers: await extractApiHeaders(),
       signal: controller.signal,
     });
+    if (res.status === 401) {
+      return { guestBlocked: true };
+    }
     const payload = await res.json().catch(() => null);
     if (!payload) return null;
     if (payload.status === 'success' && payload.data) {
@@ -1068,6 +1071,13 @@ function isDegradedGenericMetadata(meta, pageUrl) {
   return noDescription || noRealImage;
 }
 
+function attachGuestBlocked(meta, guestBlocked) {
+  if (!guestBlocked) return meta;
+  if (!meta) return { guestBlocked: true };
+  if (meta.guestBlocked === true) return meta;
+  return { ...meta, guestBlocked: true };
+}
+
 /**
  * Fallback aislado: solo webs genéricas (no FB/IG/LI, no YouTube).
  * Si Microlink falla o queda degradado, reintenta GET /api/extract.
@@ -1080,6 +1090,9 @@ async function fallbackDegradedGenericToAdvancedExtract(pageUrl, microlinkMeta) 
   }
   try {
     const advanced = await fetchAdvancedExtractApi(pageUrl);
+    if (advanced && advanced.guestBlocked === true) {
+      return attachGuestBlocked(microlinkMeta, true);
+    }
     if (!advanced) return microlinkMeta;
     if (!isDegradedGenericMetadata(advanced, pageUrl)) return advanced;
     if (!microlinkMeta && (advanced.title || advanced.description || advanced.image)) {
@@ -1099,6 +1112,9 @@ async function extractUrlMetadata(pageUrl) {
   if (detectSocialBrand(pageUrl) === 'facebook') {
     try {
       const advanced = await fetchAdvancedExtractApi(pageUrl);
+      if (advanced && advanced.guestBlocked === true) {
+        return attachGuestBlocked(getFacebookInstantMetadata(pageUrl), true);
+      }
       if (isUsableFacebookExtraction(advanced)) {
         return {
           ...advanced,
@@ -1112,10 +1128,14 @@ async function extractUrlMetadata(pageUrl) {
     return getFacebookInstantMetadata(pageUrl);
   }
 
+  let guestBlocked = false;
+
   if (needsAdvancedScrape(pageUrl)) {
     try {
       const advanced = await fetchAdvancedExtractApi(pageUrl);
-      if (advanced && (advanced.title || advanced.image || advanced.description)) {
+      if (advanced && advanced.guestBlocked === true) {
+        guestBlocked = true;
+      } else if (advanced && (advanced.title || advanced.image || advanced.description)) {
         return { ...advanced, facebookSmart: false, authentic: true };
       }
     } catch (_) {
@@ -1128,7 +1148,10 @@ async function extractUrlMetadata(pageUrl) {
     // Microlink image → (si falta/logoLike) /api/page-images → (si no) screenshot Fase 1 → fallbacks.
     let meta = await fetchMicrolinkMetadata(pageUrl);
     if (!meta) {
-      return fallbackDegradedGenericToAdvancedExtract(pageUrl, null);
+      return attachGuestBlocked(
+        await fallbackDegradedGenericToAdvancedExtract(pageUrl, null),
+        guestBlocked
+      );
     }
 
     const primary = meta.microlink?.image;
@@ -1147,7 +1170,10 @@ async function extractUrlMetadata(pageUrl) {
     // Imagen Microlink usable y no logo → no page-images ni screenshot;
     // si el título/desc siguen degradados, el fallback avanzado aún aplica.
     if (!imageMissingOrLogoLike) {
-      return fallbackDegradedGenericToAdvancedExtract(pageUrl, meta);
+      return attachGuestBlocked(
+        await fallbackDegradedGenericToAdvancedExtract(pageUrl, meta),
+        guestBlocked
+      );
     }
 
     // Fase 2: candidatos HTML puntuados (solo si falta imagen o es logo-like)
@@ -1155,17 +1181,20 @@ async function extractUrlMetadata(pageUrl) {
       const pageBest = await fetchPageImagesBest(pageUrl);
       if (pageBest?.url) {
         const pageCandidates = Array.isArray(pageBest.candidates) ? pageBest.candidates : [];
-        return fallbackDegradedGenericToAdvancedExtract(pageUrl, {
-          ...meta,
-          image: pageBest.url,
-          imageSource: 'page-html',
-          imageLogoLike: Boolean(primaryUrl),
-          imageCandidates: [
-            ...(Array.isArray(meta.imageCandidates) ? meta.imageCandidates : []),
-            ...pageCandidates,
-          ],
-          pageImageBest: pageBest.candidate || null,
-        });
+        return attachGuestBlocked(
+          await fallbackDegradedGenericToAdvancedExtract(pageUrl, {
+            ...meta,
+            image: pageBest.url,
+            imageSource: 'page-html',
+            imageLogoLike: Boolean(primaryUrl),
+            imageCandidates: [
+              ...(Array.isArray(meta.imageCandidates) ? meta.imageCandidates : []),
+              ...pageCandidates,
+            ],
+            pageImageBest: pageBest.candidate || null,
+          }),
+          guestBlocked
+        );
       }
     } catch (_) {
       /* page-images opcional; continuar a screenshot Fase 1 */
@@ -1214,9 +1243,15 @@ async function extractUrlMetadata(pageUrl) {
       /* screenshot opcional */
     }
 
-    return fallbackDegradedGenericToAdvancedExtract(pageUrl, meta);
+    return attachGuestBlocked(
+      await fallbackDegradedGenericToAdvancedExtract(pageUrl, meta),
+      guestBlocked
+    );
   } catch (_) {
-    return fallbackDegradedGenericToAdvancedExtract(pageUrl, null);
+    return attachGuestBlocked(
+      await fallbackDegradedGenericToAdvancedExtract(pageUrl, null),
+      guestBlocked
+    );
   }
 }
 
@@ -3688,6 +3723,7 @@ document.addEventListener('i18n:ready', () => {
       let microlinkOk = false;
       let facebookSmart = false;
       let facebookAuthentic = false;
+      let guestBlocked = false;
 
       const prevBtnLabel = btnSave.textContent;
       btnSave.disabled = true;
@@ -3712,6 +3748,7 @@ document.addEventListener('i18n:ready', () => {
               microlinkOk = true;
               facebookSmart = Boolean(meta.facebookSmart);
               facebookAuthentic = Boolean(meta.authentic);
+              if (meta.guestBlocked === true) guestBlocked = true;
               if (meta.title) finalTitle = meta.title;
               if (meta.description) finalDesc = meta.description;
               if (meta.image) finalImage = meta.image;
@@ -3797,6 +3834,7 @@ document.addEventListener('i18n:ready', () => {
           socialBrand: socialBrand || undefined,
           facebookSmart: facebookSmart || undefined,
           facebookAuthentic: facebookAuthentic || undefined,
+          guestBlocked: guestBlocked || undefined,
         };
 
         openPreviewModal(draft);
@@ -4769,6 +4807,22 @@ document.addEventListener('i18n:ready', () => {
     const visitLink = document.getElementById('edit-visit-link');
     if (visitLink) visitLink.href = pageUrl || '#';
 
+    const guestBanner = document.getElementById('edit-guest-banner');
+    const guestLoginBtn = document.getElementById('edit-guest-login-btn');
+    if (guestBanner) {
+      const showGuestBanner = draft.guestBlocked === true;
+      guestBanner.style.display = showGuestBanner ? 'flex' : 'none';
+      if (guestLoginBtn) {
+        guestLoginBtn.onclick = showGuestBanner
+          ? () => {
+              resetLoginForm();
+              document.getElementById('modal-login').classList.add('active');
+              mountLoginTurnstile();
+            }
+          : null;
+      }
+    }
+
     applyPreviewSaveButtonState();
     modal.classList.add('active');
 
@@ -4787,6 +4841,10 @@ document.addEventListener('i18n:ready', () => {
   function openEditModal(id) {
     discardPreviewDraft();
     clearPreviewSaveError();
+    const guestBanner = document.getElementById('edit-guest-banner');
+    if (guestBanner) guestBanner.style.display = 'none';
+    const guestLoginBtn = document.getElementById('edit-guest-login-btn');
+    if (guestLoginBtn) guestLoginBtn.onclick = null;
     const card = cards.find((c) => cardIdsEqual(c.id, id));
     const modal = document.getElementById('modal-edit');
     if (!card || !modal) return;
