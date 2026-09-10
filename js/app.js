@@ -3862,6 +3862,12 @@ document.addEventListener('i18n:ready', () => {
         window.history.replaceState({}, '', window.location.pathname);
         btnSave.click();
       }
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+      const prefillSubscribe = hashParams.get('subscribe');
+      if (prefillSubscribe === '1') {
+        openSubscribeModal();
+        window.history.replaceState({}, '', window.location.pathname + window.location.search);
+      }
     } catch (_) {
       /* prefill opcional: si falla, no bloquea la carga normal de la app */
     }
