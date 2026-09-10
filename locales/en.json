@@ -228,7 +228,9 @@
     "savePending": "Save Card will be available in the next step. This button does not create a card yet.",
     "saveErrorGeneric": "The changes could not be saved. Please try again.",
     "saveErrorNetwork": "Could not connect. Check your connection and try again.",
-    "saveErrorSession": "Your session is not available. Sign in and try again. The changes were not saved."
+    "saveErrorSession": "Your session is not available. Sign in and try again. The changes were not saved.",
+    "guestBlockedBanner": "🔒 Sign in for free to unlock smart capture on social networks",
+    "guestBlockedButton": "Sign in for free"
   },
   "cards": {
     "favoriteTitle": "Favorite",

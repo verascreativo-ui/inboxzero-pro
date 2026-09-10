@@ -228,7 +228,9 @@
     "savePending": "Enregistrer la fiche sera disponible à l'étape suivante. Ce bouton ne crée pas encore la fiche.",
     "saveErrorGeneric": "Impossible d'enregistrer les modifications. Veuillez réessayer.",
     "saveErrorNetwork": "Connexion impossible. Vérifiez votre connexion et réessayez.",
-    "saveErrorSession": "Votre session n'est pas disponible. Connectez-vous et réessayez. Les modifications n'ont pas été enregistrées."
+    "saveErrorSession": "Votre session n'est pas disponible. Connectez-vous et réessayez. Les modifications n'ont pas été enregistrées.",
+    "guestBlockedBanner": "🔒 Connectez-vous gratuitement pour débloquer la capture intelligente sur les réseaux sociaux",
+    "guestBlockedButton": "Se connecter gratuitement"
   },
   "cards": {
     "favoriteTitle": "Favori",

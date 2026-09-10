@@ -228,7 +228,9 @@
     "savePending": "Karte speichern folgt im nächsten Schritt. Diese Schaltfläche erstellt noch keine Karte.",
     "saveErrorGeneric": "Die Änderungen konnten nicht gespeichert werden. Bitte versuchen Sie es erneut.",
     "saveErrorNetwork": "Verbindung fehlgeschlagen. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
-    "saveErrorSession": "Ihre Sitzung ist nicht verfügbar. Melden Sie sich an und versuchen Sie es erneut. Die Änderungen wurden nicht gespeichert."
+    "saveErrorSession": "Ihre Sitzung ist nicht verfügbar. Melden Sie sich an und versuchen Sie es erneut. Die Änderungen wurden nicht gespeichert.",
+    "guestBlockedBanner": "🔒 Melden Sie sich kostenlos an, um die intelligente Erfassung in sozialen Netzwerken freizuschalten",
+    "guestBlockedButton": "Kostenlos anmelden"
   },
   "cards": {
     "favoriteTitle": "Favorit",
