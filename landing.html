@@ -400,6 +400,12 @@
     .shot-frame { height: auto; }
     .shot-frame img { height: auto; object-fit: contain; }
   }
+  .demo img.demo-img { display: none; }
+  html[lang="es"] .demo img.demo-img.lang-es,
+  html[lang="en"] .demo img.demo-img.lang-en,
+  html[lang="fr"] .demo img.demo-img.lang-fr,
+  html[lang="de"] .demo img.demo-img.lang-de,
+  html[lang="pt"] .demo img.demo-img.lang-pt { display: block; }
 
   /* ---------- PRECIOS ---------- */
   .precios { background: var(--crudo); }
@@ -824,15 +830,31 @@
     <h2 data-i18n="landing.demo.title">Así se ve tu biblioteca</h2>
     <p class="sub-center" data-i18n="landing.demo.subtitle">Enlaces, redes sociales y artículos, organizados y listos para consultar</p>
     <div class="demo-mock">
-      <img src="images/demo/dashboard-es.jpg" alt="Dashboard real de InboxZero con fichas guardadas">
+      <img src="images/demo/dashboard-es.jpg" class="demo-img lang-es" alt="Dashboard real de InboxZero con fichas guardadas">
+      <img src="images/demo/dashboard-en.jpg" class="demo-img lang-en" alt="Dashboard real de InboxZero con fichas guardadas">
+      <img src="images/demo/dashboard-fr.jpg" class="demo-img lang-fr" alt="Dashboard real de InboxZero con fichas guardadas">
+      <img src="images/demo/dashboard-de.jpg" class="demo-img lang-de" alt="Dashboard real de InboxZero con fichas guardadas">
+      <img src="images/demo/dashboard-pt.jpg" class="demo-img lang-pt" alt="Dashboard real de InboxZero con fichas guardadas">
     </div>
     <div class="demo-support">
       <div class="demo-support-card">
-        <div class="shot-frame"><img src="images/demo/extraction-es.jpg" alt="Extracción automática de una ficha en InboxZero"></div>
+        <div class="shot-frame">
+          <img src="images/demo/extraction-es.jpg" class="demo-img lang-es" alt="Extracción automática de una ficha en InboxZero">
+          <img src="images/demo/extraction-en.jpg" class="demo-img lang-en" alt="Extracción automática de una ficha en InboxZero">
+          <img src="images/demo/extraction-fr.jpg" class="demo-img lang-fr" alt="Extracción automática de una ficha en InboxZero">
+          <img src="images/demo/extraction-de.jpg" class="demo-img lang-de" alt="Extracción automática de una ficha en InboxZero">
+          <img src="images/demo/extraction-pt.jpg" class="demo-img lang-pt" alt="Extracción automática de una ficha en InboxZero">
+        </div>
         <div class="cap" data-i18n="landing.demo.extractionNote">Título, descripción e imagen, extraídos solos</div>
       </div>
       <div class="demo-support-card">
-        <div class="shot-frame contain"><img src="images/demo/languages-es.jpg" alt="Selector de idiomas de InboxZero con banderas"></div>
+        <div class="shot-frame contain">
+          <img src="images/demo/languages-es.jpg" class="demo-img lang-es" alt="Selector de idiomas de InboxZero con banderas">
+          <img src="images/demo/languages-en.jpg" class="demo-img lang-en" alt="Selector de idiomas de InboxZero con banderas">
+          <img src="images/demo/languages-fr.jpg" class="demo-img lang-fr" alt="Selector de idiomas de InboxZero con banderas">
+          <img src="images/demo/languages-de.jpg" class="demo-img lang-de" alt="Selector de idiomas de InboxZero con banderas">
+          <img src="images/demo/languages-pt.jpg" class="demo-img lang-pt" alt="Selector de idiomas de InboxZero con banderas">
+        </div>
         <div class="cap" data-i18n="landing.demo.languagesNote">Disponible en 5 idiomas</div>
       </div>
     </div>

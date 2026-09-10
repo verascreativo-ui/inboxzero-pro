@@ -533,7 +533,7 @@
     "hero": {
       "eyebrow": "ESSAYEZ L'APPLICATION ET VIVEZ L'EXPÉRIENCE",
       "titleLine1": "Enregistrez tout.",
-      "titleLine2": "InboxZero organise pour vous.",
+      "titleLine2": "<em>InboxZero</em> organise pour vous.",
       "subtitle": "Liens, articles, vidéos et ressources, transformés automatiquement en une bibliothèque personnelle bien rangée.",
       "placeholder": "Collez un lien et découvrez ce qu'InboxZero en fait…",
       "saveButton": "Enregistrer",

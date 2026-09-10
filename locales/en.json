@@ -533,7 +533,7 @@
     "hero": {
       "eyebrow": "TRY THE APP AND LIVE THE EXPERIENCE",
       "titleLine1": "Save anything.",
-      "titleLine2": "InboxZero organizes it for you.",
+      "titleLine2": "<em>InboxZero</em> organizes it for you.",
       "subtitle": "Links, articles, videos and resources, automatically turned into a tidy personal library.",
       "placeholder": "Paste a link and see what InboxZero does with it…",
       "saveButton": "Save",
