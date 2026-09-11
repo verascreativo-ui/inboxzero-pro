@@ -1411,17 +1411,32 @@ footer {
 }
 
 .duplicate-url-message {
-  margin: 8px 28px 18px 0;
+  margin: 8px 28px 10px 0;
   font-size: 16px;
   font-weight: 600;
   color: #111827;
   line-height: 1.4;
 }
 
+.duplicate-url-existing-title {
+  margin: 0 28px 18px 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
 .modal-footer-duplicate {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
+  align-items: center;
   gap: 10px;
+}
+
+.modal-footer-duplicate .modal-btn-cancel {
+  margin-right: auto;
 }
 
 .modal-box-guest-migration {

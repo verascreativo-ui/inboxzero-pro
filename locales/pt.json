@@ -185,7 +185,9 @@
     "later": "Agora não"
   },
   "duplicateUrl": {
-    "message": "Este URL já está na sua biblioteca.",
+    "message": "Este URL já está guardado.",
+    "existingTitle": "{{title}}",
+    "viewExisting": "Ver ficha existente",
     "cancel": "Cancelar",
     "saveAnyway": "Guardar mesmo assim"
   },

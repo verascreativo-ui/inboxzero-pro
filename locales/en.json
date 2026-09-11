@@ -185,7 +185,9 @@
     "later": "Not now"
   },
   "duplicateUrl": {
-    "message": "This URL is already in your library.",
+    "message": "This URL is already saved.",
+    "existingTitle": "{{title}}",
+    "viewExisting": "View existing card",
     "cancel": "Cancel",
     "saveAnyway": "Save anyway"
   },
