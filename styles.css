@@ -2356,6 +2356,125 @@ footer {
   margin: 4px 0;
 }
 
+.edit-tags-group {
+  position: relative;
+}
+
+.edit-tags-input-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.edit-tags-input-row .edit-tag-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.edit-tag-add-btn {
+  flex-shrink: 0;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 6px;
+  background: #5B85B0;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.edit-tag-add-btn:hover:not(:disabled) {
+  background: #294F78;
+}
+
+.edit-tag-add-btn:disabled,
+.edit-tag-input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.edit-tags-suggestions {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 4px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.12);
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.edit-tags-suggestion {
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+}
+
+.edit-tags-suggestion:hover {
+  background: rgba(91, 133, 176, 0.12);
+  color: #294F78;
+}
+
+.edit-tags-limit {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.edit-tags-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+  min-height: 0;
+}
+
+.edit-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: 3px 6px 3px 8px;
+  border-radius: 999px;
+  background: rgba(91, 133, 176, 0.12);
+  border: 1px solid #5B85B0;
+  color: #294F78;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.edit-tag-chip-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.edit-tag-chip-remove {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #294F78;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.edit-tag-chip-remove:hover {
+  background: #5B85B0;
+  color: #ffffff;
+}
+
 .check-label {
   display: flex;
   align-items: center;
