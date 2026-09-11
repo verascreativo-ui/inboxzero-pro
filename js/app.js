@@ -2494,8 +2494,14 @@ document.addEventListener('i18n:ready', () => {
 
   let currentFilter = 'all';
   let currentCategory = null;
+  /** Búsqueda client-side aplicada (Enter / botón). No se dispara al escribir. */
+  let librarySearchQuery = '';
 
   const cardsGrid = document.getElementById('cards-grid');
+  const librarySearchForm = document.getElementById('library-search-form');
+  const librarySearchInput = document.getElementById('library-search-input');
+  const btnLibrarySearchClear = document.getElementById('btn-library-search-clear');
+  const btnLibrarySearchToggle = document.getElementById('btn-library-search-toggle');
   const trialPlanText = document.getElementById('trial-plan-text');
   const premiumPlanBadge = document.getElementById('premium-plan-badge');
   if (premiumPlanBadge && !premiumPlanBadge.dataset.tooltipBound) {
@@ -3081,6 +3087,7 @@ document.addEventListener('i18n:ready', () => {
     cardsFlagErrorKey = null;
     currentFilter = 'all';
     currentCategory = null;
+    resetLibrarySearchState();
     if (urlInput) urlInput.value = '';
     restoreEditSaveButton();
     document.getElementById('modal-edit')?.classList.remove('active');
@@ -3192,8 +3199,101 @@ document.addEventListener('i18n:ready', () => {
     showingCounter.textContent = t('main.showingCards', vars);
   }
 
+  function normalizeSearchText(value) {
+    return String(value || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim();
+  }
+
+  function cardMatchesLibrarySearch(card, query) {
+    const needle = normalizeSearchText(query);
+    if (!needle) return true;
+    const guide = isGuideCard(card);
+    const welcome = guide ? getWelcomeTexts() : null;
+    const title = welcome ? welcome.title : card.title;
+    const description = welcome ? welcome.description : card.description;
+    const categoryLabel = welcome
+      ? welcome.category
+      : getCategoryLabel(card.category || UNCATEGORIZED_ID);
+    const haystack = [title, description, categoryLabel, card.category]
+      .map(normalizeSearchText)
+      .join(' ');
+    return haystack.includes(needle);
+  }
+
+  function syncLibrarySearchClearVisibility() {
+    if (!btnLibrarySearchClear) return;
+    const hasText = Boolean(String(librarySearchInput?.value || '').trim());
+    const hasApplied = Boolean(librarySearchQuery);
+    btnLibrarySearchClear.hidden = !hasText && !hasApplied;
+  }
+
+  function resetLibrarySearchState() {
+    librarySearchQuery = '';
+    if (librarySearchInput) librarySearchInput.value = '';
+    syncLibrarySearchClearVisibility();
+  }
+
+  function applyLibrarySearch() {
+    currentFilter = 'all';
+    currentCategory = null;
+    librarySearchQuery = String(librarySearchInput?.value || '').trim();
+    syncLibrarySearchClearVisibility();
+    renderCards();
+  }
+
+  function clearLibrarySearch() {
+    resetLibrarySearchState();
+    currentFilter = 'all';
+    currentCategory = null;
+    renderCards();
+    try {
+      librarySearchInput?.focus({ preventScroll: true });
+    } catch (_) {
+      librarySearchInput?.focus();
+    }
+  }
+
+  function syncLibrarySearchToggleActive() {
+    btnLibrarySearchToggle?.classList.toggle('is-active', Boolean(librarySearchQuery));
+  }
+
+  function setLibrarySearchExpanded(expanded) {
+    if (!librarySearchForm) return;
+    librarySearchForm.classList.toggle('is-collapsed', !expanded);
+    librarySearchForm.setAttribute('aria-hidden', expanded ? 'false' : 'true');
+    btnLibrarySearchToggle?.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    if (!expanded) return;
+    try {
+      librarySearchInput?.focus({ preventScroll: true });
+    } catch (_) {
+      librarySearchInput?.focus();
+    }
+  }
+
+  function resetLibrarySearchForViewNavigation(nextFilter, nextCategory) {
+    const nextCat = nextCategory || null;
+    const curCat = currentCategory || null;
+    if (currentFilter === nextFilter && curCat === nextCat) return;
+    resetLibrarySearchState();
+    setLibrarySearchExpanded(false);
+  }
+
   function updateSectionTitle() {
     if (!sectionTitle) return;
+    if (librarySearchQuery) {
+      const vars = { query: librarySearchQuery };
+      sectionTitle.setAttribute('data-i18n', 'main.searchResultsTitle');
+      sectionTitle.setAttribute('data-i18n-vars', JSON.stringify(vars));
+      sectionTitle.textContent = t('main.searchResultsTitle', vars);
+      return;
+    }
+    if (sectionTitle.getAttribute('data-i18n') === 'main.searchResultsTitle') {
+      sectionTitle.setAttribute('data-i18n', 'sections.latest');
+      sectionTitle.removeAttribute('data-i18n-vars');
+    }
     if (currentCategory) {
       sectionTitle.textContent = t('sections.category', { name: getCategoryLabel(currentCategory) });
     } else if (currentFilter === 'favorites') {
@@ -3203,6 +3303,28 @@ document.addEventListener('i18n:ready', () => {
     } else {
       sectionTitle.textContent = t('sections.latest');
     }
+  }
+
+  function syncLibraryNavActive() {
+    document.querySelectorAll('.filter-link, .filter-cat').forEach((el) => {
+      el.classList.remove('active');
+    });
+    if (currentCategory) {
+      document.querySelectorAll('.filter-cat[data-cat]').forEach((el) => {
+        if (el.getAttribute('data-cat') === currentCategory) el.classList.add('active');
+      });
+      return;
+    }
+    if (currentFilter === 'favorites' || currentFilter === 'readLater') {
+      document.querySelectorAll(`.filter-link[data-filter="${currentFilter}"]`).forEach((el) => {
+        el.classList.add('active');
+      });
+      return;
+    }
+    document.querySelectorAll('.filter-link[data-filter="all"]').forEach((el) => {
+      if (el.getAttribute('data-i18n') === 'filters.latest') return;
+      el.classList.add('active');
+    });
   }
 
   function setBadgeText(el, value) {
@@ -3298,7 +3420,9 @@ document.addEventListener('i18n:ready', () => {
   }
 
   function selectCategoryFilter(categoryName) {
-    currentCategory = normalizeCategoryId(categoryName);
+    const nextCategory = normalizeCategoryId(categoryName);
+    resetLibrarySearchForViewNavigation('all', nextCategory);
+    currentCategory = nextCategory;
     currentFilter = 'all';
     renderCards();
     document.querySelectorAll('.dropdown-wrapper').forEach((w) => w.classList.remove('active'));
@@ -3441,10 +3565,15 @@ document.addEventListener('i18n:ready', () => {
       filtered = [guideInView, ...filtered.filter((c) => !isGuideCard(c))];
     }
 
+    if (librarySearchQuery) {
+      filtered = filtered.filter((card) => cardMatchesLibrarySearch(card, librarySearchQuery));
+    }
+
     cardsGrid.innerHTML = '';
 
     if (filtered.length === 0) {
-      cardsGrid.innerHTML = `<p style="color: #6b7280; font-size: 14px; grid-column: 1/-1;">${t('main.emptyView')}</p>`;
+      const emptyKey = librarySearchQuery ? 'main.emptySearch' : 'main.emptyView';
+      cardsGrid.innerHTML = `<p class="library-empty-message" data-i18n="${emptyKey}" style="color: #6b7280; font-size: 14px; grid-column: 1/-1;">${t(emptyKey)}</p>`;
     } else {
       filtered.forEach((card) => {
         const guide = isGuideCard(card);
@@ -3533,11 +3662,13 @@ document.addEventListener('i18n:ready', () => {
     updateTrialPlanLabel(trialCount);
     const shownUserCount = filtered.filter((c) => !isGuideCard(c)).length;
     updateShowingCounter(
-      currentFilter === 'all' && !currentCategory ? trialCount : shownUserCount
+      librarySearchQuery || currentFilter !== 'all' || currentCategory ? shownUserCount : trialCount
     );
     updateSectionTitle();
     updateLibraryCounters();
+    syncLibraryNavActive();
     syncWelcomeRestoreMenu();
+    syncLibrarySearchToggleActive();
     persistCards();
   }
 
@@ -5277,10 +5408,36 @@ document.addEventListener('i18n:ready', () => {
   document.getElementById('edit-category-select')?.addEventListener('change', clearCategoryValidation);
   document.getElementById('edit-new-category-input')?.addEventListener('input', clearCategoryValidation);
 
+  if (librarySearchForm) {
+    librarySearchForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      applyLibrarySearch();
+    });
+  }
+  librarySearchInput?.addEventListener('input', syncLibrarySearchClearVisibility);
+  librarySearchInput?.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    e.preventDefault();
+    setLibrarySearchExpanded(false);
+  });
+  btnLibrarySearchToggle?.addEventListener('click', () => {
+    const collapsed = librarySearchForm?.classList.contains('is-collapsed');
+    setLibrarySearchExpanded(Boolean(collapsed));
+  });
+  btnLibrarySearchClear?.addEventListener('click', () => {
+    clearLibrarySearch();
+    setLibrarySearchExpanded(false);
+    librarySearchInput?.blur();
+  });
+  syncLibrarySearchClearVisibility();
+  syncLibrarySearchToggleActive();
+
   document.querySelectorAll('.filter-link').forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
-      currentFilter = link.getAttribute('data-filter');
+      const nextFilter = link.getAttribute('data-filter');
+      resetLibrarySearchForViewNavigation(nextFilter, null);
+      currentFilter = nextFilter;
       currentCategory = null;
       renderCards();
       document.querySelectorAll('.dropdown-wrapper').forEach(w => w.classList.remove('active'));

@@ -162,8 +162,38 @@
       <section class="cards-section">
         <div class="section-header-row">
           <h2 id="section-title" data-i18n="sections.latest">Últimas Fichas Incorporadas</h2>
-          <span id="showing-counter" class="showing-counter" data-i18n="main.showingCards" data-i18n-vars='{"count":0}'>Mostrando 0 ficha(s)</span>
+          <div class="section-header-tools">
+            <span id="showing-counter" class="showing-counter" data-i18n="main.showingCards" data-i18n-vars='{"count":0}'>Mostrando 0 ficha(s)</span>
+            <button
+              type="button"
+              id="btn-library-search-toggle"
+              class="library-search-toggle"
+              aria-expanded="false"
+              aria-controls="library-search-form"
+              data-i18n-title="main.searchButton"
+              title="Buscar"
+            >
+              <span aria-hidden="true">🔍</span>
+            </button>
+          </div>
         </div>
+        <form class="library-search is-collapsed" id="library-search-form" role="search" aria-hidden="true">
+          <input
+            type="text"
+            id="library-search-input"
+            class="library-search-input"
+            data-i18n-placeholder="main.searchPlaceholder"
+            placeholder="Buscar en tus fichas..."
+            autocomplete="off"
+            enterkeyhint="search"
+            spellcheck="false"
+          >
+          <button type="submit" id="btn-library-search" class="library-search-submit" data-i18n-title="main.searchButton" title="Buscar">
+            <span aria-hidden="true">🔍</span>
+            <span data-i18n="main.searchButton">Buscar</span>
+          </button>
+          <button type="button" id="btn-library-search-clear" class="library-search-clear" hidden data-i18n-title="main.searchClear" title="Vaciar búsqueda">✕</button>
+        </form>
         <p id="cards-flag-error" class="field-error preview-save-error cards-flag-error" hidden role="alert" aria-live="assertive"></p>
         <div class="cards-grid" id="cards-grid">
           <!-- Las fichas se cargarán dinámicamente -->

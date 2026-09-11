@@ -66,7 +66,12 @@
     "saveCard": "Enregistrer la fiche",
     "sectionLatest": "Dernières fiches enregistrées",
     "showingCards": "Affichage de {{count}} fiche(s)",
-    "emptyView": "Aucune fiche dans cette vue."
+    "emptyView": "Aucune fiche dans cette vue.",
+    "searchPlaceholder": "Rechercher dans vos fiches...",
+    "searchButton": "Rechercher",
+    "searchClear": "Effacer la recherche",
+    "emptySearch": "Aucune fiche ne correspond à votre recherche",
+    "searchResultsTitle": "Résultats de votre recherche : \"{{query}}\""
   },
   "sections": {
     "category": "Catégorie : {{name}}",

@@ -66,7 +66,12 @@
     "saveCard": "Guardar Ficha",
     "sectionLatest": "Últimas Fichas Incorporadas",
     "showingCards": "Mostrando {{count}} ficha(s)",
-    "emptyView": "No hay fichas en esta vista."
+    "emptyView": "No hay fichas en esta vista.",
+    "searchPlaceholder": "Buscar en tus fichas...",
+    "searchButton": "Buscar",
+    "searchClear": "Vaciar búsqueda",
+    "emptySearch": "No se encontraron fichas para tu búsqueda",
+    "searchResultsTitle": "Resultados de tu búsqueda: \"{{query}}\""
   },
   "sections": {
     "category": "Categoría: {{name}}",

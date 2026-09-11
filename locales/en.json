@@ -66,7 +66,12 @@
     "saveCard": "Save Card",
     "sectionLatest": "Latest Saved Cards",
     "showingCards": "Showing {{count}} card(s)",
-    "emptyView": "No cards in this view."
+    "emptyView": "No cards in this view.",
+    "searchPlaceholder": "Search your cards...",
+    "searchButton": "Search",
+    "searchClear": "Clear search",
+    "emptySearch": "No cards were found for your search",
+    "searchResultsTitle": "Search results: \"{{query}}\""
   },
   "sections": {
     "category": "Category: {{name}}",

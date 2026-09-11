@@ -66,7 +66,12 @@
     "saveCard": "Karte speichern",
     "sectionLatest": "Zuletzt gespeicherte Karten",
     "showingCards": "{{count}} Karte(n) angezeigt",
-    "emptyView": "Keine Karten in dieser Ansicht."
+    "emptyView": "Keine Karten in dieser Ansicht.",
+    "searchPlaceholder": "In deinen Karten suchen...",
+    "searchButton": "Suchen",
+    "searchClear": "Suche leeren",
+    "emptySearch": "Keine Karten für diese Suche gefunden",
+    "searchResultsTitle": "Ergebnisse deiner Suche: \"{{query}}\""
   },
   "sections": {
     "category": "Kategorie: {{name}}",
