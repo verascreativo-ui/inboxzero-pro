@@ -38,6 +38,7 @@ const LEGACY_CARDS_STORAGE_KEY = 'inboxzero_cards';
 const GUEST_CARDS_STORAGE_KEY = 'inboxzero_guest_cards';
 const GUEST_CONTEXT_STORAGE_KEY = 'inboxzero_guest_context';
 const WELCOME_HIDDEN_STORAGE_KEY = 'inboxzero_welcome_hidden';
+const LIBRARY_VIEW_STORAGE_KEY = 'inboxzero_library_view';
 
 function isWelcomeCardHidden() {
   try {
@@ -54,6 +55,23 @@ function setWelcomeCardHidden(hidden) {
     } else {
       localStorage.removeItem(WELCOME_HIDDEN_STORAGE_KEY);
     }
+  } catch (_) {
+    /* ignore quota / private mode */
+  }
+}
+
+function readLibraryViewMode() {
+  try {
+    return localStorage.getItem(LIBRARY_VIEW_STORAGE_KEY) === 'list' ? 'list' : 'cards';
+  } catch (_) {
+    return 'cards';
+  }
+}
+
+function persistLibraryViewMode(mode) {
+  try {
+    if (mode === 'list') localStorage.setItem(LIBRARY_VIEW_STORAGE_KEY, 'list');
+    else localStorage.removeItem(LIBRARY_VIEW_STORAGE_KEY);
   } catch (_) {
     /* ignore quota / private mode */
   }
@@ -2528,11 +2546,17 @@ document.addEventListener('i18n:ready', () => {
   /** Búsqueda client-side aplicada (Enter / botón). No se dispara al escribir. */
   let librarySearchQuery = '';
 
+  /** Vista del listado: 'cards' (por defecto) o 'list'. Solo visual. */
+  let libraryViewMode = readLibraryViewMode();
+
   const cardsGrid = document.getElementById('cards-grid');
   const librarySearchForm = document.getElementById('library-search-form');
   const librarySearchInput = document.getElementById('library-search-input');
   const btnLibrarySearchClear = document.getElementById('btn-library-search-clear');
   const btnLibrarySearchToggle = document.getElementById('btn-library-search-toggle');
+  const btnLibraryViewCards = document.getElementById('btn-library-view-cards');
+  const btnLibraryViewList = document.getElementById('btn-library-view-list');
+  if (libraryViewMode === 'list') cardsGrid?.classList.add('is-list-view');
   const trialPlanText = document.getElementById('trial-plan-text');
   const premiumPlanBadge = document.getElementById('premium-plan-badge');
   if (premiumPlanBadge && !premiumPlanBadge.dataset.tooltipBound) {
@@ -3348,6 +3372,25 @@ document.addEventListener('i18n:ready', () => {
     btnLibrarySearchToggle?.classList.toggle('is-active', Boolean(librarySearchQuery));
   }
 
+  function syncLibraryViewToggle() {
+    const isList = libraryViewMode === 'list';
+    cardsGrid?.classList.toggle('is-list-view', isList);
+    if (btnLibraryViewCards) {
+      btnLibraryViewCards.classList.toggle('is-active', !isList);
+      btnLibraryViewCards.setAttribute('aria-pressed', !isList ? 'true' : 'false');
+    }
+    if (btnLibraryViewList) {
+      btnLibraryViewList.classList.toggle('is-active', isList);
+      btnLibraryViewList.setAttribute('aria-pressed', isList ? 'true' : 'false');
+    }
+  }
+
+  function setLibraryViewMode(mode) {
+    libraryViewMode = mode === 'list' ? 'list' : 'cards';
+    persistLibraryViewMode(libraryViewMode);
+    syncLibraryViewToggle();
+  }
+
   function setLibrarySearchExpanded(expanded) {
     if (!librarySearchForm) return;
     librarySearchForm.classList.toggle('is-collapsed', !expanded);
@@ -3757,6 +3800,7 @@ document.addEventListener('i18n:ready', () => {
     syncLibraryNavActive();
     syncWelcomeRestoreMenu();
     syncLibrarySearchToggleActive();
+    syncLibraryViewToggle();
     persistCards();
   }
 
@@ -5725,8 +5769,11 @@ document.addEventListener('i18n:ready', () => {
     setLibrarySearchExpanded(false);
     librarySearchInput?.blur();
   });
+  btnLibraryViewCards?.addEventListener('click', () => setLibraryViewMode('cards'));
+  btnLibraryViewList?.addEventListener('click', () => setLibraryViewMode('list'));
   syncLibrarySearchClearVisibility();
   syncLibrarySearchToggleActive();
+  syncLibraryViewToggle();
 
   document.querySelectorAll('.filter-link').forEach(link => {
     link.addEventListener('click', (e) => {

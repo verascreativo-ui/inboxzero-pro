@@ -164,6 +164,39 @@
           <h2 id="section-title" data-i18n="sections.latest">Últimas Fichas Incorporadas</h2>
           <div class="section-header-tools">
             <span id="showing-counter" class="showing-counter" data-i18n="main.showingCards" data-i18n-vars='{"count":0}'>Mostrando 0 ficha(s)</span>
+            <div class="library-view-switch" role="group" data-i18n-title="main.viewSwitch" title="Vista del listado">
+              <button
+                type="button"
+                id="btn-library-view-cards"
+                class="library-search-toggle is-active"
+                data-view="cards"
+                aria-pressed="true"
+                data-i18n-title="main.viewCards"
+                title="Vista de tarjetas"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                  <rect x="1" y="1" width="6" height="6" rx="1"></rect>
+                  <rect x="9" y="1" width="6" height="6" rx="1"></rect>
+                  <rect x="1" y="9" width="6" height="6" rx="1"></rect>
+                  <rect x="9" y="9" width="6" height="6" rx="1"></rect>
+                </svg>
+              </button>
+              <button
+                type="button"
+                id="btn-library-view-list"
+                class="library-search-toggle"
+                data-view="list"
+                aria-pressed="false"
+                data-i18n-title="main.viewList"
+                title="Vista de lista"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                  <rect x="1" y="2" width="14" height="2" rx="1"></rect>
+                  <rect x="1" y="7" width="14" height="2" rx="1"></rect>
+                  <rect x="1" y="12" width="14" height="2" rx="1"></rect>
+                </svg>
+              </button>
+            </div>
             <button
               type="button"
               id="btn-library-search-toggle"

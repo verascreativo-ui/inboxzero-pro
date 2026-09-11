@@ -70,6 +70,9 @@
     "searchPlaceholder": "Search your cards...",
     "searchButton": "Search",
     "searchClear": "Clear search",
+    "viewSwitch": "Library view",
+    "viewCards": "Card view",
+    "viewList": "List view",
     "emptySearch": "No cards were found for your search",
     "searchResultsTitle": "Search results: \"{{query}}\""
   },
