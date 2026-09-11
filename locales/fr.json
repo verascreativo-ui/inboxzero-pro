@@ -70,6 +70,9 @@
     "searchPlaceholder": "Rechercher dans vos fiches...",
     "searchButton": "Rechercher",
     "searchClear": "Effacer la recherche",
+    "viewSwitch": "Affichage de la bibliothèque",
+    "viewCards": "Vue en cartes",
+    "viewList": "Vue en liste",
     "emptySearch": "Aucune fiche ne correspond à votre recherche",
     "searchResultsTitle": "Résultats de votre recherche : \"{{query}}\""
   },

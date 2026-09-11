@@ -70,6 +70,9 @@
     "searchPlaceholder": "In deinen Karten suchen...",
     "searchButton": "Suchen",
     "searchClear": "Suche leeren",
+    "viewSwitch": "Bibliotheksansicht",
+    "viewCards": "Kartenansicht",
+    "viewList": "Listenansicht",
     "emptySearch": "Keine Karten für diese Suche gefunden",
     "searchResultsTitle": "Ergebnisse deiner Suche: \"{{query}}\""
   },

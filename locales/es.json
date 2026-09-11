@@ -70,6 +70,9 @@
     "searchPlaceholder": "Buscar en tus fichas...",
     "searchButton": "Buscar",
     "searchClear": "Vaciar búsqueda",
+    "viewSwitch": "Vista del listado",
+    "viewCards": "Vista de tarjetas",
+    "viewList": "Vista de lista",
     "emptySearch": "No se encontraron fichas para tu búsqueda",
     "searchResultsTitle": "Resultados de tu búsqueda: \"{{query}}\""
   },
