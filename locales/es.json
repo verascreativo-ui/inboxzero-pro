@@ -185,9 +185,11 @@
     "later": "Ahora no"
   },
   "duplicateUrl": {
-    "message": "Esta URL ya está en tu biblioteca.",
+    "message": "Esta URL ya está guardada.",
+    "existingTitle": "{{title}}",
+    "viewExisting": "Ver ficha existente",
     "cancel": "Cancelar",
-    "saveAnyway": "Guardar igualmente"
+    "saveAnyway": "Guardar de todas formas"
   },
   "guestMigration": {
     "title": "Fichas guardadas como invitado",

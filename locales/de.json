@@ -185,7 +185,9 @@
     "later": "Jetzt nicht"
   },
   "duplicateUrl": {
-    "message": "Diese URL ist bereits in Ihrer Bibliothek.",
+    "message": "Diese URL ist bereits gespeichert.",
+    "existingTitle": "{{title}}",
+    "viewExisting": "Vorhandene Karte anzeigen",
     "cancel": "Abbrechen",
     "saveAnyway": "Trotzdem speichern"
   },

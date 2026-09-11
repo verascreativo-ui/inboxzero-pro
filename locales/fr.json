@@ -185,7 +185,9 @@
     "later": "Pas maintenant"
   },
   "duplicateUrl": {
-    "message": "Cette URL est déjà dans votre bibliothèque.",
+    "message": "Cette URL est déjà enregistrée.",
+    "existingTitle": "{{title}}",
+    "viewExisting": "Voir la fiche existante",
     "cancel": "Annuler",
     "saveAnyway": "Enregistrer quand même"
   },

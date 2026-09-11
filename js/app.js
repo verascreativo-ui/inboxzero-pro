@@ -2777,12 +2777,63 @@ document.addEventListener('i18n:ready', () => {
     });
   }
 
-  function openDuplicateUrlModal() {
+  /** Coincidencia EXACTA (solo trim del texto introducido) contra card.url en memoria. */
+  function findExactDuplicateCardByUrl(rawUrl) {
+    const needle = String(rawUrl || '').trim();
+    if (!needle) return null;
+    return userCards().find((card) => String(card && card.url != null ? card.url : '') === needle) || null;
+  }
+
+  function findNormalizedDuplicateCard(url) {
+    const key = normalizeUrlForDuplicateCheck(url);
+    if (!key) return null;
+    return userCards().find((card) => {
+      const other = normalizeUrlForDuplicateCheck(card && card.url);
+      return Boolean(other) && other === key;
+    }) || null;
+  }
+
+  let duplicateUrlModalMode = 'save';
+  let duplicateUrlModalCard = null;
+
+  function fillDuplicateUrlModal(card) {
+    const msgEl = document.getElementById('duplicate-url-message');
+    if (msgEl) {
+      msgEl.setAttribute('data-i18n', 'duplicateUrl.message');
+      msgEl.textContent = t('duplicateUrl.message');
+    }
+    const titleEl = document.getElementById('duplicate-url-existing-title');
+    const title = String(card && card.title ? card.title : '').trim()
+      || String(card && card.url ? card.url : '').trim();
+    if (titleEl) {
+      if (!title) {
+        titleEl.hidden = true;
+        titleEl.textContent = '';
+        titleEl.removeAttribute('data-i18n');
+        titleEl.removeAttribute('data-i18n-vars');
+      } else {
+        const vars = { title };
+        titleEl.hidden = false;
+        titleEl.setAttribute('data-i18n', 'duplicateUrl.existingTitle');
+        titleEl.setAttribute('data-i18n-vars', JSON.stringify(vars));
+        titleEl.textContent = t('duplicateUrl.existingTitle', vars);
+      }
+    }
+    const viewBtn = document.getElementById('btn-duplicate-view-existing');
+    if (viewBtn) viewBtn.hidden = !card;
+  }
+
+  function openDuplicateUrlModal(options) {
+    duplicateUrlModalMode = options && options.mode === 'analyze' ? 'analyze' : 'save';
+    duplicateUrlModalCard = options && options.card ? options.card : null;
+    fillDuplicateUrlModal(duplicateUrlModalCard);
     openModal('modal-duplicate-url');
   }
 
   function closeDuplicateUrlModal() {
     closeModal('modal-duplicate-url');
+    duplicateUrlModalMode = 'save';
+    duplicateUrlModalCard = null;
   }
 
   function openModal(modalId) {
@@ -3866,155 +3917,169 @@ document.addEventListener('i18n:ready', () => {
   });
 
   // S1.4-A: Analizar URL → Preview (borrador). Sin persistencia.
-  if (btnSave && urlInput) {
-    btnSave.addEventListener('click', async () => {
-      if (btnSave.disabled || btnSave.getAttribute('aria-busy') === 'true') return;
+  async function runUrlAnalyze(options) {
+    if (!btnSave || !urlInput) return;
+    if (btnSave.disabled || btnSave.getAttribute('aria-busy') === 'true') return;
 
-      const val = urlInput.value.trim();
-      if (!val) {
-        alert(t('messages.invalidUrlOrTitle'));
+    const val = urlInput.value.trim();
+    if (!val) {
+      alert(t('messages.invalidUrlOrTitle'));
+      return;
+    }
+
+    // S1.4-D: gate de Analyze (optimización). Guardar vuelve a comprobar.
+    if (isTrialLimitReached()) {
+      openTrialLimitModal();
+      return;
+    }
+
+    if (!(options && options.allowDuplicate)) {
+      const existing = findExactDuplicateCardByUrl(val);
+      if (existing) {
+        openDuplicateUrlModal({ mode: 'analyze', card: existing });
         return;
       }
+    }
 
-      // S1.4-D: gate de Analyze (optimización). Guardar vuelve a comprobar.
-      if (isTrialLimitReached()) {
-        openTrialLimitModal();
-        return;
-      }
+    let finalTitle = val;
+    let finalUrl = val;
+    let finalDesc = '';
+    let finalImage = '';
+    let youtubeId = null;
+    let socialBrand = null;
+    let microlinkOk = false;
+    let facebookSmart = false;
+    let facebookAuthentic = false;
+    let guestBlocked = false;
 
-      let finalTitle = val;
-      let finalUrl = val;
-      let finalDesc = '';
-      let finalImage = '';
-      let youtubeId = null;
-      let socialBrand = null;
-      let microlinkOk = false;
-      let facebookSmart = false;
-      let facebookAuthentic = false;
-      let guestBlocked = false;
+    const prevBtnLabel = btnSave.textContent;
+    btnSave.disabled = true;
+    btnSave.setAttribute('aria-busy', 'true');
+    btnSave.textContent = t('main.analyzingUrl') || 'Analizando…';
 
-      const prevBtnLabel = btnSave.textContent;
-      btnSave.disabled = true;
-      btnSave.setAttribute('aria-busy', 'true');
-      btnSave.textContent = t('main.analyzingUrl') || 'Analizando…';
-
-      try {
-        if (val.startsWith('http://') || val.startsWith('https://')) {
-          try {
-            finalUrl = new URL(val).href;
-          } catch (_) {
-            finalUrl = val;
-          }
-
-          youtubeId = extractYoutubeVideoId(finalUrl);
-          socialBrand = detectSocialBrand(finalUrl) || undefined;
-
-          // Facebook páginas públicas → ScrapingBee (datos reales); si falla, contingencia
-          try {
-            const meta = await extractUrlMetadata(finalUrl);
-            if (meta) {
-              microlinkOk = true;
-              facebookSmart = Boolean(meta.facebookSmart);
-              facebookAuthentic = Boolean(meta.authentic);
-              if (meta.guestBlocked === true) guestBlocked = true;
-              if (meta.title) finalTitle = meta.title;
-              if (meta.description) finalDesc = meta.description;
-              if (meta.image) finalImage = meta.image;
-              if (meta.canonicalUrl) finalUrl = meta.canonicalUrl;
-            }
-          } catch (_) {
-            microlinkOk = false;
-          }
-
-          if (socialBrand === 'facebook' && !facebookAuthentic) {
-            const instant = getFacebookInstantMetadata(finalUrl);
-            if (!finalTitle || isUglyFacebookTitle(finalTitle)) finalTitle = instant.title;
-            if (!finalDesc || isLegacyFacebookDescription(finalDesc) || isGenericFacebookMeta('', finalDesc)) {
-              finalDesc = instant.description;
-            }
-            if (!finalImage || isBrandLogoImage(finalImage)) finalImage = instant.image;
-            facebookSmart = true;
-            microlinkOk = true;
-          }
-
-          if (!microlinkOk || !finalTitle) {
-            try {
-              finalTitle = finalTitle || new URL(finalUrl).hostname;
-            } catch (_) {
-              finalTitle = finalTitle || finalUrl;
-            }
-          }
-          if (!finalDesc) finalDesc = '';
-          if (!finalImage && youtubeId && socialBrand !== 'facebook') {
-            finalImage = getYoutubeThumbUrl(youtubeId, 'hqdefault');
-          }
-          // Facebook: nunca YouTube/Unsplash; logo Wikimedia de contingencia
-          if (socialBrand === 'facebook' && (!finalImage || isFacebookContingencyImage(finalImage))) {
-            if (!facebookAuthentic) {
-              finalImage = getFacebookContingencyLogo();
-              facebookSmart = true;
-            }
-          }
-          // Último recurso visual: favicon del dominio (evita preview en blanco)
-          if (!isUsableImageUrl(finalImage) || isLikelyPlaceholderOrGenericOgImage(finalImage)) {
-            finalImage = resolveDisplayImage('', finalUrl);
-          }
-
-          // YouTube: oEmbed al draft (antes del Preview). No escribe cards ni Cloud.
-          if (youtubeId && socialBrand !== 'facebook') {
-            try {
-              const ytMeta = await fetchYoutubeOEmbed(finalUrl);
-              if (ytMeta?.title && (!microlinkOk || !finalTitle || /Video de YouTube \(ID:|Recursos de youtube|Resources from youtube/i.test(finalTitle))) {
-                finalTitle = String(ytMeta.title);
-              }
-              if (ytMeta?.author_name && !finalDesc) {
-                finalDesc = t('messages.youtubeFromAuthor', { author: ytMeta.author_name });
-              }
-              if (ytMeta?.thumbnail_url && isUsableImageUrl(ytMeta.thumbnail_url)) {
-                if (!isUsableImageUrl(finalImage) || /ytimg\.com\/vi\//i.test(String(finalImage))) {
-                  finalImage = String(ytMeta.thumbnail_url);
-                }
-              }
-            } catch (_) {
-              /* Preview con lo ya extraído */
-            }
-          }
-        } else {
-          finalUrl =
-            'https://inboxzero.es/recurso/' +
-            encodeURIComponent(val.toLowerCase().replace(/\s+/g, '-'));
-          finalDesc = t('messages.manualCardDesc');
-          if (!isUsableImageUrl(finalImage)) {
-            finalImage = CARD_THUMB_PLACEHOLDER;
-          }
+    try {
+      if (val.startsWith('http://') || val.startsWith('https://')) {
+        try {
+          finalUrl = new URL(val).href;
+        } catch (_) {
+          finalUrl = val;
         }
 
-        const draft = {
-          title: finalTitle,
-          description: finalDesc,
-          url: finalUrl,
-          category: normalizeCategoryId(currentCategory) || UNCATEGORIZED_ID,
-          favorite: false,
-          readLater: false,
-          notes: '',
-          image: resolveDisplayImage(finalImage, finalUrl),
-          youtubeId: youtubeId || undefined,
-          socialBrand: socialBrand || undefined,
-          facebookSmart: facebookSmart || undefined,
-          facebookAuthentic: facebookAuthentic || undefined,
-          guestBlocked: guestBlocked || undefined,
-          tags: [],
-        };
+        youtubeId = extractYoutubeVideoId(finalUrl);
+        socialBrand = detectSocialBrand(finalUrl) || undefined;
 
-        openPreviewModal(draft);
-      } catch (_) {
-        /* S1.4-A: no emergency-create; el Analyze no persiste */
-      } finally {
-        btnSave.disabled = false;
-        btnSave.removeAttribute('aria-busy');
-        btnSave.textContent = t('main.analyzeUrl');
-        if (prevBtnLabel && !btnSave.textContent) btnSave.textContent = prevBtnLabel;
+        // Facebook páginas públicas → ScrapingBee (datos reales); si falla, contingencia
+        try {
+          const meta = await extractUrlMetadata(finalUrl);
+          if (meta) {
+            microlinkOk = true;
+            facebookSmart = Boolean(meta.facebookSmart);
+            facebookAuthentic = Boolean(meta.authentic);
+            if (meta.guestBlocked === true) guestBlocked = true;
+            if (meta.title) finalTitle = meta.title;
+            if (meta.description) finalDesc = meta.description;
+            if (meta.image) finalImage = meta.image;
+            if (meta.canonicalUrl) finalUrl = meta.canonicalUrl;
+          }
+        } catch (_) {
+          microlinkOk = false;
+        }
+
+        if (socialBrand === 'facebook' && !facebookAuthentic) {
+          const instant = getFacebookInstantMetadata(finalUrl);
+          if (!finalTitle || isUglyFacebookTitle(finalTitle)) finalTitle = instant.title;
+          if (!finalDesc || isLegacyFacebookDescription(finalDesc) || isGenericFacebookMeta('', finalDesc)) {
+            finalDesc = instant.description;
+          }
+          if (!finalImage || isBrandLogoImage(finalImage)) finalImage = instant.image;
+          facebookSmart = true;
+          microlinkOk = true;
+        }
+
+        if (!microlinkOk || !finalTitle) {
+          try {
+            finalTitle = finalTitle || new URL(finalUrl).hostname;
+          } catch (_) {
+            finalTitle = finalTitle || finalUrl;
+          }
+        }
+        if (!finalDesc) finalDesc = '';
+        if (!finalImage && youtubeId && socialBrand !== 'facebook') {
+          finalImage = getYoutubeThumbUrl(youtubeId, 'hqdefault');
+        }
+        // Facebook: nunca YouTube/Unsplash; logo Wikimedia de contingencia
+        if (socialBrand === 'facebook' && (!finalImage || isFacebookContingencyImage(finalImage))) {
+          if (!facebookAuthentic) {
+            finalImage = getFacebookContingencyLogo();
+            facebookSmart = true;
+          }
+        }
+        // Último recurso visual: favicon del dominio (evita preview en blanco)
+        if (!isUsableImageUrl(finalImage) || isLikelyPlaceholderOrGenericOgImage(finalImage)) {
+          finalImage = resolveDisplayImage('', finalUrl);
+        }
+
+        // YouTube: oEmbed al draft (antes del Preview). No escribe cards ni Cloud.
+        if (youtubeId && socialBrand !== 'facebook') {
+          try {
+            const ytMeta = await fetchYoutubeOEmbed(finalUrl);
+            if (ytMeta?.title && (!microlinkOk || !finalTitle || /Video de YouTube \(ID:|Recursos de youtube|Resources from youtube/i.test(finalTitle))) {
+              finalTitle = String(ytMeta.title);
+            }
+            if (ytMeta?.author_name && !finalDesc) {
+              finalDesc = t('messages.youtubeFromAuthor', { author: ytMeta.author_name });
+            }
+            if (ytMeta?.thumbnail_url && isUsableImageUrl(ytMeta.thumbnail_url)) {
+              if (!isUsableImageUrl(finalImage) || /ytimg\.com\/vi\//i.test(String(finalImage))) {
+                finalImage = String(ytMeta.thumbnail_url);
+              }
+            }
+          } catch (_) {
+            /* Preview con lo ya extraído */
+          }
+        }
+      } else {
+        finalUrl =
+          'https://inboxzero.es/recurso/' +
+          encodeURIComponent(val.toLowerCase().replace(/\s+/g, '-'));
+        finalDesc = t('messages.manualCardDesc');
+        if (!isUsableImageUrl(finalImage)) {
+          finalImage = CARD_THUMB_PLACEHOLDER;
+        }
       }
+
+      const draft = {
+        title: finalTitle,
+        description: finalDesc,
+        url: finalUrl,
+        category: normalizeCategoryId(currentCategory) || UNCATEGORIZED_ID,
+        favorite: false,
+        readLater: false,
+        notes: '',
+        image: resolveDisplayImage(finalImage, finalUrl),
+        youtubeId: youtubeId || undefined,
+        socialBrand: socialBrand || undefined,
+        facebookSmart: facebookSmart || undefined,
+        facebookAuthentic: facebookAuthentic || undefined,
+        guestBlocked: guestBlocked || undefined,
+        tags: [],
+        allowDuplicate: Boolean(options && options.allowDuplicate),
+      };
+
+      openPreviewModal(draft);
+    } catch (_) {
+      /* S1.4-A: no emergency-create; el Analyze no persiste */
+    } finally {
+      btnSave.disabled = false;
+      btnSave.removeAttribute('aria-busy');
+      btnSave.textContent = t('main.analyzeUrl');
+      if (prevBtnLabel && !btnSave.textContent) btnSave.textContent = prevBtnLabel;
+    }
+  }
+
+  if (btnSave && urlInput) {
+    btnSave.addEventListener('click', () => {
+      runUrlAnalyze();
     });
 
     urlInput.addEventListener('keypress', (e) => {
@@ -4977,8 +5042,8 @@ document.addEventListener('i18n:ready', () => {
         return;
       }
 
-      if (!(options && options.allowDuplicate) && libraryHasDuplicateUrl(draft.url)) {
-        openDuplicateUrlModal();
+      if (!(options && options.allowDuplicate) && !draft.allowDuplicate && libraryHasDuplicateUrl(draft.url)) {
+        openDuplicateUrlModal({ mode: 'save', card: findNormalizedDuplicateCard(draft.url) });
         return;
       }
 
@@ -5515,10 +5580,22 @@ document.addEventListener('i18n:ready', () => {
   const btnDuplicateSaveAnyway = document.getElementById('btn-duplicate-save-anyway');
   if (btnDuplicateSaveAnyway) {
     btnDuplicateSaveAnyway.addEventListener('click', () => {
+      const mode = duplicateUrlModalMode;
       closeDuplicateUrlModal();
+      if (mode === 'analyze') {
+        runUrlAnalyze({ allowDuplicate: true });
+        return;
+      }
       savePreviewDraftFromModal({ allowDuplicate: true });
     });
   }
+
+  document.getElementById('btn-duplicate-view-existing')?.addEventListener('click', () => {
+    const card = duplicateUrlModalCard;
+    closeDuplicateUrlModal();
+    if (!card || isGuideCard(card)) return;
+    openEditModal(card.id);
+  });
 
   const btnSaveEdit = document.getElementById('btn-save-edit');
   if (btnSaveEdit) {
@@ -5894,6 +5971,10 @@ document.addEventListener('i18n:ready', () => {
         closeGuestMigrationModal();
         return;
       }
+      if (modalId === 'modal-duplicate-url') {
+        closeDuplicateUrlModal();
+        return;
+      }
       document.getElementById(modalId).classList.remove('active');
       if (modalId === 'modal-login') resetTurnstileWidget();
       if (modalId === 'modal-edit') discardPreviewDraft();
@@ -5918,6 +5999,10 @@ document.addEventListener('i18n:ready', () => {
             return;
           }
           closeGuestMigrationModal();
+          return;
+        }
+        if (overlay.id === 'modal-duplicate-url') {
+          closeDuplicateUrlModal();
           return;
         }
         overlay.classList.remove('active');
