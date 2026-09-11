@@ -394,6 +394,24 @@
               <label class="check-label"><input type="checkbox" id="edit-fav-check"> <span data-i18n="edit.favorite">⭐ Favorito</span></label>
               <label class="check-label"><input type="checkbox" id="edit-read-check"> <span data-i18n="edit.readLater">⏰ Leer más tarde</span></label>
             </div>
+            <div class="form-group edit-tags-group" id="edit-tags-group">
+              <label for="edit-tag-input" data-i18n="edit.tagsLabel">Etiquetas:</label>
+              <div class="edit-tags-input-row">
+                <input
+                  type="text"
+                  id="edit-tag-input"
+                  class="edit-tag-input"
+                  data-i18n-placeholder="edit.tagsPlaceholder"
+                  placeholder="Añade una etiqueta..."
+                  autocomplete="off"
+                  maxlength="40"
+                >
+                <button type="button" id="btn-edit-tag-add" class="edit-tag-add-btn" data-i18n="edit.tagsAdd">Añadir</button>
+              </div>
+              <ul id="edit-tags-suggestions" class="edit-tags-suggestions" hidden role="listbox"></ul>
+              <p id="edit-tags-limit" class="edit-tags-limit" hidden data-i18n="edit.tagsLimit">Máximo 5 etiquetas por ficha</p>
+              <div id="edit-tags-chips" class="edit-tags-chips"></div>
+            </div>
             <div class="form-group">
               <label for="edit-notes-input" data-i18n="edit.notesLabel">Notas:</label>
               <textarea id="edit-notes-input" rows="2" data-i18n-placeholder="edit.notesPlaceholder" placeholder="Notas privadas..." class="modal-textarea"></textarea>

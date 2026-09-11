@@ -1389,7 +1389,7 @@ async function fetchOwnCardsRepo(sessionUid) {
   const { data, error } = await supabase
     .from('cards')
     .select(
-      'id,user_id,title,description,url,category,favorite,readLater,notes,image,creado_en'
+      'id,user_id,title,description,url,category,favorite,readLater,notes,image,tags,creado_en'
     )
     .eq('user_id', uid)
     .order('creado_en', { ascending: false });
@@ -1432,6 +1432,29 @@ function classifyCardInsertError(error) {
   return 'INSERT_ERROR';
 }
 
+const CARD_TAGS_MAX = 5;
+const CARD_TAG_MAX_LENGTH = 40;
+
+function sanitizeCardTags(raw) {
+  if (!Array.isArray(raw)) return [];
+  const seen = new Set();
+  const out = [];
+  for (const item of raw) {
+    const label = String(item || '').trim().replace(/\s+/g, ' ');
+    if (!label) continue;
+    const clipped = label.slice(0, CARD_TAG_MAX_LENGTH);
+    const key = clipped
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(clipped);
+    if (out.length >= CARD_TAGS_MAX) break;
+  }
+  return out;
+}
+
 /**
  * INSERT de ficha propia. Fuerza user_id = sesión; ignora user_id del payload.
  * S1.4-C: nunca lanza; errores tipados (NO_SESSION / INSERT_LIMIT / INSERT_NETWORK / INSERT_ERROR).
@@ -1454,6 +1477,7 @@ async function insertOwnCardRepo(cardFields) {
       readLater: Boolean(src.readLater),
       notes: src.notes != null ? String(src.notes) : '',
       image: src.image != null ? String(src.image) : '',
+      tags: sanitizeCardTags(src.tags),
     };
     if (src.id) row.id = String(src.id);
     const { data, error } = await supabase.from('cards').insert(row).select().maybeSingle();
@@ -1506,7 +1530,12 @@ async function updateOwnCardRepo(cardId, patch, sessionUid) {
       'readLater',
       'notes',
       'image',
+      'tags',
     ]) {
+      if (key === 'tags') {
+        if (Object.prototype.hasOwnProperty.call(src, key)) row.tags = sanitizeCardTags(src.tags);
+        continue;
+      }
       if (Object.prototype.hasOwnProperty.call(src, key)) row[key] = src[key];
     }
     const { data, error } = await supabase
@@ -2484,6 +2513,8 @@ document.addEventListener('i18n:ready', () => {
 
   /** S1.4-A: borrador de Analyze/Preview. Nunca entra en `cards` ni en storage. */
   let previewDraft = null;
+  /** Etiquetas del modal de edición (ficha existente o Preview). */
+  let editModalTags = [];
   const PREVIEW_DRAFT_TOKEN = '__inboxzero_preview_draft__';
   let previewSaveInFlight = false;
   /** Clave i18n del último error de Guardar Ficha (S1.4-C). */
@@ -2567,6 +2598,7 @@ document.addEventListener('i18n:ready', () => {
       image: c.image,
       youtubeId: c.youtubeId || undefined,
       socialBrand: c.socialBrand || undefined,
+      tags: sanitizeCardTags(c.tags),
     }));
   }
 
@@ -2588,6 +2620,7 @@ document.addEventListener('i18n:ready', () => {
         image: resolveDisplayImage(c.image, c.url),
         youtubeId: c.youtubeId || extractYoutubeVideoId(c.url) || undefined,
         socialBrand: c.socialBrand || detectSocialBrand(c.url) || undefined,
+        tags: sanitizeCardTags(c.tags),
       }));
   }
 
@@ -2646,6 +2679,7 @@ document.addEventListener('i18n:ready', () => {
       image: resolveDisplayImage(row?.image, url),
       youtubeId: extractYoutubeVideoId(url) || undefined,
       socialBrand: detectSocialBrand(url) || undefined,
+      tags: sanitizeCardTags(row?.tags),
       creado_en: row?.creado_en || undefined,
     };
   }
@@ -3035,6 +3069,7 @@ document.addEventListener('i18n:ready', () => {
           readLater: Boolean(card.readLater),
           notes: String(card.notes || ''),
           image: String(card.image || ''),
+          tags: sanitizeCardTags(card.tags),
         });
 
         if (guestMigrationAborted) break;
@@ -3088,6 +3123,7 @@ document.addEventListener('i18n:ready', () => {
     currentFilter = 'all';
     currentCategory = null;
     resetLibrarySearchState();
+    editModalTags = [];
     if (urlInput) urlInput.value = '';
     restoreEditSaveButton();
     document.getElementById('modal-edit')?.classList.remove('active');
@@ -3217,7 +3253,8 @@ document.addEventListener('i18n:ready', () => {
     const categoryLabel = welcome
       ? welcome.category
       : getCategoryLabel(card.category || UNCATEGORIZED_ID);
-    const haystack = [title, description, categoryLabel, card.category]
+    const tags = sanitizeCardTags(card.tags);
+    const haystack = [title, description, categoryLabel, card.category, ...tags]
       .map(normalizeSearchText)
       .join(' ');
     return haystack.includes(needle);
@@ -3966,6 +4003,7 @@ document.addEventListener('i18n:ready', () => {
           facebookSmart: facebookSmart || undefined,
           facebookAuthentic: facebookAuthentic || undefined,
           guestBlocked: guestBlocked || undefined,
+          tags: [],
         };
 
         openPreviewModal(draft);
@@ -4514,6 +4552,149 @@ document.addEventListener('i18n:ready', () => {
     setPreviewSaveError('edit.saveErrorGeneric');
   }
 
+  function collectLibraryTagLabels(excludeKeys) {
+    const skip = excludeKeys instanceof Set ? excludeKeys : new Set();
+    const seen = new Set();
+    const labels = [];
+    userCards().forEach((card) => {
+      sanitizeCardTags(card.tags).forEach((label) => {
+        const key = normalizeSearchText(label);
+        if (!key || skip.has(key) || seen.has(key)) return;
+        seen.add(key);
+        labels.push(label);
+      });
+    });
+    return labels.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+  }
+
+  function hideEditTagSuggestions() {
+    const list = document.getElementById('edit-tags-suggestions');
+    if (!list) return;
+    list.hidden = true;
+    list.replaceChildren();
+  }
+
+  function syncEditTagsLimitUi() {
+    const atLimit = editModalTags.length >= CARD_TAGS_MAX;
+    const input = document.getElementById('edit-tag-input');
+    const addBtn = document.getElementById('btn-edit-tag-add');
+    const limitEl = document.getElementById('edit-tags-limit');
+    if (input) {
+      input.disabled = atLimit;
+      if (atLimit) input.value = '';
+    }
+    if (addBtn) addBtn.disabled = atLimit;
+    if (limitEl) limitEl.hidden = !atLimit;
+    if (atLimit) hideEditTagSuggestions();
+  }
+
+  function renderEditTagChips() {
+    const host = document.getElementById('edit-tags-chips');
+    if (!host) return;
+    host.replaceChildren();
+    editModalTags.forEach((label) => {
+      const chip = document.createElement('span');
+      chip.className = 'edit-tag-chip';
+      const text = document.createElement('span');
+      text.className = 'edit-tag-chip-text';
+      text.textContent = label;
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'edit-tag-chip-remove';
+      removeBtn.setAttribute('data-tag', label);
+      removeBtn.setAttribute('data-i18n-title', 'edit.tagsRemove');
+      removeBtn.title = t('edit.tagsRemove');
+      removeBtn.setAttribute('aria-label', t('edit.tagsRemove'));
+      removeBtn.textContent = '✕';
+      chip.append(text, removeBtn);
+      host.appendChild(chip);
+    });
+    syncEditTagsLimitUi();
+  }
+
+  function renderEditTagSuggestions() {
+    const input = document.getElementById('edit-tag-input');
+    const list = document.getElementById('edit-tags-suggestions');
+    if (!input || !list) return;
+    if (editModalTags.length >= CARD_TAGS_MAX) {
+      hideEditTagSuggestions();
+      return;
+    }
+    const needle = normalizeSearchText(input.value);
+    if (!needle) {
+      hideEditTagSuggestions();
+      return;
+    }
+    const currentKeys = new Set(editModalTags.map((label) => normalizeSearchText(label)));
+    const matches = collectLibraryTagLabels(currentKeys)
+      .filter((label) => normalizeSearchText(label).includes(needle))
+      .slice(0, 8);
+    list.replaceChildren();
+    if (matches.length === 0) {
+      list.hidden = true;
+      return;
+    }
+    matches.forEach((label) => {
+      const item = document.createElement('li');
+      item.className = 'edit-tags-suggestion';
+      item.setAttribute('role', 'option');
+      item.textContent = label;
+      item.dataset.tag = label;
+      list.appendChild(item);
+    });
+    list.hidden = false;
+  }
+
+  function setEditModalTags(tags, options) {
+    editModalTags = sanitizeCardTags(tags);
+    if (previewDraft) previewDraft.tags = editModalTags.slice();
+    renderEditTagChips();
+    if (options?.refreshSuggestions !== false) renderEditTagSuggestions();
+  }
+
+  function addEditTag(rawLabel) {
+    const cleaned = String(rawLabel || '').trim().replace(/\s+/g, ' ');
+    if (!cleaned || editModalTags.length >= CARD_TAGS_MAX) return false;
+    const key = normalizeSearchText(cleaned);
+    if (!key) return false;
+    if (editModalTags.some((label) => normalizeSearchText(label) === key)) {
+      const input = document.getElementById('edit-tag-input');
+      if (input) input.value = '';
+      hideEditTagSuggestions();
+      return false;
+    }
+    const existing = collectLibraryTagLabels(new Set()).find(
+      (label) => normalizeSearchText(label) === key
+    );
+    const next = sanitizeCardTags([...editModalTags, existing || cleaned]);
+    setEditModalTags(next, { refreshSuggestions: false });
+    const input = document.getElementById('edit-tag-input');
+    if (input) {
+      input.value = '';
+      if (editModalTags.length < CARD_TAGS_MAX) input.focus();
+    }
+    hideEditTagSuggestions();
+    return true;
+  }
+
+  function removeEditTag(rawLabel) {
+    const key = normalizeSearchText(rawLabel);
+    setEditModalTags(
+      editModalTags.filter((label) => normalizeSearchText(label) !== key),
+      { refreshSuggestions: false }
+    );
+    hideEditTagSuggestions();
+  }
+
+  function loadEditModalTags(sourceTags, options) {
+    const group = document.getElementById('edit-tags-group');
+    if (group) group.hidden = Boolean(options?.hidden);
+    const input = document.getElementById('edit-tag-input');
+    if (input) input.value = '';
+    setEditModalTags(sourceTags || [], { refreshSuggestions: false });
+    hideEditTagSuggestions();
+  }
+
   /** Lee el formulario de edición sin mutar la ficha. No incluye url. */
   function readExistingCardEditFields(card) {
     let title = document.getElementById('edit-title-input')?.value || card.title;
@@ -4562,6 +4743,7 @@ document.addEventListener('i18n:ready', () => {
       favorite: Boolean(document.getElementById('edit-fav-check')?.checked),
       readLater: Boolean(document.getElementById('edit-read-check')?.checked),
       notes: document.getElementById('edit-notes-input')?.value || '',
+      tags: sanitizeCardTags(editModalTags),
     };
   }
 
@@ -4589,6 +4771,7 @@ document.addEventListener('i18n:ready', () => {
         readLater: Boolean(fields.readLater),
         notes: String(fields.notes || ''),
         image: String(fields.image || ''),
+        tags: sanitizeCardTags(fields.tags),
       });
       if (!result.ok || !result.data || !result.data.id) {
         failClosedEditSave(result.code || 'UPDATE_ERROR');
@@ -4673,6 +4856,7 @@ document.addEventListener('i18n:ready', () => {
     card.favorite = Boolean(document.getElementById('edit-fav-check')?.checked);
     card.readLater = Boolean(document.getElementById('edit-read-check')?.checked);
     card.notes = document.getElementById('edit-notes-input')?.value || '';
+    card.tags = sanitizeCardTags(editModalTags);
 
     document.getElementById('modal-edit')?.classList.remove('active');
     renderCards();
@@ -4740,6 +4924,7 @@ document.addEventListener('i18n:ready', () => {
     previewDraft.favorite = Boolean(document.getElementById('edit-fav-check')?.checked);
     previewDraft.readLater = Boolean(document.getElementById('edit-read-check')?.checked);
     previewDraft.notes = document.getElementById('edit-notes-input')?.value || '';
+    previewDraft.tags = sanitizeCardTags(editModalTags);
   }
 
   function buildGuestCardFromDraft(draft) {
@@ -4757,6 +4942,7 @@ document.addEventListener('i18n:ready', () => {
       socialBrand: draft.socialBrand || detectSocialBrand(draft.url) || undefined,
       facebookSmart: draft.facebookSmart || undefined,
       facebookAuthentic: draft.facebookAuthentic || undefined,
+      tags: sanitizeCardTags(draft.tags),
     };
   }
 
@@ -4808,6 +4994,7 @@ document.addEventListener('i18n:ready', () => {
           readLater: Boolean(draft.readLater),
           notes: draft.notes || '',
           image: draft.image || '',
+          tags: sanitizeCardTags(draft.tags),
         });
         if (!result.ok || !result.data || !result.data.id) {
           failClosedPreviewSave(result.code || 'INSERT_ERROR');
@@ -4843,6 +5030,7 @@ document.addEventListener('i18n:ready', () => {
           image: newCard.image,
           youtubeId: newCard.youtubeId,
           socialBrand: newCard.socialBrand,
+          tags: sanitizeCardTags(newCard.tags),
         },
       ]);
       const written = saveGuestCardsStorage(stored);
@@ -4940,6 +5128,7 @@ document.addEventListener('i18n:ready', () => {
     setValue('edit-notes-input', previewDraft.notes || '');
     setChecked('edit-fav-check', Boolean(previewDraft.favorite));
     setChecked('edit-read-check', Boolean(previewDraft.readLater));
+    loadEditModalTags(previewDraft.tags, { hidden: false });
 
     const visitLink = document.getElementById('edit-visit-link');
     if (visitLink) visitLink.href = pageUrl || '#';
@@ -5063,6 +5252,7 @@ document.addEventListener('i18n:ready', () => {
 
     setChecked('edit-fav-check', guide ? false : card.favorite);
     setChecked('edit-read-check', guide ? false : card.readLater);
+    loadEditModalTags(guide ? [] : card.tags, { hidden: guide });
 
     const visitLink = document.getElementById('edit-visit-link');
     if (visitLink) visitLink.href = card.url;
@@ -5407,6 +5597,35 @@ document.addEventListener('i18n:ready', () => {
   // Limpiar error de categoría al elegir/escribir
   document.getElementById('edit-category-select')?.addEventListener('change', clearCategoryValidation);
   document.getElementById('edit-new-category-input')?.addEventListener('input', clearCategoryValidation);
+
+  const editTagInput = document.getElementById('edit-tag-input');
+  const editTagAddBtn = document.getElementById('btn-edit-tag-add');
+  const editTagSuggestions = document.getElementById('edit-tags-suggestions');
+  const editTagChips = document.getElementById('edit-tags-chips');
+  editTagInput?.addEventListener('input', renderEditTagSuggestions);
+  editTagInput?.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    addEditTag(editTagInput.value);
+  });
+  editTagAddBtn?.addEventListener('click', () => {
+    addEditTag(editTagInput?.value || '');
+  });
+  editTagSuggestions?.addEventListener('mousedown', (e) => {
+    const item = e.target.closest('[data-tag]');
+    if (!item) return;
+    e.preventDefault();
+    addEditTag(item.getAttribute('data-tag'));
+  });
+  editTagChips?.addEventListener('click', (e) => {
+    const btn = e.target.closest('.edit-tag-chip-remove[data-tag]');
+    if (!btn) return;
+    e.preventDefault();
+    removeEditTag(btn.getAttribute('data-tag'));
+  });
+  editTagInput?.addEventListener('blur', () => {
+    setTimeout(hideEditTagSuggestions, 120);
+  });
 
   if (librarySearchForm) {
     librarySearchForm.addEventListener('submit', (e) => {
