@@ -88,6 +88,13 @@
     "cookies": "Cookies",
     "terms": "Términos y Condiciones"
   },
+  "cookieBanner": {
+    "message": "Usamos cookies para analizar el uso de la web y mejorar tu experiencia. Puedes aceptar o rechazar las que no son esenciales.",
+    "accept": "Aceptar",
+    "reject": "Rechazar",
+    "moreInfo": "Más información",
+    "settingsLink": "Configurar cookies"
+  },
   "modals": {
     "close": "✕",
     "cancel": "Cancelar",
@@ -193,6 +200,11 @@
     "viewExisting": "Ver ficha existente",
     "cancel": "Cancelar",
     "saveAnyway": "Guardar de todas formas"
+  },
+  "manualNote": {
+    "message": "Esto no parece un enlace. Se guardará como nota manual, sin extracción automática ni enlace real. ¿Quieres continuar?",
+    "cancel": "Cancelar",
+    "confirm": "Guardar como nota"
   },
   "guestMigration": {
     "title": "Fichas guardadas como invitado",
@@ -596,7 +608,9 @@
       "languageTitle": "Sin barreras de idioma",
       "languageText": "Interfaz nativa en español, inglés, francés, alemán y portugués.",
       "securityTitle": "Tus datos, protegidos",
-      "securityText": "Cada cuenta solo ve sus propias fichas. Seguridad de verdad, no de cara a la galería."
+      "securityText": "Cada cuenta solo ve sus propias fichas. Seguridad de verdad, no de cara a la galería.",
+      "searchTagsTitle": "Busca y etiqueta a tu manera",
+      "searchTagsText": "Encuentra cualquier ficha al instante y organízalas con tus propias etiquetas, sin depender solo de las categorías."
     },
     "forWho": {
       "title": "<span class=\"brand-accent\">InboxZero</span> es para ti si...",

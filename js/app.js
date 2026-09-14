@@ -2860,6 +2860,16 @@ document.addEventListener('i18n:ready', () => {
     duplicateUrlModalCard = null;
   }
 
+  let manualNoteModalOptions = null;
+  function openManualNoteModal(options) {
+    manualNoteModalOptions = options || {};
+    openModal('modal-manual-note');
+  }
+  function closeManualNoteModal() {
+    closeModal('modal-manual-note');
+    manualNoteModalOptions = null;
+  }
+
   function openModal(modalId) {
     document.getElementById(modalId)?.classList.add('active');
   }
@@ -3983,6 +3993,14 @@ document.addEventListener('i18n:ready', () => {
         openDuplicateUrlModal({ mode: 'analyze', card: existing });
         return;
       }
+    }
+
+    if (
+      !(options && options.allowManualNote) &&
+      !(val.startsWith('http://') || val.startsWith('https://'))
+    ) {
+      openManualNoteModal(options);
+      return;
     }
 
     let finalTitle = val;
@@ -5633,6 +5651,12 @@ document.addEventListener('i18n:ready', () => {
       savePreviewDraftFromModal({ allowDuplicate: true });
     });
   }
+
+  document.getElementById('btn-manual-note-confirm')?.addEventListener('click', () => {
+    const pendingOptions = manualNoteModalOptions || {};
+    closeManualNoteModal();
+    runUrlAnalyze({ ...pendingOptions, allowManualNote: true });
+  });
 
   document.getElementById('btn-duplicate-view-existing')?.addEventListener('click', () => {
     const card = duplicateUrlModalCard;

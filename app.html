@@ -39,7 +39,7 @@
       <img src="logo.png" class="brand-logo-img" data-i18n-alt="meta.logoAlt" alt="Logo">
       <div class="brand-title-box">
         <a href="#" class="brand-title" data-i18n-html="brand.name">InboxZero.es</a>
-        <span class="brand-tagline" data-i18n="brand.tagline">Tu conocimiento a 1 Clic</span>
+        <span class="brand-tagline" data-i18n="brand.tagline">Tu conocimiento en un Clic</span>
       </div>
     </div>
 
@@ -245,6 +245,7 @@
       <a href="#" data-legal="legal" data-i18n="footer.legal">Aviso Legal</a>
       <a href="#" data-legal="privacy" data-i18n="footer.privacy">Política de Privacidad</a>
       <a href="#" data-legal="cookies" data-i18n="footer.cookies">Cookies</a>
+      <a href="#" onclick="window.resetCookieConsent && window.resetCookieConsent(); return false;" data-i18n="cookieBanner.settingsLink">Configurar cookies</a>
       <a href="#" data-legal="terms" data-i18n="footer.terms">Términos y Condiciones</a>
     </div>
   </footer>
@@ -495,6 +496,18 @@
         <button type="button" class="modal-action-btn modal-btn-cancel" data-close="modal-duplicate-url" data-i18n="duplicateUrl.cancel">Cancelar</button>
         <button type="button" class="modal-action-btn" id="btn-duplicate-view-existing" data-i18n="duplicateUrl.viewExisting">Ver ficha existente</button>
         <button type="button" class="btn-primary modal-action-btn" id="btn-duplicate-save-anyway" data-i18n="duplicateUrl.saveAnyway">Guardar de todas formas</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Aviso: texto pegado no es una URL real, se guardará como nota manual -->
+  <div id="modal-manual-note" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="manual-note-message">
+    <div class="modal-box modal-box-duplicate">
+      <button type="button" class="modal-close" data-close="modal-manual-note" data-i18n="modals.close" aria-label="Cerrar">✕</button>
+      <p id="manual-note-message" class="duplicate-url-message" data-i18n="manualNote.message">Esto no parece un enlace. Se guardará como nota manual, sin extracción automática ni enlace real. ¿Quieres continuar?</p>
+      <div class="modal-footer modal-footer-duplicate">
+        <button type="button" class="modal-action-btn modal-btn-cancel" data-close="modal-manual-note" data-i18n="manualNote.cancel">Cancelar</button>
+        <button type="button" class="btn-primary modal-action-btn" id="btn-manual-note-confirm" data-i18n="manualNote.confirm">Guardar como nota</button>
       </div>
     </div>
   </div>
@@ -754,6 +767,7 @@
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=inboxZeroTurnstileOnload" async defer></script>
   <script src="js/extract-config.js"></script>
   <script src="js/i18n.js"></script>
+  <script src="js/cookie-consent.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

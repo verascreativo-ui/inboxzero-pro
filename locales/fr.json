@@ -5,7 +5,7 @@
   },
   "brand": {
     "name": "<span class=\"brand-inbox\">Inbox</span><span class=\"brand-accent\">Zero</span>.es",
-    "tagline": "Vos connaissances en un Clic",
+    "tagline": "Vos connaissances en un clic",
     "footerTagline": "InboxZero.es — Votre bibliothèque intelligente de connaissances"
   },
   "share": {
@@ -87,6 +87,13 @@
     "privacy": "Politique de confidentialité",
     "cookies": "Cookies",
     "terms": "Conditions générales"
+  },
+  "cookieBanner": {
+    "message": "Nous utilisons des cookies pour analyser l'utilisation du site et améliorer votre expérience. Vous pouvez accepter ou refuser les cookies non essentiels.",
+    "accept": "Accepter",
+    "reject": "Refuser",
+    "moreInfo": "En savoir plus",
+    "settingsLink": "Paramètres des cookies"
   },
   "modals": {
     "close": "✕",
@@ -193,6 +200,11 @@
     "viewExisting": "Voir la fiche existante",
     "cancel": "Annuler",
     "saveAnyway": "Enregistrer quand même"
+  },
+  "manualNote": {
+    "message": "Ceci ne ressemble pas à un lien. Cela sera enregistré comme note manuelle, sans extraction automatique ni lien réel. Voulez-vous continuer ?",
+    "cancel": "Annuler",
+    "confirm": "Enregistrer comme note"
   },
   "guestMigration": {
     "title": "Fiches enregistrées en invité",
@@ -537,7 +549,7 @@
     "label": "soporte@inboxzero.es"
   },
   "landing": {
-    "title": "InboxZero.es — Votre savoir, à un clic",
+    "title": "InboxZero.es — Vos connaissances en un clic",
     "nav": {
       "brand": "<span class=\"brand-inbox\">Inbox</span><span class=\"brand-accent\">Zero</span>.es",
       "howItWorks": "Comment ça marche",
@@ -596,7 +608,9 @@
       "languageTitle": "Aucune barrière de langue",
       "languageText": "Disponible en espagnol, anglais, français, allemand et portugais.",
       "securityTitle": "Vos données, protégées",
-      "securityText": "Authentification sécurisée et isolation totale entre utilisateurs."
+      "securityText": "Authentification sécurisée et isolation totale entre utilisateurs.",
+      "searchTagsTitle": "Cherchez et étiquetez à votre façon",
+      "searchTagsText": "Retrouvez n'importe quelle fiche instantanément et organisez-les avec vos propres étiquettes, au-delà des catégories."
     },
     "forWho": {
       "title": "InboxZero est fait pour vous si...",

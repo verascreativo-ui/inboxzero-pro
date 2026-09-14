@@ -5,7 +5,7 @@
   },
   "brand": {
     "name": "<span class=\"brand-inbox\">Inbox</span><span class=\"brand-accent\">Zero</span>.es",
-    "tagline": "O seu conhecimento num Clique",
+    "tagline": "O seu conhecimento num clique",
     "footerTagline": "InboxZero.es — A sua biblioteca inteligente de conhecimento"
   },
   "share": {
@@ -87,6 +87,13 @@
     "privacy": "Política de privacidade",
     "cookies": "Cookies",
     "terms": "Termos e condições"
+  },
+  "cookieBanner": {
+    "message": "Utilizamos cookies para analisar a utilização do site e melhorar a sua experiência. Pode aceitar ou rejeitar as que não são essenciais.",
+    "accept": "Aceitar",
+    "reject": "Rejeitar",
+    "moreInfo": "Mais informações",
+    "settingsLink": "Configurar cookies"
   },
   "modals": {
     "close": "✕",
@@ -193,6 +200,11 @@
     "viewExisting": "Ver ficha existente",
     "cancel": "Cancelar",
     "saveAnyway": "Guardar mesmo assim"
+  },
+  "manualNote": {
+    "message": "Isto não parece ser uma ligação. Será guardado como nota manual, sem extração automática nem ligação real. Deseja continuar?",
+    "cancel": "Cancelar",
+    "confirm": "Guardar como nota"
   },
   "guestMigration": {
     "title": "Fichas guardadas como convidado",
@@ -537,7 +549,7 @@
     "label": "soporte@inboxzero.es"
   },
   "landing": {
-    "title": "InboxZero.es — O seu conhecimento num Clique",
+    "title": "InboxZero.es — O seu conhecimento num clique",
     "nav": {
       "brand": "<span class=\"brand-inbox\">Inbox</span><span class=\"brand-accent\">Zero</span>.es",
       "howItWorks": "Como funciona",
@@ -596,7 +608,9 @@
       "languageTitle": "Sem barreiras de idioma",
       "languageText": "Disponível em espanhol, inglês, francês, alemão e português.",
       "securityTitle": "Os seus dados, protegidos",
-      "securityText": "Autenticação segura e isolamento total entre utilizadores."
+      "securityText": "Autenticação segura e isolamento total entre utilizadores.",
+      "searchTagsTitle": "Pesquise e etiquete à sua maneira",
+      "searchTagsText": "Encontre qualquer ficha instantaneamente e organize-as com as suas próprias etiquetas, além das categorias."
     },
     "forWho": {
       "title": "O InboxZero é para si se...",
