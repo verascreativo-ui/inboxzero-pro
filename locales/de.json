@@ -88,6 +88,13 @@
     "cookies": "Cookies",
     "terms": "Allgemeine Geschäftsbedingungen"
   },
+  "cookieBanner": {
+    "message": "Wir verwenden Cookies, um die Nutzung der Website zu analysieren und Ihre Erfahrung zu verbessern. Sie können nicht-essenzielle Cookies akzeptieren oder ablehnen.",
+    "accept": "Akzeptieren",
+    "reject": "Ablehnen",
+    "moreInfo": "Weitere Informationen",
+    "settingsLink": "Cookie-Einstellungen"
+  },
   "modals": {
     "close": "✕",
     "cancel": "Abbrechen",
@@ -193,6 +200,11 @@
     "viewExisting": "Vorhandene Karte anzeigen",
     "cancel": "Abbrechen",
     "saveAnyway": "Trotzdem speichern"
+  },
+  "manualNote": {
+    "message": "Das sieht nicht wie ein Link aus. Es wird als manuelle Notiz gespeichert, ohne automatische Extraktion oder echten Link. Möchten Sie fortfahren?",
+    "cancel": "Abbrechen",
+    "confirm": "Als Notiz speichern"
   },
   "guestMigration": {
     "title": "Als Gast gespeicherte Karten",
@@ -596,7 +608,9 @@
       "languageTitle": "Keine Sprachbarrieren",
       "languageText": "Verfügbar auf Spanisch, Englisch, Französisch, Deutsch und Portugiesisch.",
       "securityTitle": "Deine Daten, geschützt",
-      "securityText": "Sichere Authentifizierung und vollständige Trennung zwischen Nutzern."
+      "securityText": "Sichere Authentifizierung und vollständige Trennung zwischen Nutzern.",
+      "searchTagsTitle": "Suchen und eigene Tags vergeben",
+      "searchTagsText": "Finde jede Karte sofort wieder und organisiere sie mit deinen eigenen Tags – nicht nur mit Kategorien."
     },
     "forWho": {
       "title": "InboxZero ist genau richtig für dich, wenn...",

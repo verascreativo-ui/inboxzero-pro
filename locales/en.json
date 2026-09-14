@@ -5,7 +5,7 @@
   },
   "brand": {
     "name": "<span class=\"brand-inbox\">Inbox</span><span class=\"brand-accent\">Zero</span>.es",
-    "tagline": "Your knowledge in one Click",
+    "tagline": "Your knowledge in one click",
     "footerTagline": "InboxZero.es — Your smart knowledge library"
   },
   "share": {
@@ -87,6 +87,13 @@
     "privacy": "Privacy Policy",
     "cookies": "Cookies",
     "terms": "Terms and Conditions"
+  },
+  "cookieBanner": {
+    "message": "We use cookies to analyze site usage and improve your experience. You can accept or reject non-essential cookies.",
+    "accept": "Accept",
+    "reject": "Reject",
+    "moreInfo": "More information",
+    "settingsLink": "Cookie settings"
   },
   "modals": {
     "close": "✕",
@@ -193,6 +200,11 @@
     "viewExisting": "View existing card",
     "cancel": "Cancel",
     "saveAnyway": "Save anyway"
+  },
+  "manualNote": {
+    "message": "This doesn't look like a link. It will be saved as a manual note, with no automatic extraction or real link. Do you want to continue?",
+    "cancel": "Cancel",
+    "confirm": "Save as note"
   },
   "guestMigration": {
     "title": "Cards saved as a guest",
@@ -537,7 +549,7 @@
     "label": "soporte@inboxzero.es"
   },
   "landing": {
-    "title": "InboxZero.es — Your knowledge in one Click",
+    "title": "InboxZero.es — Your knowledge in one click",
     "nav": {
       "brand": "<span class=\"brand-inbox\">Inbox</span><span class=\"brand-accent\">Zero</span>.es",
       "howItWorks": "How it works",
@@ -596,7 +608,9 @@
       "languageTitle": "No language barriers",
       "languageText": "Available in Spanish, English, French, German and Portuguese.",
       "securityTitle": "Your data, protected",
-      "securityText": "Secure authentication and full isolation between users."
+      "securityText": "Secure authentication and full isolation between users.",
+      "searchTagsTitle": "Search and tag your way",
+      "searchTagsText": "Find any card instantly and organize them with your own tags, not just categories."
     },
     "forWho": {
       "title": "InboxZero is for you if...",

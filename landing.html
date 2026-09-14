@@ -93,6 +93,18 @@
     align-items: center;
     gap: 8px;
   }
+  .nav-logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+  }
+  .nav-tagline {
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 0.68rem;
+    color: var(--texto-medio);
+    letter-spacing: 0.01em;
+  }
   .nav-logo-mark {
     width: 32px; height: 32px;
     border-radius: 50%;
@@ -356,7 +368,9 @@
   .funcionalidades { background: var(--crudo); }
   .funcionalidades h2 { text-align: center; font-size: clamp(1.6rem, 3vw, 2.2rem); color: var(--azul-profundo); margin-bottom: 56px; }
   .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .feat-grid .feat:nth-child(7) { grid-column: 2; }
   @media (max-width: 860px) { .feat-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 860px) { .feat-grid .feat:nth-child(7) { grid-column: auto; } }
   @media (max-width: 560px) { .feat-grid { grid-template-columns: 1fr; } }
   .feat {
     background: white;
@@ -583,13 +597,13 @@
   .modal-body-legal::-webkit-scrollbar-thumb { background: #93c5fd; border-radius: 999px; }
   .modal-body-legal::-webkit-scrollbar-thumb:hover { background: #60a5fa; }
   .legal-doc-intro {
-    margin: 0 0 14px; font-size: 13px; line-height: 1.5; color: #4b5563;
+    margin: 0 0 8px; font-size: 13px; line-height: 1.5; color: #4b5563;
     padding: 10px 12px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
   }
-  .legal-section { margin: 0 0 14px; padding-bottom: 12px; border-bottom: 1px solid #f3f4f6; }
+  .legal-section { margin: 0 0 8px; padding-top: 0; padding-bottom: 6px; border-bottom: 1px solid #f3f4f6; }
   .legal-section:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
-  .legal-section h4 { margin: 0 0 6px; font-size: 14px; font-weight: 700; color: #294F78; }
-  .legal-section p { margin: 0 0 8px; font-size: 13px; line-height: 1.55; color: #374151; }
+  .legal-section h4 { margin: 0 0 4px; font-size: 14px; font-weight: 700; color: #294F78; }
+  .legal-section p { margin: 0 0 6px; font-size: 13px; line-height: 1.5; color: #374151; }
   .legal-section p:last-child { margin-bottom: 0; }
   .legal-section ul { margin: 0 0 8px; padding-left: 18px; color: #374151; font-size: 13px; line-height: 1.55; }
   .legal-section li { margin-bottom: 4px; }
@@ -644,7 +658,13 @@
 
 <nav>
   <div class="nav-inner">
-    <div class="nav-logo"><span class="nav-logo-mark"><img src="logo.png" alt="InboxZero.es"></span> <span data-i18n-html="landing.nav.brand">InboxZero.es</span></div>
+    <div class="nav-logo">
+      <span class="nav-logo-mark"><img src="logo.png" alt="InboxZero.es"></span>
+      <span class="nav-logo-text">
+        <span data-i18n-html="landing.nav.brand">InboxZero.es</span>
+        <span class="nav-tagline" data-i18n-html="brand.tagline">Tu conocimiento en un Clic</span>
+      </span>
+    </div>
     <div class="nav-links">
       <a href="#funciona" data-i18n="landing.nav.howItWorks">Cómo funciona</a>
       <a href="#precios" data-i18n="landing.nav.pricing">Precios</a>
@@ -774,6 +794,11 @@
         <div class="icon">⭐</div>
         <h3 data-i18n="landing.features.favoritesTitle">Favoritos y "leer más tarde"</h3>
         <p data-i18n="landing.features.favoritesText">Marca lo importante y lo pendiente sin perderlo entre el resto.</p>
+      </div>
+      <div class="feat">
+        <div class="icon">🔍</div>
+        <h3 data-i18n="landing.features.searchTagsTitle">Busca y etiqueta a tu manera</h3>
+        <p data-i18n="landing.features.searchTagsText">Encuentra cualquier ficha al instante y organízalas con tus propias etiquetas, sin depender solo de las categorías.</p>
       </div>
       <div class="feat">
         <div class="icon">👤</div>
@@ -966,11 +991,12 @@
 
 <footer>
   <div class="container footer-inner">
-    <div class="footer-brand"><span class="nav-logo-mark"><img src="logo.png" alt="InboxZero.es"></span> InboxZero.es</div>
+    <div class="footer-brand"><span class="nav-logo-mark"><img src="logo.png" alt="InboxZero.es"></span> <span data-i18n-html="brand.footerTagline">InboxZero.es — Tu biblioteca inteligente de conocimiento</span></div>
     <div class="footer-links">
       <a href="#" data-legal="legal" data-i18n="footer.legal">Aviso Legal</a>
       <a href="#" data-legal="privacy" data-i18n="footer.privacy">Política de Privacidad</a>
       <a href="#" data-legal="cookies" data-i18n="footer.cookies">Cookies</a>
+      <a href="#" onclick="window.resetCookieConsent && window.resetCookieConsent(); return false;" data-i18n="cookieBanner.settingsLink">Configurar cookies</a>
       <a href="#" data-legal="terms" data-i18n="footer.terms">Términos y Condiciones</a>
       <a href="#" onclick="shareInboxZero(); return false;" data-i18n="share.buttonLabel">Compartir InboxZero</a>
     </div>
@@ -1035,6 +1061,7 @@
 </script>
 
 <script src="js/i18n.js"></script>
+<script src="js/cookie-consent.js"></script>
 <script src="js/landing-lang.js"></script>
 <script>
   (function () {
