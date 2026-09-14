@@ -1367,7 +1367,7 @@ footer {
 }
 
 .legal-doc-intro {
-  margin: 0 0 14px;
+  margin: 0 0 8px;
   font-size: 13px;
   line-height: 1.5;
   color: #4b5563;
@@ -1378,8 +1378,9 @@ footer {
 }
 
 .legal-section {
-  margin: 0 0 14px;
-  padding-bottom: 12px;
+  margin: 0 0 8px;
+  padding-top: 0;
+  padding-bottom: 6px;
   border-bottom: 1px solid #f3f4f6;
 }
 
@@ -1390,16 +1391,16 @@ footer {
 }
 
 .legal-section h4 {
-  margin: 0 0 6px;
+  margin: 0 0 4px;
   font-size: 14px;
   font-weight: 700;
   color: #294F78;
 }
 
 .legal-section p {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
   font-size: 13px;
-  line-height: 1.55;
+  line-height: 1.5;
   color: #374151;
 }
 
