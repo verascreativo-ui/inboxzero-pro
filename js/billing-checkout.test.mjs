@@ -13,7 +13,8 @@ test('frontend Checkout exige Auth y no manda price/user_id', () => {
     app.indexOf("subscribeForm.addEventListener('submit'"),
     app.indexOf("document.querySelectorAll('[data-close]')")
   );
-  assert.match(fn, /createBillingCheckoutSession\(\)/);
+  assert.match(fn, /subscribe-withdrawal-waiver/);
+  assert.match(fn, /createBillingCheckoutSession\(/);
   assert.match(fn, /currentAuthUser\?\.id/);
   assert.match(fn, /subscribe\.needAuth/);
   assert.match(fn, /window\.location\.href\s*=\s*result\.url/);

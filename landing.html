@@ -363,14 +363,25 @@
   }
   .paso h3 { font-size: 1.15rem; margin-bottom: 10px; color: var(--texto-oscuro); }
   .paso p { color: var(--texto-medio); font-size: 0.94rem; }
+  .how-it-works-install-note {
+    text-align: center;
+    color: var(--texto-medio);
+    font-size: 0.94rem;
+    max-width: 640px;
+    margin: 36px auto 0;
+    line-height: 1.6;
+  }
+  .how-it-works-install-note a {
+    color: var(--azul-principal);
+    font-weight: 600;
+  }
+  .how-it-works-install-note a:hover { text-decoration: underline; }
 
   /* ---------- FUNCIONALIDADES ---------- */
   .funcionalidades { background: var(--crudo); }
   .funcionalidades h2 { text-align: center; font-size: clamp(1.6rem, 3vw, 2.2rem); color: var(--azul-profundo); margin-bottom: 56px; }
   .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-  .feat-grid .feat:nth-child(7) { grid-column: 2; }
   @media (max-width: 860px) { .feat-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 860px) { .feat-grid .feat:nth-child(7) { grid-column: auto; } }
   @media (max-width: 560px) { .feat-grid { grid-template-columns: 1fr; } }
   .feat {
     background: white;
@@ -431,6 +442,15 @@
   .precios-shot .shot-frame { flex: 1; height: auto; width: 100%; border-radius: 12px; box-shadow: 0 20px 46px rgba(0,0,0,0.18); background: white; display: flex; align-items: center; justify-content: center; overflow: hidden; }
   .precios-shot .shot-frame img { width: 100%; max-height: 100%; object-fit: contain; display: block; }
   .precios-shot .cap { text-align: center; color: var(--texto-medio); font-size: 0.82rem; margin-top: 10px; }
+  .pricing-change-notice {
+    max-width: 980px;
+    margin: 28px auto 0;
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--texto-medio);
+    line-height: 1.5;
+    opacity: 0.85;
+  }
   @media (max-width: 860px) { .precios-shot .shot-frame { height: 340px; flex: none; } }
   .plan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
   @media (max-width: 700px) { .plan-grid { grid-template-columns: 1fr; } }
@@ -772,6 +792,10 @@
         <p data-i18n="landing.howItWorks.step3Text">Asigna categorías, márcalas como favoritas o "leer más tarde", y encuéntralas cuando las necesites.</p>
       </div>
     </div>
+    <p class="how-it-works-install-note">
+      📲 <span data-i18n="landing.howItWorks.installNote">¿Prefieres tener InboxZero siempre a mano? Instálala como una app en tu móvil, tablet u ordenador, en menos de un minuto.</span>
+      <a href="app.html#install-guide=1" data-i18n="landing.howItWorks.installLink">Ver cómo instalarla →</a>
+    </p>
   </div>
 </section>
 
@@ -814,6 +838,16 @@
         <div class="icon">🔒</div>
         <h3 data-i18n="landing.features.securityTitle">Tus datos, protegidos</h3>
         <p data-i18n="landing.features.securityText">Cada cuenta solo ve sus propias fichas. Seguridad de verdad, no de cara a la galería.</p>
+      </div>
+      <div class="feat">
+        <div class="icon">📤</div>
+        <h3 data-i18n="landing.features.exportTitle">Tu biblioteca, siempre tuya</h3>
+        <p data-i18n="landing.features.exportText">Descarga todas tus fichas cuando quieras, en un archivo que puedes guardar o llevarte a donde prefieras. Sin letra pequeña.</p>
+      </div>
+      <div class="feat">
+        <div class="icon">🚪</div>
+        <h3 data-i18n="landing.features.deleteAccountTitle">Te vas cuando quieras, sin ataduras</h3>
+        <p data-i18n="landing.features.deleteAccountText">Si decides cerrar tu cuenta, tienes 30 días para cambiar de opinión antes de que se borre todo. Después de eso, respetamos tu decisión de forma definitiva.</p>
       </div>
     </div>
   </div>
@@ -936,6 +970,7 @@
         <div class="cap" data-i18n="landing.pricing.closing">Elige tu plan en segundos</div>
       </div>
     </div>
+    <p class="pricing-change-notice" data-i18n="landing.pricing.priceChangeNotice">Precios sujetos a variaciones por evolución del servicio o mercado. Se notificará cualquier cambio con 30 días de antelación y podrás cancelar sin penalización.</p>
   </div>
 </section>
 
@@ -985,7 +1020,7 @@
   <div class="container">
     <h2 data-i18n="landing.ctaFinal.title">Deja de perder enlaces. Empieza ahora.</h2>
     <p data-i18n="landing.ctaFinal.subtitle">Sin tarjeta. Sin instalaciones. Tu primera ficha, en menos de un minuto.</p>
-    <a href="app.html" class="btn-primary" data-i18n="landing.ctaFinal.button">Crear mi cuenta gratis</a>
+    <a href="app.html#signup=1" class="btn-primary" data-i18n="landing.ctaFinal.button">Crear mi cuenta gratis</a>
   </div>
 </section>
 
@@ -1049,14 +1084,17 @@
     });
   });
 
-  // Caja de URL del Hero: versión visual (sin extracción en vivo todavía).
-  // Al enviarla, dirige al registro/modo invitado de la app real.
+  // Caja de URL del Hero: redirige a la app para analizar el enlace.
+  // Si la landing se sirve sin extensión (/landing), hay que ir a /app?url=
+  // y no a app.html?url= — el redirect "clean URL" de serve/Vercel a /app
+  // se come el query string y la app nunca recibe el parámetro.
   document.getElementById('try-form').addEventListener('submit', function (e) {
     e.preventDefault();
     const input = this.querySelector('input');
     const val = input ? input.value.trim() : '';
     if (!val) return;
-    window.location.href = 'app.html?url=' + encodeURIComponent(val);
+    const appPage = /\.html$/i.test(window.location.pathname) ? 'app.html' : 'app';
+    window.location.href = appPage + '?url=' + encodeURIComponent(val);
   });
 </script>
 

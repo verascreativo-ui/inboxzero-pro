@@ -35,6 +35,7 @@
     "premiumWelcome": "Bienvenue dans Premium ! Vous avez désormais des fiches illimitées",
     "libraryDropdown": "Ma bibliothèque ▾",
     "help": "Aide en 3 étapes",
+    "installGuide": "Ajouter à votre appareil",
     "login": "Se connecter",
     "subscribe": "S'abonner"
   },
@@ -142,6 +143,15 @@
     "step3Title": "Organisez, filtrez et consultez",
     "step3Body": "Accédez rapidement à vos fiches depuis le menu latéral ou le menu déroulant « Ma Bibliothèque » dans la barre supérieure, sans rien perdre."
   },
+  "installGuide": {
+    "title": "Ajoutez InboxZero à votre bureau ou téléphone",
+    "step1Title": "Sur ordinateur (Chrome ou Edge)",
+    "step1Body": "Ouvrez InboxZero.es, cliquez sur les trois points en haut à droite (ou l'icône d'installation dans la barre d'adresse) et choisissez « Installer InboxZero.es » ou « Créer un raccourci... ». L'icône sera prête sur votre bureau.",
+    "step2Title": "Sur iPhone (Safari)",
+    "step2Body": "Ouvrez InboxZero.es dans Safari, appuyez sur l'icône de partage (le carré avec une flèche vers le haut) et choisissez « Sur l'écran d'accueil ». L'icône apparaîtra avec vos autres applications.",
+    "step3Title": "Sur Android (Chrome)",
+    "step3Body": "Ouvrez InboxZero.es dans Chrome, appuyez sur les trois points en haut à droite et choisissez « Ajouter à l'écran d'accueil » ou « Installer l'application ». Confirmez et l'icône apparaîtra sur votre écran d'accueil."
+  },
   "login": {
     "title": "Se connecter",
     "subtitle": "Connectez-vous si vous avez déjà un compte, ou créez-en un gratuitement pour enregistrer vos fiches dans le cloud.",
@@ -180,6 +190,7 @@
     "planAnnualTitle": "Annuel — 2,50€/mois",
     "planAnnualSubtitle": "29,99€/an, facturé en une fois · Économisez 37%",
     "termsHtml": "J'ai lu et j'accepte la <a href=\"#\">Politique de confidentialité</a>, les <a href=\"#\">Conditions générales</a> et l'autorisation d'utilisation.",
+    "withdrawalWaiver": "Je demande l'accès immédiat au service et je comprends qu'en conséquence, je renonce à mon droit de rétractation de 14 jours.",
     "stripeButton": "Continuer vers Stripe 💳",
     "captchaError": "Réponse du captcha incorrecte. Ce doit être 7.",
     "needAuth": "Connectez-vous pour souscrire à Premium.",
@@ -205,6 +216,9 @@
     "message": "Ceci ne ressemble pas à un lien. Cela sera enregistré comme note manuelle, sans extraction automatique ni lien réel. Voulez-vous continuer ?",
     "cancel": "Annuler",
     "confirm": "Enregistrer comme note"
+  },
+  "guestMode": {
+    "localStorageWarning": "Vos fiches ne sont enregistrées que dans ce navigateur. Créez un compte gratuit pour ne pas les perdre."
   },
   "guestMigration": {
     "title": "Fiches enregistrées en invité",
@@ -327,14 +341,14 @@
         {
           "heading": "1. Identification",
           "paragraphs": [
-            "Conformément à la réglementation applicable, le titulaire du site InboxZero.es (ci-après « InboxZero ») est responsable du service numérique de bibliothèque de connaissances accessible sur https://inboxzero.es.",
+            "Conformément à la réglementation applicable, le titulaire du site InboxZero.es (ci-après « InboxZero ») est Manuel A. De la Vera Torres, con NIF 53.814.569-C y domicilio en Calle Arenal 8, 2º-K, Casarrubios del Monte, 45950 Toledo (España), responsable du service numérique de bibliothèque de connaissances accessible sur https://inboxzero.es.",
             "Coordonnées de contact : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
           ]
         },
         {
           "heading": "2. Objet",
           "paragraphs": [
-            "Les présentes mentions légales régissent l’accès, la navigation et l’utilisation du site, ainsi que les responsabilités liées à l’usage de ses contenus et services, y compris l’application web InboxZero."
+            "Les présentes mentions légales régissent l’accès, la navigation et l’utilisation du site, ainsi que les responsabilités liées à l’usage de ses contenus, produits et services, y compris l’application web InboxZero."
           ]
         },
         {
@@ -343,22 +357,22 @@
             "L’accès au site confère la qualité d’utilisateur et implique l’acceptation pleine des présentes mentions et des autres politiques publiées. L’utilisateur s’engage à un usage licite et de bonne foi."
           ],
           "list": [
-            "Ne pas utiliser le service à des fins illicites.",
+            "Ne pas utiliser le service à des fins illicites ou contraires à la bonne foi.",
             "Ne pas endommager, désactiver ou surcharger les systèmes d’InboxZero.",
             "Ne pas introduire de logiciels malveillants ni tenter d’accéder sans autorisation aux comptes ou données de tiers."
           ]
         },
         {
-          "heading": "4. Propriété intellectuelle",
+          "heading": "4. Propriété intellectuelle et industrielle",
           "paragraphs": [
-            "Tous les contenus du site (textes, designs, logos, code, bases de données, etc.) sont protégés. Toute reproduction, distribution ou transformation sans autorisation préalable est interdite, sauf exceptions légales."
+            "Tous les contenus du site (textes, designs, logos, code, bases de données et autres éléments) sont protégés par le droit de la propriété intellectuelle et industrielle. Toute reproduction, distribution ou transformation sans autorisation préalable est interdite, sauf exceptions légales."
           ]
         },
         {
           "heading": "5. Responsabilité",
           "paragraphs": [
-            "InboxZero s’efforce d’assurer la continuité du service, sans garantir l’absence totale d’interruptions ou d’erreurs. L’utilisateur est responsable de l’exactitude des informations saisies et de l’usage des liens enregistrés.",
-            "Pour signaler un incident : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+            "InboxZero s’efforce d’assurer la continuité et l’exactitude du service, sans garantir l’absence totale d’interruptions, d’erreurs ou de vulnérabilités. L’utilisateur est responsable de l’exactitude des informations saisies et de l’usage des liens et contenus enregistrés.",
+            "Pour signaler un incident ou un contenu illicite : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
           ]
         },
         {
@@ -378,7 +392,7 @@
     },
     "privacy": {
       "title": "Politique de confidentialité",
-      "intro": "Traitement des données personnelles conformément au Règlement (UE) 2016/679 (RGPD). Responsable du traitement / contact : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>.",
+      "intro": "Traitement des données personnelles conformément au Règlement (UE) 2016/679 (RGPD) et à la LOPDGDD. Responsable du traitement / contact : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>.",
       "sections": [
         {
           "heading": "1. Responsable du traitement",
@@ -393,56 +407,72 @@
             "Selon l’usage du service, nous pouvons traiter :"
           ],
           "list": [
-            "Données de compte : e-mail et identifiants d’authentification.",
-            "Données de profil ou de facturation liées à l’abonnement (p. ex. nom), le cas échéant.",
-            "Contenus de la bibliothèque (fiches, liens, notes, catégories et préférences).",
-            "Données techniques d’usage (IP, appareil/navigateur, journaux de sécurité) nécessaires à la prestation et à la sécurité."
+            "Données de compte : e-mail, mot de passe chiffré et, s’il est fourni, nom.",
+            "Données de facturation : gérées directement par Stripe (e-mail de paiement, 4 derniers chiffres de la carte, historique des prélèvements et identifiant d’abonnement) ; InboxZero ne stocke pas le numéro complet de la carte.",
+            "Contenus de la bibliothèque : URL enregistrées, titre/description/image extraits automatiquement, catégories, étiquettes, notes et favoris. En mode Invité, ces données restent uniquement dans le navigateur de l’utilisateur (localStorage) et n’atteignent nos serveurs que lorsqu’elles sont migrées vers un compte.",
+            "Données techniques : adresse IP, type d’appareil/navigateur et journaux de sécurité, dans la mesure nécessaire pour fournir et protéger le service.",
+            "Communications de support : le contenu des messages envoyés via « Parler au support »."
           ]
         },
         {
-          "heading": "3. Finalités et bases juridiques",
+          "heading": "3. Intelligence artificielle",
+          "paragraphs": [
+            "InboxZero n’utilise actuellement aucun système d’intelligence artificielle pour traiter, analyser ou générer du contenu à partir de vos données ou fiches. Si une fonctionnalité de ce type est ajoutée à l’avenir, vous en serez dûment informé(e) et, le cas échéant, un consentement sera demandé avant son activation."
+          ]
+        },
+        {
+          "heading": "4. Finalités et bases juridiques",
           "paragraphs": [
             "Nous traitons les données afin de :"
           ],
           "list": [
-            "Fournir InboxZero et gérer le compte (exécution du contrat / mesures précontractuelles).",
-            "Gérer abonnements, paiements et support (contrat et intérêt légitime).",
-            "Respecter les obligations légales.",
+            "Fournir le service InboxZero et gérer le compte (exécution du contrat / mesures précontractuelles).",
+            "Gérer les abonnements, paiements et le support (contrat et intérêt légitime).",
+            "Respecter les obligations légales (p. ex. fiscales ou de sécurité).",
             "Renforcer la sécurité et prévenir les abus (intérêt légitime).",
             "Envoyer les communications essentielles du service ; le marketing uniquement avec consentement lorsque requis."
           ]
         },
         {
-          "heading": "4. Destinataires",
+          "heading": "5. Destinataires et sous-traitants",
           "paragraphs": [
-            "Nous ne vendons pas de données personnelles. Elles peuvent être partagées avec des sous-traitants (hébergement, authentification, paiement, etc.) sous contrat et avec des garanties appropriées, y compris pour les transferts internationaux conformément au RGPD.",
-            "Pour en savoir plus : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+            "Nous ne vendons pas de données personnelles. Nous partageons uniquement les données strictement nécessaires avec les prestataires qui nous aident à fournir le service, sous contrat et avec des garanties appropriées :"
+          ],
+          "list": [
+            "Supabase : authentification, base de données et stockage de la bibliothèque.",
+            "Stripe : traitement des paiements et gestion de l’abonnement. Vous pouvez consulter sa politique de confidentialité sur stripe.com/privacy.",
+            "ScrapingBee, ZenRows et Microlink : extraction automatique des métadonnées (titre, description, image) des URL enregistrées ; ils ne stockent pas le contenu de façon permanente.",
+            "Cloudflare Turnstile : protection contre les robots lors de l’inscription et de la connexion.",
+            "Railway et Vercel : hébergement du backend et du frontend.",
+            "Hostinger : gestion de l’e-mail de support (soporte@inboxzero.es).",
+            "Holded (prévu, pas encore actif) : émission de factures lorsque la facturation formelle sera activée."
           ]
         },
         {
-          "heading": "5. Conservation",
+          "heading": "6. Conservation",
           "paragraphs": [
-            "Les données sont conservées pendant la durée d’activité du compte et les délais nécessaires aux obligations légales ou aux réclamations. Après résiliation, elles sont supprimées ou anonymisées lorsqu’elles ne sont plus nécessaires."
+            "Nous conservons les données du compte et de la bibliothèque tant que le compte est actif. Si l’utilisateur demande la suppression complète du compte, celui-ci entre dans un délai de grâce de 30 jours (pendant lequel il peut le récupérer sans perte) ; passé ce délai sans retour, les données sont définitivement supprimées.",
+            "Les données de facturation sont conservées séparément pendant le délai exigé par la réglementation fiscale (habituellement 6 ans en Espagne), indépendamment de la date de suppression du compte."
           ]
         },
         {
-          "heading": "6. Vos droits",
+          "heading": "7. Vos droits",
           "paragraphs": [
-            "Vous pouvez exercer vos droits d’accès, de rectification, d’effacement, d’opposition, de limitation et de portabilité, et retirer votre consentement le cas échéant, en écrivant à :",
+            "Vous pouvez exercer vos droits d’accès, de rectification, d’effacement, d’opposition, de limitation et de portabilité, et retirer votre consentement lorsque la base est le consentement, en écrivant à :",
             "<a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>",
-            "Vous pouvez également introduire une réclamation auprès de l’AEPD ou d’une autre autorité de contrôle compétente."
+            "Vous pouvez également introduire une réclamation auprès de l’Agence espagnole de protection des données (AEPD) ou d’une autre autorité de contrôle compétente."
           ]
         },
         {
-          "heading": "7. Sécurité et mineurs",
+          "heading": "8. Sécurité et mineurs",
           "paragraphs": [
-            "Des mesures techniques et organisationnelles appropriées sont appliquées. Le service ne s’adresse pas aux mineurs de moins de 14 ans (ou l’âge minimum applicable). Contact : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+            "Des mesures techniques et organisationnelles appropriées sont appliquées pour protéger les données. Le service ne s’adresse pas aux mineurs de moins de 14 ans (ou l’âge minimum applicable). Si vous constatez des données d’un mineur traitées sans autorisation, contactez <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
           ]
         },
         {
-          "heading": "8. Modifications",
+          "heading": "9. Modifications",
           "paragraphs": [
-            "Cette politique peut être mise à jour. La version publiée dans l’application fait foi. Contact : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+            "Cette politique peut être mise à jour pour refléter des changements légaux ou du service. La version publiée dans l’application fait foi. Contact : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
           ]
         }
       ]
@@ -454,35 +484,36 @@
         {
           "heading": "1. Qu’est-ce qu’un cookie ?",
           "paragraphs": [
-            "Les cookies sont de petits fichiers stockés sur votre appareil. Ils peuvent mémoriser des préférences, maintenir une session ou aider à comprendre l’usage du service."
+            "Les cookies sont de petits fichiers stockés sur votre appareil lorsque vous visitez un site. Ils peuvent mémoriser des préférences, maintenir une session ou aider à comprendre l’usage du service."
           ]
         },
         {
           "heading": "2. Types de cookies",
           "list": [
-            "Cookies techniques/nécessaires : indispensables au fonctionnement (session, sécurité, langue, stockage local de préférences).",
-            "Cookies de préférences : mémorisent des choix tels que la langue.",
-            "Cookies analytiques (s’ils sont activés) : usage agrégé pour améliorer le service.",
-            "Cookies tiers : déposés par des prestataires (authentification, paiement) selon leurs politiques."
+            "Cookies techniques/nécessaires : indispensables au fonctionnement (p. ex. session, sécurité, langue ou stockage local de préférences).",
+            "Cookies de préférences : mémorisent des choix tels que la langue de l’interface.",
+            "Cookies analytiques (prévus, pas encore actifs) : aideront à comprendre l’usage agrégé du service pour l’améliorer ; ils ne seront activés qu’après un consentement explicite via le bandeau de cookies.",
+            "Cookies tiers : déposés par des prestataires (p. ex. authentification ou paiement) selon leurs propres politiques."
           ]
         },
         {
           "heading": "3. Base juridique",
           "paragraphs": [
-            "Les cookies strictement nécessaires reposent sur l’intérêt légitime / la nécessité de fournir le service. Les autres, le cas échéant, après consentement lorsque la loi l’exige."
+            "Les cookies strictement nécessaires reposent sur l’intérêt légitime / la nécessité de fournir le service demandé. Les autres, le cas échéant, seront installés après consentement lorsque la loi l’exige."
           ]
         },
         {
-          "heading": "4. Gestion",
+          "heading": "4. Gestion et retrait",
           "paragraphs": [
-            "Vous pouvez configurer votre navigateur pour refuser ou supprimer les cookies. La désactivation des cookies techniques peut affecter InboxZero.",
-            "Aide : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+            "Vous pouvez configurer votre navigateur pour refuser ou supprimer les cookies. La désactivation des cookies techniques peut affecter InboxZero (connexion, langue, etc.).",
+            "Votre choix concernant les cookies non essentiels est enregistré dans votre propre navigateur et vous pouvez le modifier à tout moment via le lien « Paramètres des cookies » en pied de page.",
+            "Aide pour gérer les cookies ou exercer des droits connexes : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
           ]
         },
         {
           "heading": "5. Mises à jour",
           "paragraphs": [
-            "Cette politique peut évoluer. Contact : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+            "Cette politique peut évoluer. La version publiée dans l’application s’applique. Contact : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
           ]
         }
       ]
@@ -494,51 +525,85 @@
         {
           "heading": "1. Acceptation",
           "paragraphs": [
-            "En vous inscrivant, en vous abonnant ou en utilisant InboxZero, vous acceptez les présentes Conditions, les Mentions légales et la Politique de confidentialité."
+            "En vous inscrivant, en vous abonnant ou en utilisant InboxZero, vous acceptez les présentes Conditions générales, les Mentions légales et la Politique de confidentialité. Si vous n’êtes pas d’accord, n’utilisez pas le service."
           ]
         },
         {
           "heading": "2. Description du service",
           "paragraphs": [
-            "InboxZero permet d’enregistrer, d’organiser et de consulter des liens et connaissances sous forme de fiches. Les fonctionnalités peuvent évoluer."
+            "InboxZero est une application qui permet d’enregistrer, d’organiser et de consulter des liens et des connaissances sous forme de fiches. Les fonctionnalités peuvent évoluer ; les changements importants seront communiqués le cas échéant.",
+            "InboxZero est disponible tant pour les particuliers que pour les indépendants, PME et entreprises, sans distinction dans le processus d’inscription."
           ]
         },
         {
           "heading": "3. Compte utilisateur",
           "paragraphs": [
-            "Vous êtes responsable de la confidentialité de vos identifiants. Signalez tout usage non autorisé à <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+            "Vous êtes responsable de la confidentialité de vos identifiants et de l’activité réalisée avec votre compte. Signalez immédiatement tout usage non autorisé à <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
           ]
         },
         {
-          "heading": "4. Essai gratuit et abonnement",
+          "heading": "4. Plan gratuit et abonnement Premium",
           "paragraphs": [
-            "Un forfait d’essai gratuit avec des limites (p. ex. nombre de fiches) peut s’appliquer. Au-delà, certaines fonctions peuvent nécessiter un abonnement payant (p. ex. via Stripe).",
-            "Facturation / résiliation : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+            "Le plan Free permet d’enregistrer jusqu’à 20 fiches sans frais. Le plan Premium supprime cette limite et coûte 3,99 €/mois ou 29,99 €/an (TVA comprise).",
+            "Questions de facturation ou de résiliation : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ],
+          "list": [
+            "Le paiement est effectué à la confirmation du règlement et se renouvelle automatiquement à la fin de chaque période jusqu’à résiliation par l’utilisateur.",
+            "En s’abonnant, l’utilisateur demande expressément l’accès immédiat au service et renonce à son droit de rétractation de 14 jours, via une case obligatoire lors du paiement.",
+            "L’utilisateur peut résilier à tout moment depuis son compte. L’accès Premium reste actif jusqu’à la fin de la période déjà payée, sans prélèvement supplémentaire.",
+            "Si un prélèvement de renouvellement échoue, Stripe relance automatiquement le paiement et l’accès Premium est maintenu entre-temps ; si le paiement échoue définitivement, le compte passe en Free, avec rétablissement de la limite de 20 fiches sans perte des fiches déjà enregistrées.",
+            "Le passage entre le plan mensuel et le plan annuel se gère actuellement en contactant soporte@inboxzero.es.",
+            "Politique générale de non-remboursement, sauf obligation légale dans un cas précis (par exemple un double prélèvement dû à une erreur d’InboxZero).",
+            "InboxZero peut modifier ses tarifs pour des raisons objectives (évolution du service, nouvelles fonctionnalités, coûts d’exploitation, inflation ou changements législatifs tels que la TVA). Tout changement sera notifié par e-mail avec un préavis d’au moins 30 jours calendaires ; si l’utilisateur ne l’accepte pas, il pourra résilier son abonnement sans pénalité avant l’entrée en vigueur du nouveau prix. Le premier prélèvement postérieur à l’entrée en vigueur, sans résiliation préalable, vaudra acceptation du nouveau tarif."
           ]
         },
         {
           "heading": "5. Contenu utilisateur",
           "paragraphs": [
-            "Vous conservez vos droits sur le contenu enregistré et nous concédez une licence limitée pour le héberger et l’afficher afin de fournir le service."
+            "Vous conservez à tout moment la propriété et les droits sur le contenu que vous enregistrez dans InboxZero. En utilisant le service, vous nous concédez une licence limitée et non exclusive pour stocker, reproduire, traiter, sauvegarder et synchroniser ce contenu, uniquement dans la mesure nécessaire pour fournir le service. InboxZero n’acquiert en aucun cas la propriété de votre contenu. Vous garantissez en outre disposer de droits suffisants sur ce contenu et qu’il ne porte pas atteinte aux droits de tiers ni à la loi."
           ]
         },
         {
           "heading": "6. Usage acceptable",
           "paragraphs": [
-            "Sont interdits les usages illicites, le spam, les atteintes aux systèmes et la diffusion de contenus illégaux. InboxZero peut suspendre ou résilier les comptes en cas de manquement grave."
+            "Sont interdits les usages illicites, le spam, les atteintes aux systèmes, le harcèlement et la diffusion de contenus illégaux. InboxZero peut suspendre ou résilier les comptes en cas de manquement grave."
           ]
         },
         {
-          "heading": "7. Disponibilité et responsabilité",
+          "heading": "7. Réclamations relatives au contenu de tiers",
           "paragraphs": [
-            "Le service est fourni « en l’état » dans des conditions raisonnables. Dans les limites autorisées par la loi, InboxZero n’est pas responsable des dommages indirects, sous réserve des droits impératifs des consommateurs."
+            "Si une personne estime qu’une fiche enregistrée par un utilisateur d’InboxZero porte atteinte à ses droits de propriété intellectuelle, contient ses données personnelles sans consentement, ou du matériel illicite, elle peut le notifier à <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a> en indiquant : (a) son identité, (b) la fiche ou l’URL concrète concernée, (c) le motif de la réclamation, et (d) un moyen de contact. InboxZero examinera la notification et, le cas échéant, pourra restreindre l’accès à cette fiche ou suspendre le compte concerné le temps de la résolution. Les réclamations manifestement infondées ou de mauvaise foi pourront être rejetées sans autre formalité."
           ]
         },
         {
-          "heading": "8. Modifications et contact",
+          "heading": "8. Disponibilité et limitation de responsabilité",
           "paragraphs": [
-            "Nous pouvons modifier ces conditions en publiant une version mise à jour dans l’application.",
-            "Support : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+            "Le service est fourni « en l’état » dans des conditions raisonnables. Dans les limites autorisées par la loi, InboxZero n’est pas responsable des dommages indirects, du manque à gagner ou de la perte de données résultant de causes échappant à son contrôle raisonnable, sous réserve des droits impératifs des consommateurs."
+          ]
+        },
+        {
+          "heading": "9. Résiliation et suppression de compte",
+          "paragraphs": [
+            "L’utilisateur peut résilier son abonnement Premium à tout moment et continuer d’utiliser InboxZero en mode Free ; ses fiches ne sont pas supprimées pour ce motif, même s’il ne pourra pas en ajouter de nouvelles tant qu’il en a plus de 20 d’enregistrées."
+          ],
+          "list": [
+            "L’utilisateur peut demander la suppression complète de son compte. Celui-ci entre alors dans un délai de grâce de 30 jours pendant lequel il est suspendu mais rien n’est effacé ; s’il se reconnecte dans ce délai, il récupère son compte et ses fiches tels qu’il les a laissés.",
+            "Passé 30 jours sans retour, la suppression devient définitive et irréversible.",
+            "Avant de supprimer le compte, ou pendant le délai de grâce, l’utilisateur peut exporter ses fiches dans un fichier téléchargeable.",
+            "Les données de facturation sont conservées séparément pendant le délai exigé par la réglementation fiscale, indépendamment de la suppression du compte."
+          ]
+        },
+        {
+          "heading": "10. Langue qui prévaut",
+          "paragraphs": [
+            "Ces documents juridiques sont disponibles en espagnol, anglais, français, allemand et portugais. En cas de divergence ou de doute d’interprétation entre versions, la version espagnole prévaudra, en tant que langue originale de rédaction et langue de la juridiction applicable au service."
+          ]
+        },
+        {
+          "heading": "11. Modifications et contact",
+          "paragraphs": [
+            "Nous pouvons modifier ces conditions en publiant une version mise à jour dans l’application. L’usage continué après l’entrée en vigueur peut valoir acceptation, lorsque la loi le permet.",
+            "Support et réclamations : <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
           ]
         }
       ]
@@ -593,7 +658,9 @@
       "step2Title": "Créez votre compte gratuit",
       "step2Text": "Inscrivez-vous en quelques secondes pour accéder à votre bibliothèque depuis n'importe quel appareil.",
       "step3Title": "Organisez et consultez",
-      "step3Text": "Classez vos fiches, marquez-les comme favorites ou à lire plus tard, et retrouvez-les quand vous en avez besoin."
+      "step3Text": "Classez vos fiches, marquez-les comme favorites ou à lire plus tard, et retrouvez-les quand vous en avez besoin.",
+      "installNote": "Vous préférez avoir InboxZero toujours à portée de main ? Installez-la comme une application sur votre téléphone, tablette ou ordinateur, en moins d'une minute.",
+      "installLink": "Voir comment l'installer →"
     },
     "features": {
       "title": "Tout ce dont vous avez besoin, rien de superflu",
@@ -610,7 +677,11 @@
       "securityTitle": "Vos données, protégées",
       "securityText": "Authentification sécurisée et isolation totale entre utilisateurs.",
       "searchTagsTitle": "Cherchez et étiquetez à votre façon",
-      "searchTagsText": "Retrouvez n'importe quelle fiche instantanément et organisez-les avec vos propres étiquettes, au-delà des catégories."
+      "searchTagsText": "Retrouvez n'importe quelle fiche instantanément et organisez-les avec vos propres étiquettes, au-delà des catégories.",
+      "exportTitle": "Votre bibliothèque, toujours à vous",
+      "exportText": "Téléchargez toutes vos fiches quand vous le souhaitez, dans un fichier que vous pouvez garder ou emporter où vous voulez. Sans petites lignes.",
+      "deleteAccountTitle": "Partez quand vous voulez, sans engagement",
+      "deleteAccountText": "Si vous décidez de fermer votre compte, vous avez 30 jours pour changer d'avis avant que tout soit supprimé. Après cela, nous respectons votre décision définitivement."
     },
     "forWho": {
       "title": "InboxZero est fait pour vous si...",
@@ -652,7 +723,8 @@
       "premiumFeature3": "Recherche avancée",
       "premiumFeature4": "Support prioritaire",
       "premiumCta": "M'abonner maintenant",
-      "closing": "Choisissez votre plan en quelques secondes"
+      "closing": "Choisissez votre plan en quelques secondes",
+      "priceChangeNotice": "Les prix peuvent évoluer avec le développement du service ou du marché. Vous serez averti(e) 30 jours à l'avance et pourrez annuler sans pénalité."
     },
     "faq": {
       "title": "Questions fréquentes",

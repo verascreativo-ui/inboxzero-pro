@@ -1942,6 +1942,7 @@ function updateAuthChrome(user) {
 
   refreshAccountMenuIdentity(user);
   renderDashboardGreeting(currentAuthUser);
+  syncGuestStorageWarning();
 }
 
 async function applyPendingNameIfAny(user) {
@@ -2139,6 +2140,46 @@ function resetLoginForm() {
   if (fullnameInput) fullnameInput.value = '';
   if (emailInput) emailInput.value = '';
   if (passwordInput) passwordInput.value = '';
+}
+
+function setLoginModalMode(mode) {
+  const modal = document.getElementById('modal-login');
+  const heading = document.getElementById('login-modal-heading');
+  const submitBtn = document.getElementById('btn-submit-login');
+  const registerBtn = document.getElementById('btn-register-login');
+  const isSignup = mode === 'signup';
+  if (modal) {
+    modal.classList.toggle('is-signup', isSignup);
+    modal.dataset.loginMode = isSignup ? 'signup' : 'signin';
+  }
+  if (heading) {
+    heading.setAttribute('data-i18n', isSignup ? 'login.registerBtn' : 'login.title');
+    heading.textContent = t(isSignup ? 'login.registerBtn' : 'login.title');
+  }
+  if (submitBtn) submitBtn.hidden = isSignup;
+  if (registerBtn) {
+    registerBtn.classList.toggle('btn-primary', isSignup);
+    registerBtn.classList.toggle('modal-btn-cancel', !isSignup);
+  }
+}
+
+function openLoginModal(options = {}) {
+  if (currentAuthUser) return;
+  const modal = document.getElementById('modal-login');
+  if (!modal) return;
+  resetLoginForm();
+  setLoginModalMode(options.signup ? 'signup' : 'signin');
+  setLoginAuthMessage('', false);
+  modal.classList.add('active');
+  mountLoginTurnstile();
+  const focusId = options.signup ? 'login-fullname' : 'login-email';
+  document.getElementById(focusId)?.focus();
+}
+
+function syncGuestStorageWarning() {
+  const el = document.getElementById('guest-storage-warning');
+  if (!el) return;
+  el.hidden = Boolean(currentAuthUser);
 }
 
 async function signOutCurrentUser() {
@@ -2540,6 +2581,10 @@ document.addEventListener('i18n:ready', () => {
   /** S1.7: UPDATE ⭐/⏰ en vuelo, por id de ficha. */
   const cardFlagUpdateInFlight = new Set();
   let cardsFlagErrorKey = null;
+
+  const GUEST_GUIDE_SEEN_KEY = 'inboxzero_guide_seen';
+  let landingHashModalOpened = false;
+  let skipAutoHelpForPrefill = false;
 
   let currentFilter = 'all';
   let currentCategory = null;
@@ -3254,6 +3299,14 @@ document.addEventListener('i18n:ready', () => {
     openModal('modal-subscribe');
   }
 
+  function syncSubscribeCheckoutEnabled() {
+    const submitBtn = document.getElementById('btn-stripe-checkout');
+    const waiver = document.getElementById('subscribe-withdrawal-waiver');
+    if (!submitBtn) return;
+    const busy = submitBtn.getAttribute('aria-busy') === 'true';
+    submitBtn.disabled = busy || !waiver?.checked;
+  }
+
   function prefillSubscribeForm() {
     const nameInput = document.getElementById('subscribe-fullname');
     const emailInput = document.getElementById('subscribe-email');
@@ -3266,6 +3319,7 @@ document.addEventListener('i18n:ready', () => {
     if (emailInput && currentAuthUser && currentAuthUser.email) {
       emailInput.value = currentAuthUser.email;
     }
+    syncSubscribeCheckoutEnabled();
   }
 
   function updateTrialPlanLabel(current) {
@@ -3849,6 +3903,7 @@ document.addEventListener('i18n:ready', () => {
         setLibraryBootLoading(false);
         renderCards();
         renderDashboardGreeting(null);
+        maybeOpenGuestFirstVisitHelp();
         return;
       }
 
@@ -3934,6 +3989,7 @@ document.addEventListener('i18n:ready', () => {
       renderCards();
       renderDashboardGreeting(uid ? user : null);
       if (uid) scheduleGuestMigrationOffer();
+      else maybeOpenGuestFirstVisitHelp();
     } finally {
       if (uid) libraryCloudHydrateInFlight = false;
       // Solo la generación activa puede cerrar loading / forzar ready
@@ -3950,6 +4006,38 @@ document.addEventListener('i18n:ready', () => {
         maybeRefreshProfileAfterCheckoutReturn(user);
       }
     }
+  }
+
+  function maybeOpenGuestFirstVisitHelp() {
+    if (currentAuthUser) return;
+    if (landingHashModalOpened || skipAutoHelpForPrefill) return;
+    if (userCards().length > 0) return;
+    try {
+      if (localStorage.getItem(GUEST_GUIDE_SEEN_KEY) === 'true') return;
+      localStorage.setItem(GUEST_GUIDE_SEEN_KEY, 'true');
+    } catch (_) {
+      return;
+    }
+    openModal('modal-help');
+  }
+
+  try {
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    if (hashParams.get('signup') === '1') {
+      openLoginModal({ signup: true });
+      landingHashModalOpened = true;
+      window.history.replaceState({}, '', window.location.pathname + window.location.search);
+    } else if (hashParams.get('subscribe') === '1') {
+      openSubscribeModal();
+      landingHashModalOpened = true;
+      window.history.replaceState({}, '', window.location.pathname + window.location.search);
+    } else if (hashParams.get('install-guide') === '1') {
+      openModal('modal-install-guide');
+      landingHashModalOpened = true;
+      window.history.replaceState({}, '', window.location.pathname + window.location.search);
+    }
+  } catch (_) {
+    /* hash opcional */
   }
 
   libraryAuthSyncHandler = hydrateLibraryForAuthUser;
@@ -4154,15 +4242,10 @@ document.addEventListener('i18n:ready', () => {
     try {
       const prefillUrl = new URLSearchParams(window.location.search).get('url');
       if (prefillUrl) {
+        skipAutoHelpForPrefill = true;
         urlInput.value = prefillUrl;
         window.history.replaceState({}, '', window.location.pathname);
         btnSave.click();
-      }
-      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
-      const prefillSubscribe = hashParams.get('subscribe');
-      if (prefillSubscribe === '1') {
-        openSubscribeModal();
-        window.history.replaceState({}, '', window.location.pathname + window.location.search);
       }
     } catch (_) {
       /* prefill opcional: si falla, no bloquea la carga normal de la app */
@@ -5853,14 +5936,12 @@ document.addEventListener('i18n:ready', () => {
   };
 
   setupModal('btn-help-modal', 'modal-help');
+  setupModal('btn-install-guide', 'modal-install-guide');
   const loginModalBtn = document.getElementById('btn-login-modal');
   const loginModal = document.getElementById('modal-login');
   if (loginModalBtn && loginModal) {
     loginModalBtn.addEventListener('click', () => {
-      if (currentAuthUser) return;
-      resetLoginForm();
-      loginModal.classList.add('active');
-      mountLoginTurnstile();
+      openLoginModal({ signup: false });
     });
   }
   const subscribeModalBtn = document.getElementById('btn-subscribe-modal');
@@ -5964,9 +6045,18 @@ document.addEventListener('i18n:ready', () => {
   }
 
   const subscribeForm = document.getElementById('subscribe-form');
+  const subscribeWaiver = document.getElementById('subscribe-withdrawal-waiver');
+  if (subscribeWaiver) {
+    subscribeWaiver.addEventListener('change', syncSubscribeCheckoutEnabled);
+  }
+  syncSubscribeCheckoutEnabled();
   if (subscribeForm) {
     subscribeForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (!document.getElementById('subscribe-withdrawal-waiver')?.checked) {
+        syncSubscribeCheckoutEnabled();
+        return;
+      }
       const captcha = document.getElementById('subscribe-captcha')?.value.trim();
       if (captcha !== '7') {
         alert(t('subscribe.captchaError'));
@@ -6015,8 +6105,8 @@ document.addEventListener('i18n:ready', () => {
         alert(t('subscribe.checkoutError'));
       } finally {
         if (submitBtn) {
-          submitBtn.disabled = false;
           submitBtn.removeAttribute('aria-busy');
+          syncSubscribeCheckoutEnabled();
         }
       }
     });
