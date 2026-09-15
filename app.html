@@ -54,6 +54,9 @@
       <div class="progress-bar-bg">
         <div class="progress-bar-fill" id="progress-fill" style="width: 0%;"></div>
       </div>
+      <p id="guest-storage-warning" class="guest-storage-warning" data-i18n="guestMode.localStorageWarning" hidden>
+        Tus fichas se guardan solo en este navegador. Crea una cuenta gratis para no perderlas.
+      </p>
     </div>
 
     <nav class="top-nav">
@@ -103,6 +106,7 @@
       </div>
 
       <button id="btn-help-modal" data-i18n="header.help">Ayuda en 3 pasos</button>
+      <button id="btn-install-guide" data-i18n="header.installGuide">Instalar en tu dispositivo</button>
       <button id="btn-login-modal" data-i18n="header.login">Iniciar Sesión</button>
       <div id="account-menu-wrapper" class="dropdown-wrapper account-menu-wrapper" hidden>
         <button type="button" id="btn-account-menu" class="btn-account-menu" aria-haspopup="true" aria-expanded="false" data-i18n-title="auth.accountMenuAria" title="Cuenta">
@@ -295,6 +299,48 @@
     </div>
   </div>
 
+  <div id="modal-install-guide" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header modal-header-edit">
+        <div class="edit-modal-brand">
+          <img src="logo.png" class="edit-modal-logo" data-i18n-alt="meta.logoAlt" alt="Logo">
+          <span class="edit-modal-brand-name" data-i18n-html="brand.name">InboxZero.es</span>
+        </div>
+        <div class="modal-title-box edit-modal-title">
+          <span class="modal-icon-badge">📌</span>
+          <h3 data-i18n="installGuide.title">Añade InboxZero a tu escritorio o móvil</h3>
+        </div>
+        <button type="button" class="modal-close" data-close="modal-install-guide" data-i18n="modals.close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="help-step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4 data-i18n="installGuide.step1Title">En el ordenador (Chrome o Edge)</h4>
+            <p data-i18n="installGuide.step1Body">Abre InboxZero.es, pulsa los tres puntos de arriba a la derecha (o el icono de instalar en la barra de direcciones) y elige "Instalar InboxZero.es" o "Crear acceso directo...". Tendrás el icono listo en tu escritorio.</p>
+          </div>
+        </div>
+        <div class="help-step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4 data-i18n="installGuide.step2Title">En el iPhone (Safari)</h4>
+            <p data-i18n="installGuide.step2Body">Abre InboxZero.es en Safari, toca el icono de compartir (el cuadrado con la flecha hacia arriba) y elige "Añadir a pantalla de inicio". El icono aparecerá junto al resto de tus apps.</p>
+          </div>
+        </div>
+        <div class="help-step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4 data-i18n="installGuide.step3Title">En Android (Chrome)</h4>
+            <p data-i18n="installGuide.step3Body">Abre InboxZero.es en Chrome, toca los tres puntos de arriba a la derecha y elige "Añadir a pantalla de inicio" o "Instalar app". Confirma y tendrás el icono en tu pantalla de inicio.</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary modal-action-btn" data-close="modal-install-guide" data-i18n="modals.understood">¡Entendido!</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal Iniciar Sesión -->
   <div id="modal-login" class="modal-overlay">
     <div class="modal-box modal-box-login">
@@ -306,7 +352,7 @@
         <div class="modal-title-box edit-modal-title">
           <span class="modal-icon-badge">🔐</span>
           <div>
-            <h3 data-i18n="login.title">Iniciar Sesión / Registro</h3>
+            <h3 id="login-modal-heading" data-i18n="login.title">Iniciar Sesión / Registro</h3>
             <p class="modal-subtitle" data-i18n="login.subtitle">Inicia sesión si ya tienes cuenta, o crea una gratis para guardar tus fichas en la nube.</p>
           </div>
         </div>
@@ -619,10 +665,15 @@
             <input type="checkbox" id="subscribe-terms" required>
             <span data-i18n-html="subscribe.termsHtml">He leído y acepto la Política de Privacidad y los Términos.</span>
           </label>
+          <label class="check-label subscribe-terms subscribe-withdrawal">
+            <input type="checkbox" id="subscribe-withdrawal-waiver" required>
+            <span data-i18n="subscribe.withdrawalWaiver">Solicito el acceso inmediato al servicio y entiendo que, por ello, renuncio a mi derecho de desistimiento de 14 días.</span>
+          </label>
           <div class="login-modal-actions">
-            <button type="submit" id="btn-stripe-checkout" class="btn-primary modal-action-btn" data-i18n="subscribe.stripeButton">Continuar a Stripe (Modo Pruebas) 💳</button>
+            <button type="submit" id="btn-stripe-checkout" class="btn-primary modal-action-btn" data-i18n="subscribe.stripeButton" disabled>Continuar a Stripe (Modo Pruebas) 💳</button>
             <button type="button" class="modal-action-btn modal-btn-cancel" data-close="modal-subscribe" data-i18n="modals.cancel">Cancelar</button>
           </div>
+          <p class="subscribe-price-notice" data-i18n="landing.pricing.priceChangeNotice">Precios sujetos a variaciones por evolución del servicio o mercado. Se notificará cualquier cambio con 30 días de antelación y podrás cancelar sin penalización.</p>
         </form>
       </div>
     </div>
