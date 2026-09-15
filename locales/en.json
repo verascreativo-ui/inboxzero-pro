@@ -35,6 +35,7 @@
     "premiumWelcome": "Welcome to Premium! You now have unlimited cards",
     "libraryDropdown": "My Library ▾",
     "help": "Help in 3 steps",
+    "installGuide": "Add to your device",
     "login": "Sign In",
     "subscribe": "Subscribe"
   },
@@ -142,6 +143,15 @@
     "step3Title": "Organize, filter and browse",
     "step3Body": "Quickly access your cards from the side menu or the \"My Library\" dropdown in the top bar, without losing anything."
   },
+  "installGuide": {
+    "title": "Add InboxZero to your desktop or phone",
+    "step1Title": "On computer (Chrome or Edge)",
+    "step1Body": "Open InboxZero.es, click the three dots in the top right (or the install icon in the address bar) and choose \"Install InboxZero.es\" or \"Create shortcut...\". The icon will be ready on your desktop.",
+    "step2Title": "On iPhone (Safari)",
+    "step2Body": "Open InboxZero.es in Safari, tap the share icon (the square with an upward arrow) and choose \"Add to Home Screen\". The icon will appear alongside your other apps.",
+    "step3Title": "On Android (Chrome)",
+    "step3Body": "Open InboxZero.es in Chrome, tap the three dots in the top right and choose \"Add to Home screen\" or \"Install app\". Confirm and the icon will appear on your home screen."
+  },
   "login": {
     "title": "Sign In",
     "subtitle": "Sign in if you already have an account, or create one for free to save your cards in the cloud.",
@@ -180,6 +190,7 @@
     "planAnnualTitle": "Annual — €2.50/mo",
     "planAnnualSubtitle": "€29.99/year, billed once · Save 37%",
     "termsHtml": "I have read and accept the <a href=\"#\">Privacy Policy</a>, the <a href=\"#\">Terms and Conditions</a>, and the authorization of use.",
+    "withdrawalWaiver": "I request immediate access to the service and understand that, by doing so, I waive my 14-day right of withdrawal.",
     "stripeButton": "Continue to Stripe 💳",
     "captchaError": "Incorrect captcha answer. It must be 7.",
     "needAuth": "Sign in to subscribe to Premium.",
@@ -205,6 +216,9 @@
     "message": "This doesn't look like a link. It will be saved as a manual note, with no automatic extraction or real link. Do you want to continue?",
     "cancel": "Cancel",
     "confirm": "Save as note"
+  },
+  "guestMode": {
+    "localStorageWarning": "Your cards are only saved in this browser. Create a free account so you don't lose them."
   },
   "guestMigration": {
     "title": "Cards saved as a guest",
@@ -327,8 +341,8 @@
         {
           "heading": "1. Identifying details",
           "paragraphs": [
-            "In accordance with applicable law, the owner of the InboxZero.es website (hereinafter “InboxZero”) is the controller of the digital knowledge-library service available at https://inboxzero.es.",
-            "Controller contact details: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+            "In accordance with applicable law, the owner of the InboxZero.es website (hereinafter “InboxZero”) is Manuel A. De la Vera Torres, con NIF 53.814.569-C y domicilio en Calle Arenal 8, 2º-K, Casarrubios del Monte, 45950 Toledo (España), controller of the digital knowledge-library service available at https://inboxzero.es.",
+            "Contact details: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
           ]
         },
         {
@@ -357,7 +371,7 @@
         {
           "heading": "5. Liability",
           "paragraphs": [
-            "InboxZero endeavours to keep the service available and accurate, but does not guarantee uninterrupted operation or the total absence of errors. You are responsible for the accuracy of information you enter and for how you use saved links and content.",
+            "InboxZero endeavours to keep the service available and accurate, but does not guarantee uninterrupted operation or the total absence of errors or vulnerabilities. You are responsible for the accuracy of information you enter and for how you use saved links and content.",
             "To report incidents or unlawful content: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
           ]
         },
@@ -378,7 +392,7 @@
     },
     "privacy": {
       "title": "Privacy Policy",
-      "intro": "Personal data processing under Regulation (EU) 2016/679 (GDPR) and applicable national law. Data controller / contact: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>.",
+      "intro": "Personal data processing under Regulation (EU) 2016/679 (GDPR) and the LOPDGDD. Data controller / contact: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>.",
       "sections": [
         {
           "heading": "1. Data controller",
@@ -393,19 +407,26 @@
             "Depending on how you use the service, we may process:"
           ],
           "list": [
-            "Account data: email address and authentication credentials.",
-            "Profile or billing data linked to a subscription (e.g. name), where applicable.",
-            "Library content (cards, links, notes, categories and preferences).",
-            "Technical usage data (IP address, device/browser type, security logs) as needed to provide and protect the service."
+            "Account data: email address, encrypted password and, if provided, name.",
+            "Billing data: handled directly by Stripe (payment email, last 4 digits of the card, charge history and subscription identifier); InboxZero does not store the full card number.",
+            "Library content: saved URLs, automatically extracted title/description/image, categories, tags, notes and favourites. In Guest mode, this data stays only in the user’s browser (localStorage) and does not reach our servers until it is migrated to an account.",
+            "Technical data: IP address, device/browser type and security logs, as needed to provide and protect the service.",
+            "Support communications: the content of messages sent via “Talk to Support”."
           ]
         },
         {
-          "heading": "3. Purposes and legal bases",
+          "heading": "3. Artificial intelligence",
+          "paragraphs": [
+            "InboxZero does not currently use any artificial intelligence system to process, analyse or generate content from your data or cards. If a feature of this kind is added in the future, you will be duly informed and, where required, consent will be requested before it is activated."
+          ]
+        },
+        {
+          "heading": "4. Purposes and legal bases",
           "paragraphs": [
             "We process data in order to:"
           ],
           "list": [
-            "Provide InboxZero and manage your account (performance of a contract / pre-contractual steps).",
+            "Provide the InboxZero service and manage the account (performance of a contract / pre-contractual steps).",
             "Manage subscriptions, payments and support (contract and legitimate interests).",
             "Comply with legal obligations (e.g. tax or security).",
             "Improve security and prevent abuse (legitimate interests).",
@@ -413,20 +434,29 @@
           ]
         },
         {
-          "heading": "4. Recipients and processors",
+          "heading": "5. Recipients and processors",
           "paragraphs": [
-            "We do not sell personal data. We may share data with processors (hosting, authentication, payment gateways or other technical providers) under contract with appropriate safeguards, including international transfers where applicable under the GDPR.",
-            "For more information about processors: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+            "We do not sell personal data. We share only the data strictly necessary with the providers who help us deliver the service, under contract and with appropriate safeguards:"
+          ],
+          "list": [
+            "Supabase: authentication, database and library storage.",
+            "Stripe: payment processing and subscription management. You can read their privacy policy at stripe.com/privacy.",
+            "ScrapingBee, ZenRows and Microlink: automatic extraction of metadata (title, description, image) from saved URLs; they do not store the content permanently.",
+            "Cloudflare Turnstile: bot protection on sign-up and sign-in.",
+            "Railway and Vercel: hosting of the backend and the frontend.",
+            "Hostinger: handling of support email (soporte@inboxzero.es).",
+            "Holded (planned, not yet active): issuing invoices when formal billing is enabled."
           ]
         },
         {
-          "heading": "5. Retention",
+          "heading": "6. Retention",
           "paragraphs": [
-            "We retain data while your account is active and for as long as needed to meet legal obligations or handle claims. After account closure we delete or anonymise data when it is no longer required, subject to legal blocking where mandatory."
+            "We retain account and library data while the account is active. If you request complete deletion of the account, it enters a 30-day grace period (during which you can recover it with no loss); if you do not return within that period, the data is permanently deleted.",
+            "Billing data is kept separately for the period required by tax law (usually 6 years in Spain), regardless of when the account is deleted."
           ]
         },
         {
-          "heading": "6. Your rights",
+          "heading": "7. Your rights",
           "paragraphs": [
             "You may exercise rights of access, rectification, erasure, objection, restriction and portability, and withdraw consent where processing is based on consent, by writing to:",
             "<a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>",
@@ -434,13 +464,13 @@
           ]
         },
         {
-          "heading": "7. Security and minors",
+          "heading": "8. Security and minors",
           "paragraphs": [
             "We apply appropriate technical and organisational measures to protect data. The service is not directed at children under 14 (or the applicable minimum age). If you become aware of a child’s data processed without authorisation, contact <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
           ]
         },
         {
-          "heading": "8. Changes",
+          "heading": "9. Changes",
           "paragraphs": [
             "We may update this policy to reflect legal or service changes. The current version will be published in the app. Enquiries: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
           ]
@@ -462,7 +492,7 @@
           "list": [
             "Technical/necessary cookies: essential for operation (e.g. session, security, language or local preference storage).",
             "Preference cookies: remember choices such as interface language.",
-            "Analytics cookies (if enabled): help us understand aggregated usage to improve the service.",
+            "Analytics cookies (planned, not yet active): will help us understand aggregated usage to improve the service; they will only be enabled after explicit consent via the cookie banner.",
             "Third-party cookies: set by providers (e.g. authentication or payments) under their own policies."
           ]
         },
@@ -476,6 +506,7 @@
           "heading": "4. Managing cookies",
           "paragraphs": [
             "You can configure your browser to refuse or delete cookies. Disabling technical cookies may affect InboxZero (sign-in, language, etc.).",
+            "Your choice regarding non-essential cookies is stored in your own browser and you can change it at any time from the “Cookie settings” link in the footer.",
             "For help managing cookies or related rights: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
           ]
         },
@@ -500,7 +531,8 @@
         {
           "heading": "2. Service description",
           "paragraphs": [
-            "InboxZero is an application that lets you save, organise and browse links and knowledge as cards. Features may evolve; material changes will be communicated where appropriate."
+            "InboxZero is an application that lets you save, organise and browse links and knowledge as cards. Features may evolve; material changes will be communicated where appropriate.",
+            "InboxZero is available to individuals as well as self-employed professionals, SMEs and companies, with no distinction in the sign-up process."
           ]
         },
         {
@@ -510,16 +542,25 @@
           ]
         },
         {
-          "heading": "4. Free trial and subscription",
+          "heading": "4. Free plan and Premium subscription",
           "paragraphs": [
-            "A free trial plan with limits (e.g. number of cards) may apply. After the limit or trial period, saving or premium features may require a paid subscription processed via providers such as Stripe.",
+            "The Free plan lets you save up to 20 cards at no cost. The Premium plan removes that limit and costs €3.99/month or €29.99/year (VAT included).",
             "Billing or cancellation enquiries: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
+          ],
+          "list": [
+            "Payment is taken when you confirm checkout and renews automatically at the end of each period until you cancel.",
+            "By subscribing, you expressly request immediate access to the service and waive your 14-day right of withdrawal, via a required checkbox at checkout.",
+            "You may cancel at any time from your account. Premium access remains active until the end of the period already paid, with no further charges.",
+            "If a renewal charge fails, Stripe automatically retries the payment and Premium access is kept in the meantime; if payment ultimately fails, the account reverts to Free, restoring the 20-card limit without deleting cards already saved.",
+            "Switching between the monthly and annual plans is currently handled by contacting soporte@inboxzero.es.",
+            "General no-refund policy, except where legally required in a specific case (for example, a duplicate charge caused by an InboxZero error).",
+            "InboxZero may change its prices for objective reasons (service evolution, new features, operating costs, inflation or legal changes such as VAT). Any change will be notified by email at least 30 calendar days in advance; if you do not accept it, you may cancel your subscription without penalty before the new price takes effect. The first charge after the new price comes into force, without prior cancellation, will be treated as acceptance of the new rate."
           ]
         },
         {
           "heading": "5. User content",
           "paragraphs": [
-            "You retain rights to content you save. You grant us a limited licence to host and display it to provide the service. You warrant that you have sufficient rights and that the content does not infringe third-party rights or the law."
+            "You retain at all times the ownership and rights in the content you save in InboxZero. By using the service, you grant us a limited, non-exclusive licence to store, reproduce, process, back up and synchronise that content, solely to the extent needed to provide the service. InboxZero does not acquire ownership of your content. You also warrant that you have sufficient rights in that content and that it does not infringe third-party rights or the law."
           ]
         },
         {
@@ -529,13 +570,37 @@
           ]
         },
         {
-          "heading": "7. Availability and limitation of liability",
+          "heading": "7. Complaints about third-party content",
+          "paragraphs": [
+            "If someone believes that a card saved by an InboxZero user infringes their intellectual property rights, contains their personal data without consent, or includes unlawful material, they may notify <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a> stating: (a) their identity, (b) the specific card or URL affected, (c) the reason for the complaint, and (d) a contact method. InboxZero will review the notice and, where appropriate, may restrict access to that card or suspend the account involved while the matter is resolved. Complaints that are clearly unfounded or made in bad faith may be dismissed without further action."
+          ]
+        },
+        {
+          "heading": "8. Availability and limitation of liability",
           "paragraphs": [
             "The service is provided “as is” within reason. To the extent permitted by law, InboxZero is not liable for indirect damages, lost profits or data loss outside its reasonable control, without prejudice to mandatory consumer rights."
           ]
         },
         {
-          "heading": "8. Changes and contact",
+          "heading": "9. Cancellation and account deletion",
+          "paragraphs": [
+            "You may cancel your Premium subscription at any time and keep using InboxZero on the Free plan; your cards are not deleted for this reason, although you will not be able to add new cards while you have more than 20 saved."
+          ],
+          "list": [
+            "You may request complete deletion of your account. It then enters a 30-day grace period during which it is suspended but nothing is erased; if you sign in again within that period, you recover your account and cards exactly as you left them.",
+            "After 30 days without you returning, deletion becomes final and irreversible.",
+            "Before deleting the account, or during the grace period, you may export your cards to a downloadable file.",
+            "Billing data is kept separately for the period required by tax law, regardless of account deletion."
+          ]
+        },
+        {
+          "heading": "10. Prevailing language",
+          "paragraphs": [
+            "These legal documents are available in Spanish, English, French, German and Portuguese. In the event of a discrepancy or doubt of interpretation between versions, the Spanish version shall prevail, as it is the original drafting language and that of the jurisdiction applicable to the service."
+          ]
+        },
+        {
+          "heading": "11. Changes and contact",
           "paragraphs": [
             "We may amend these terms by publishing an updated version in the app. Continued use after the effective date may constitute acceptance where allowed by law.",
             "Support and complaints: <a href=\"mailto:soporte@inboxzero.es\">soporte@inboxzero.es</a>."
@@ -593,7 +658,9 @@
       "step2Title": "Create your free account",
       "step2Text": "Sign up in seconds to access your library from any device.",
       "step3Title": "Organize and browse",
-      "step3Text": "Classify your entries, mark them as favorites or pending, and find them again whenever you need to."
+      "step3Text": "Classify your entries, mark them as favorites or pending, and find them again whenever you need to.",
+      "installNote": "Prefer having InboxZero always within reach? Install it as an app on your phone, tablet, or computer in under a minute.",
+      "installLink": "See how to install it →"
     },
     "features": {
       "title": "Everything you need, nothing you don't",
@@ -610,7 +677,11 @@
       "securityTitle": "Your data, protected",
       "securityText": "Secure authentication and full isolation between users.",
       "searchTagsTitle": "Search and tag your way",
-      "searchTagsText": "Find any card instantly and organize them with your own tags, not just categories."
+      "searchTagsText": "Find any card instantly and organize them with your own tags, not just categories.",
+      "exportTitle": "Your library, always yours",
+      "exportText": "Download all your cards whenever you want, in a file you can keep or take anywhere. No fine print.",
+      "deleteAccountTitle": "Leave whenever you want, no strings attached",
+      "deleteAccountText": "If you decide to close your account, you have 30 days to change your mind before everything is deleted. After that, we respect your decision for good."
     },
     "forWho": {
       "title": "InboxZero is for you if...",
@@ -652,7 +723,8 @@
       "premiumFeature3": "Advanced search",
       "premiumFeature4": "Priority support",
       "premiumCta": "Subscribe now",
-      "closing": "Choose your plan in seconds"
+      "closing": "Choose your plan in seconds",
+      "priceChangeNotice": "Prices may change as the service evolves or the market changes. You'll be notified 30 days in advance and can cancel without penalty."
     },
     "faq": {
       "title": "Frequently asked questions",
