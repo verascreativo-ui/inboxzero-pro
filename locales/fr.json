@@ -39,6 +39,21 @@
     "login": "Se connecter",
     "subscribe": "S'abonner"
   },
+  "account": {
+    "reactivatedNotice": "Votre compte est resté tel quel, avec toutes vos fiches en sécurité.",
+    "reactivatedTitle": "Ravis de vous retrouver !",
+    "reactivatedConfirm": "Compris",
+    "deleteAccount": "Supprimer mon compte",
+    "deleteConfirmTitle": "Êtes-vous sûr de vouloir supprimer votre compte ?",
+    "deleteConfirmMessage": "Votre compte sera suspendu pendant 30 jours. Si vous vous reconnectez pendant ce délai, il sera réactivé tel que vous l'avez laissé. Passé ce délai, tout sera supprimé définitivement et ne pourra pas être récupéré.",
+    "deleteConfirmPremiumNotice": "Votre abonnement Premium sera annulé immédiatement.",
+    "exportCardsButton": "Exporter mes fiches avant de continuer",
+    "exportError": "Impossible d'exporter vos fiches. Veuillez réessayer.",
+    "deleteConfirmButton": "Supprimer mon compte",
+    "deleteScheduledTitle": "Demande enregistrée",
+    "deleteScheduledMessage": "Votre compte sera supprimé dans 30 jours. Si vous vous reconnectez pendant ce délai, il sera réactivé automatiquement.",
+    "deleteError": "Impossible de traiter la demande. Veuillez réessayer."
+  },
   "dropdown": {
     "mainViews": "VUES PRINCIPALES",
     "byCategory": "PAR CATÉGORIE"
@@ -635,7 +650,11 @@
       "cardDesign": "Design",
       "cardCooking": "Cuisine",
       "cardDev": "Développement",
-      "cardReading": "Lecture"
+      "cardReading": "Lecture",
+      "cardTitleDesign": "Systèmes typographiques",
+      "cardTitleCooking": "Soupe froide à la tomate",
+      "cardTitleDev": "PostgreSQL 17 — nouveautés",
+      "cardTitleReading": "L'habitude de la concentration"
     },
     "problem": {
       "eyebrow": "Le problème",

@@ -11,6 +11,7 @@ import { handleCreateCheckoutSession } from './billing/checkout.js';
 import { handleBillingWebhook } from './billing/webhook.js';
 import { handleCancelSubscription } from './billing/cancel.js';
 import { handleBillingStatus } from './billing/status.js';
+import { handleRequestAccountDeletion, reactivateIfPending } from './account/deletion.js';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 8787;
@@ -151,6 +152,20 @@ async function handlePageImages(req, res) {
   }
 }
 
+async function handleReactivateIfPending(req, res) {
+  const uid = req.authUser && req.authUser.id ? String(req.authUser.id) : '';
+  if (!uid) {
+    return res.status(401).json({ status: 'fail', message: 'No autenticado' });
+  }
+  try {
+    const result = await reactivateIfPending(uid);
+    return res.status(200).json({ status: 'success', wasReactivated: result.wasReactivated });
+  } catch (err) {
+    console.error('account_reactivate_error', err);
+    return res.status(500).json({ status: 'fail', message: 'Error al comprobar la cuenta' });
+  }
+}
+
 const extractGuards = [requireUser, rateLimitExtract];
 
 app.get('/api/extract', ...extractGuards, handleExtract);
@@ -159,6 +174,8 @@ app.get('/api/page-images', ...extractGuards, handlePageImages);
 app.post('/api/billing/create-checkout-session', requireUser, handleCreateCheckoutSession);
 app.post('/api/billing/cancel-subscription', requireUser, handleCancelSubscription);
 app.get('/api/billing/status', requireUser, handleBillingStatus);
+app.post('/api/account/request-deletion', requireUser, handleRequestAccountDeletion);
+app.post('/api/account/reactivate-if-pending', requireUser, handleReactivateIfPending);
 
 app.listen(PORT, HOST, () => {
   const status = getProviderStatus();

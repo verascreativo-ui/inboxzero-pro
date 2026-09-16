@@ -59,7 +59,7 @@ export async function adminGetProfile(uid) {
   const id = String(uid || '').trim();
   if (!id) return null;
   const rows = await adminFetch(
-    `/rest/v1/profiles?id=eq.${encodeURIComponent(id)}&select=id,email,nombre,tipo_plan`
+    `/rest/v1/profiles?id=eq.${encodeURIComponent(id)}&select=id,email,nombre,tipo_plan,deletion_requested_at,scheduled_deletion_at`
   );
   return Array.isArray(rows) && rows[0] ? rows[0] : null;
 }
@@ -117,5 +117,18 @@ export async function adminSetTipoPlan(uid, plan) {
     method: 'PATCH',
     headers: { Prefer: 'return=minimal' },
     body: JSON.stringify({ tipo_plan: tipo }),
+  });
+}
+
+export async function adminSetAccountDeletion(uid, { requestedAt, scheduledAt }) {
+  const id = String(uid || '').trim();
+  if (!id) return;
+  await adminFetch(`/rest/v1/profiles?id=eq.${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    headers: { Prefer: 'return=minimal' },
+    body: JSON.stringify({
+      deletion_requested_at: requestedAt,
+      scheduled_deletion_at: scheduledAt,
+    }),
   });
 }
