@@ -39,6 +39,21 @@
     "login": "Iniciar Sesión",
     "subscribe": "Suscríbete"
   },
+  "account": {
+    "reactivatedNotice": "Tu cuenta sigue tal cual la dejaste, con todas tus fichas a salvo.",
+    "reactivatedTitle": "¡Qué alegría tenerte de vuelta!",
+    "reactivatedConfirm": "Entendido",
+    "deleteAccount": "Eliminar mi cuenta",
+    "deleteConfirmTitle": "¿Seguro que quieres eliminar tu cuenta?",
+    "deleteConfirmMessage": "Tu cuenta quedará suspendida 30 días. Si inicias sesión en ese plazo, se reactivará con todo tal cual la dejaste. Pasado ese tiempo, se borrará todo de forma permanente y no podrá recuperarse.",
+    "deleteConfirmPremiumNotice": "Tu suscripción Premium se cancelará en este momento.",
+    "exportCardsButton": "Exportar mis fichas antes de continuar",
+    "exportError": "No se pudieron exportar las fichas. Inténtalo de nuevo.",
+    "deleteConfirmButton": "Eliminar mi cuenta",
+    "deleteScheduledTitle": "Solicitud registrada",
+    "deleteScheduledMessage": "Tu cuenta se eliminará en 30 días. Si inicias sesión en ese plazo, se reactivará automáticamente.",
+    "deleteError": "No se pudo procesar la solicitud. Inténtalo de nuevo."
+  },
   "dropdown": {
     "mainViews": "VISTAS PRINCIPALES",
     "byCategory": "POR CATEGORÍAS"
@@ -635,7 +650,11 @@
       "cardDesign": "Diseño",
       "cardCooking": "Cocina",
       "cardDev": "Desarrollo",
-      "cardReading": "Lectura"
+      "cardReading": "Lectura",
+      "cardTitleDesign": "Sistemas tipográficos",
+      "cardTitleCooking": "Sopa fría de tomate",
+      "cardTitleDev": "PostgreSQL 17 — novedades",
+      "cardTitleReading": "El hábito del enfoque"
     },
     "problem": {
       "eyebrow": "El problema",

@@ -39,6 +39,21 @@
     "login": "Anmelden",
     "subscribe": "Abonnieren"
   },
+  "account": {
+    "reactivatedNotice": "Dein Konto ist unverändert — alle deine Karten sind sicher.",
+    "reactivatedTitle": "Schön, dich wiederzusehen!",
+    "reactivatedConfirm": "Verstanden",
+    "deleteAccount": "Mein Konto löschen",
+    "deleteConfirmTitle": "Bist du sicher, dass du dein Konto löschen möchtest?",
+    "deleteConfirmMessage": "Dein Konto wird für 30 Tage gesperrt. Wenn du dich in dieser Zeit anmeldest, wird es genau so reaktiviert, wie du es verlassen hast. Danach wird alles endgültig gelöscht und kann nicht wiederhergestellt werden.",
+    "deleteConfirmPremiumNotice": "Dein Premium-Abonnement wird sofort gekündigt.",
+    "exportCardsButton": "Meine Karten vor dem Fortfahren exportieren",
+    "exportError": "Deine Karten konnten nicht exportiert werden. Bitte versuche es erneut.",
+    "deleteConfirmButton": "Mein Konto löschen",
+    "deleteScheduledTitle": "Anfrage registriert",
+    "deleteScheduledMessage": "Dein Konto wird in 30 Tagen gelöscht. Wenn du dich in dieser Zeit anmeldest, wird es automatisch reaktiviert.",
+    "deleteError": "Die Anfrage konnte nicht verarbeitet werden. Bitte versuche es erneut."
+  },
   "dropdown": {
     "mainViews": "HAUPTANSICHTEN",
     "byCategory": "NACH KATEGORIE"
@@ -635,7 +650,11 @@
       "cardDesign": "Design",
       "cardCooking": "Kochen",
       "cardDev": "Entwicklung",
-      "cardReading": "Lesen"
+      "cardReading": "Lesen",
+      "cardTitleDesign": "Typografie-Systeme",
+      "cardTitleCooking": "Kalte Tomatensuppe",
+      "cardTitleDev": "PostgreSQL 17 — Neuigkeiten",
+      "cardTitleReading": "Die Fokus-Gewohnheit"
     },
     "problem": {
       "eyebrow": "Das Problem",

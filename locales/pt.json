@@ -39,6 +39,21 @@
     "login": "Iniciar sessão",
     "subscribe": "Subscrever"
   },
+  "account": {
+    "reactivatedNotice": "A tua conta continua tal como a deixaste, com todas as tuas fichas guardadas.",
+    "reactivatedTitle": "Que bom ter-te de volta!",
+    "reactivatedConfirm": "Entendi",
+    "deleteAccount": "Eliminar a minha conta",
+    "deleteConfirmTitle": "Tens a certeza de que queres eliminar a tua conta?",
+    "deleteConfirmMessage": "A tua conta ficará suspensa durante 30 dias. Se iniciares sessão nesse período, será reativada tal como a deixaste. Depois desse prazo, tudo será eliminado permanentemente e não poderá ser recuperado.",
+    "deleteConfirmPremiumNotice": "A tua subscrição Premium será cancelada de imediato.",
+    "exportCardsButton": "Exportar as minhas fichas antes de continuar",
+    "exportError": "Não foi possível exportar as tuas fichas. Tenta novamente.",
+    "deleteConfirmButton": "Eliminar a minha conta",
+    "deleteScheduledTitle": "Pedido registado",
+    "deleteScheduledMessage": "A tua conta será eliminada em 30 dias. Se iniciares sessão nesse período, será reativada automaticamente.",
+    "deleteError": "Não foi possível processar o pedido. Tenta novamente."
+  },
   "dropdown": {
     "mainViews": "VISTAS PRINCIPAIS",
     "byCategory": "POR CATEGORIA"
@@ -635,7 +650,11 @@
       "cardDesign": "Design",
       "cardCooking": "Culinária",
       "cardDev": "Desenvolvimento",
-      "cardReading": "Leitura"
+      "cardReading": "Leitura",
+      "cardTitleDesign": "Sistemas tipográficos",
+      "cardTitleCooking": "Sopa fria de tomate",
+      "cardTitleDev": "PostgreSQL 17 — novidades",
+      "cardTitleReading": "O hábito do foco"
     },
     "problem": {
       "eyebrow": "O problema",

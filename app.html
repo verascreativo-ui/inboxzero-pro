@@ -120,6 +120,8 @@
           <div class="dropdown-divider"></div>
           <button type="button" id="btn-logout" class="account-menu-action" role="menuitem" data-i18n="auth.logout">Cerrar sesión</button>
           <button type="button" id="btn-logout-others" class="account-menu-action" role="menuitem" data-i18n="auth.logoutOthers">Cerrar sesión en otros dispositivos</button>
+          <div class="dropdown-divider"></div>
+          <button type="button" id="btn-delete-account" class="account-menu-action account-menu-action-danger" role="menuitem" data-i18n="account.deleteAccount">Eliminar mi cuenta</button>
           <p id="account-menu-status" class="account-menu-status" hidden role="status" aria-live="polite"></p>
         </div>
       </div>
@@ -724,6 +726,17 @@
     </div>
   </div>
 
+  <div id="modal-account-reactivated" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="account-reactivated-title">
+    <div class="modal-box modal-box-account-reactivated">
+      <div class="account-reactivated-icon">✓</div>
+      <h3 id="account-reactivated-title" class="logout-others-title" data-i18n="account.reactivatedTitle">¡Qué alegría tenerte de vuelta!</h3>
+      <p class="logout-others-message" data-i18n="account.reactivatedNotice">Tu cuenta sigue tal cual la dejaste, con todas tus fichas a salvo.</p>
+      <div class="modal-footer modal-footer-logout-others">
+        <button type="button" class="btn-primary modal-action-btn" data-close="modal-account-reactivated" data-i18n="account.reactivatedConfirm">Entendido</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal confirmación eliminar ficha (sin confirm() nativo) -->
   <div id="modal-confirm-delete" class="modal-overlay modal-overlay--delete" role="dialog" aria-modal="true" aria-labelledby="confirm-delete-title">
     <div class="modal-box modal-box-confirm-delete">
@@ -737,6 +750,39 @@
       <div class="modal-footer modal-footer-confirm-delete">
         <button type="button" class="modal-action-btn modal-btn-cancel" id="btn-cancel-delete" data-close="modal-confirm-delete" data-i18n="modals.cancel">Cancelar</button>
         <button type="button" class="modal-action-btn btn-confirm-delete" id="btn-confirm-delete" data-i18n="deleteConfirm.confirm">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-delete-account" class="modal-overlay modal-overlay--delete" role="dialog" aria-modal="true" aria-labelledby="delete-account-title">
+    <div class="modal-box modal-box-delete-account">
+      <button type="button" class="modal-close confirm-delete-close" data-close="modal-delete-account" data-i18n="modals.close" aria-label="Cerrar">✕</button>
+      <div class="confirm-delete-icon" aria-hidden="true">⚠️</div>
+      <h3 id="delete-account-title" class="confirm-delete-title" data-i18n="account.deleteConfirmTitle">¿Seguro que quieres eliminar tu cuenta?</h3>
+      <p class="confirm-delete-message" data-i18n="account.deleteConfirmMessage">
+        Tu cuenta quedará suspendida 30 días. Si inicias sesión en ese plazo, se reactivará con todo tal cual la dejaste. Pasado ese tiempo, se borrará todo de forma permanente y no podrá recuperarse.
+      </p>
+      <p id="delete-account-premium-notice" class="delete-account-premium-notice" hidden data-i18n="account.deleteConfirmPremiumNotice">
+        Tu suscripción Premium se cancelará en este momento.
+      </p>
+      <button type="button" id="btn-export-cards-from-delete" class="delete-account-export-btn" data-i18n="account.exportCardsButton">
+        Exportar mis fichas antes de continuar
+      </button>
+      <p id="delete-account-error" class="field-error preview-save-error delete-save-error" hidden role="alert" aria-live="assertive"></p>
+      <div class="modal-footer modal-footer-confirm-delete">
+        <button type="button" class="modal-action-btn modal-btn-cancel" data-close="modal-delete-account" data-i18n="modals.cancel">Cancelar</button>
+        <button type="button" class="modal-action-btn btn-confirm-delete" id="btn-confirm-delete-account" data-i18n="account.deleteConfirmButton">Eliminar mi cuenta</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-delete-account-success" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="delete-account-success-title">
+    <div class="modal-box modal-box-account-reactivated">
+      <div class="account-reactivated-icon">✓</div>
+      <h3 id="delete-account-success-title" class="logout-others-title" data-i18n="account.deleteScheduledTitle">Solicitud registrada</h3>
+      <p class="logout-others-message" data-i18n="account.deleteScheduledMessage">Tu cuenta se eliminará en 30 días. Si inicias sesión en ese plazo, se reactivará automáticamente.</p>
+      <div class="modal-footer modal-footer-logout-others">
+        <button type="button" class="btn-primary modal-action-btn" id="btn-close-delete-success" data-i18n="account.reactivatedConfirm">Entendido</button>
       </div>
     </div>
   </div>
@@ -810,6 +856,10 @@
 
   <div id="premium-welcome-toast" class="premium-welcome-toast" hidden role="status" aria-live="polite">
     <span data-i18n="header.premiumWelcome">¡Bienvenido a Premium! Ya tienes fichas ilimitadas</span>
+  </div>
+
+  <div id="account-reactivated-toast" class="premium-welcome-toast" hidden role="status" aria-live="polite">
+    <span data-i18n="account.reactivatedNotice">Tu cuenta se ha reactivado con normalidad.</span>
   </div>
 
   <!-- CONECTORES Y LOGICA SCRIPT -->
