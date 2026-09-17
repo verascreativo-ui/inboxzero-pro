@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import cron from 'node-cron';
 import { extractAdvancedMetadata } from './extract.js';
 import { getProviderStatus } from './providers/index.js';
 import { analyzePageImages } from './parse/page-images.js';
@@ -11,7 +12,7 @@ import { handleCreateCheckoutSession } from './billing/checkout.js';
 import { handleBillingWebhook } from './billing/webhook.js';
 import { handleCancelSubscription } from './billing/cancel.js';
 import { handleBillingStatus } from './billing/status.js';
-import { handleRequestAccountDeletion, reactivateIfPending } from './account/deletion.js';
+import { handleRequestAccountDeletion, reactivateIfPending, purgeExpiredAccounts } from './account/deletion.js';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 8787;
@@ -188,3 +189,21 @@ app.listen(PORT, HOST, () => {
     );
   }
 });
+
+cron.schedule(
+  '0 4 * * *',
+  async () => {
+    try {
+      const result = await purgeExpiredAccounts();
+      console.log('account_purge', {
+        successCount: result.successCount,
+        failedCount: result.failedCount,
+        failedUids: result.failedUids,
+      });
+    } catch (err) {
+      console.error('account_purge_error', err);
+    }
+  },
+  { timezone: 'Europe/Madrid' }
+);
+console.log('[InboxZero Extract] cron: purgeExpiredAccounts 04:00 Europe/Madrid');
