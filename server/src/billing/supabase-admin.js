@@ -132,3 +132,54 @@ export async function adminSetAccountDeletion(uid, { requestedAt, scheduledAt })
     }),
   });
 }
+
+export async function adminListExpiredDeletionProfiles() {
+  const now = new Date().toISOString();
+  const rows = await adminFetch(
+    `/rest/v1/profiles?scheduled_deletion_at=not.is.null&scheduled_deletion_at=lt.${encodeURIComponent(now)}&select=id`
+  );
+  return Array.isArray(rows) ? rows : [];
+}
+
+export async function adminDeleteCardsByUserId(uid) {
+  const id = String(uid || '').trim();
+  if (!id) return;
+  await adminFetch(`/rest/v1/cards?user_id=eq.${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    headers: { Prefer: 'return=minimal' },
+  });
+}
+
+export async function adminDeleteBillingByUserId(uid) {
+  const id = String(uid || '').trim();
+  if (!id) return;
+  await adminFetch(`/rest/v1/billing_subscriptions?user_id=eq.${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    headers: { Prefer: 'return=minimal' },
+  });
+}
+
+export async function adminDeleteProfile(uid) {
+  const id = String(uid || '').trim();
+  if (!id) return;
+  await adminFetch(`/rest/v1/profiles?id=eq.${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    headers: { Prefer: 'return=minimal' },
+  });
+}
+
+/** Equivalente a supabase.auth.admin.deleteUser(uid) vía Auth Admin API. */
+export async function adminDeleteAuthUser(uid) {
+  const id = String(uid || '').trim();
+  if (!id) return;
+  try {
+    await adminFetch(`/auth/v1/admin/users/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      headers: { Prefer: 'return=minimal' },
+    });
+  } catch (err) {
+    // 404: ya no existía (reintento tras un borrado parcial). No es fallo.
+    if (err && err.status === 404) return;
+    throw err;
+  }
+}

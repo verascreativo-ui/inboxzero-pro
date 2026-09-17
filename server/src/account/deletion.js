@@ -1,4 +1,13 @@
-import { adminGetProfile, adminSetAccountDeletion, isBillingAdminConfigured } from '../billing/supabase-admin.js';
+import {
+  adminGetProfile,
+  adminSetAccountDeletion,
+  isBillingAdminConfigured,
+  adminListExpiredDeletionProfiles,
+  adminDeleteCardsByUserId,
+  adminDeleteBillingByUserId,
+  adminDeleteProfile,
+  adminDeleteAuthUser,
+} from '../billing/supabase-admin.js';
 import { cancelSubscriptionForUser } from '../billing/cancel.js';
 import { getStripe } from '../billing/stripe-client.js';
 const GRACE_PERIOD_DAYS = 30;
@@ -45,6 +54,36 @@ export async function reactivateIfPending(uid) {
   }
   await adminSetAccountDeletion(uid, { requestedAt: null, scheduledAt: null });
   return { wasReactivated: true };
+}
+/**
+ * Borra de forma definitiva las cuentas cuyo periodo de gracia ya venció.
+ * Si el borrado de una cuenta falla en cualquier paso, se registra el error
+ * y se continúa con la siguiente: no se detiene el proceso completo.
+ */
+export async function purgeExpiredAccounts() {
+  const rows = await adminListExpiredDeletionProfiles();
+  const failedUids = [];
+  let successCount = 0;
+  for (const row of rows) {
+    const uid = row && row.id ? String(row.id) : '';
+    if (!uid) continue;
+    try {
+      await adminDeleteCardsByUserId(uid);
+      await adminDeleteBillingByUserId(uid);
+      await adminDeleteAuthUser(uid);
+      // profiles el último: si Auth falla, la cuenta sigue en la próxima pasada.
+      await adminDeleteProfile(uid);
+      successCount += 1;
+    } catch (err) {
+      console.error('account_purge_error', uid, err);
+      failedUids.push(uid);
+    }
+  }
+  return {
+    successCount,
+    failedCount: failedUids.length,
+    failedUids,
+  };
 }
 export async function handleRequestAccountDeletion(req, res) {
   const uid = req.authUser && req.authUser.id ? String(req.authUser.id) : '';
