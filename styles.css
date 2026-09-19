@@ -408,6 +408,14 @@ body {
   border-color: transparent;
 }
 
+.account-menu-wrapper .account-menu-action-danger {
+  color: #dc2626;
+}
+.account-menu-wrapper .account-menu-action-danger:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
 .account-menu-status {
   margin: 4px 14px 6px;
   font-size: 12px;
@@ -428,6 +436,34 @@ body {
   width: 100%;
   text-align: left;
   padding: 28px 24px 22px;
+}
+
+.modal-box-account-reactivated {
+  max-width: 340px;
+  width: 100%;
+  text-align: center;
+  padding: 22px 20px 18px;
+  border-top: 4px solid #2563eb;
+}
+.modal-box-account-reactivated .logout-others-title {
+  font-size: 1rem;
+  margin: 0 0 8px;
+}
+.modal-box-account-reactivated .logout-others-message {
+  font-size: 0.875rem;
+}
+.account-reactivated-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
 }
 
 .logout-others-title {
@@ -1847,6 +1883,44 @@ footer {
 .btn-confirm-delete:hover {
   background: #b91c1c; /* red-700 */
   border-color: #b91c1c;
+}
+
+.modal-box-delete-account {
+  position: relative;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  border-radius: 12px;
+  padding: 28px 24px 22px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.28);
+  border: 1px solid #f1f5f9;
+}
+.delete-account-premium-notice {
+  margin: -8px auto 18px;
+  max-width: 34ch;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #b45309;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+.delete-account-export-btn {
+  display: block;
+  width: 100%;
+  margin: 0 0 18px;
+  padding: 10px 16px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #2563eb;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.delete-account-export-btn:hover {
+  background: #dbeafe;
 }
 
 /* Modal retención / baja — backdrop elegante como delete */

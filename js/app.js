@@ -922,6 +922,40 @@ async function fetchBillingStatus() {
   return payload;
 }
 
+async function requestAccountDeletion() {
+  const base = getExtractApiBase();
+  if (!base) return null;
+  const token = await getExtractAccessToken();
+  if (!token) return null;
+  const res = await fetch(`${base}/api/account/request-deletion`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  const payload = await res.json().catch(() => null);
+  if (!payload || payload.status !== 'ok') return null;
+  return payload;
+}
+
+async function reactivateAccountIfPending() {
+  const base = getExtractApiBase();
+  if (!base) return null;
+  const token = await getExtractAccessToken();
+  if (!token) return null;
+  const res = await fetch(`${base}/api/account/reactivate-if-pending`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  const payload = await res.json().catch(() => null);
+  if (!payload || payload.status !== 'success') return null;
+  return payload;
+}
+
 async function extractApiHeaders() {
   const headers = { Accept: 'application/json' };
   const token = await getExtractAccessToken();
@@ -1415,6 +1449,29 @@ async function fetchOwnCardsRepo(sessionUid) {
   return { ok: true, code: 'OK', data: Array.isArray(data) ? data : [], error: null };
 }
 
+async function exportUserCardsAsJson() {
+  if (!currentAuthUser || !currentAuthUser.id) return { ok: false };
+  const result = await fetchOwnCardsRepo(currentAuthUser.id);
+  if (!result.ok || !Array.isArray(result.data)) {
+    return { ok: false };
+  }
+  const payload = {
+    exported_at: new Date().toISOString(),
+    account_email: currentAuthUser.email || null,
+    cards: result.data,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `inboxzero-fichas-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+  return { ok: true, count: result.data.length };
+}
+
 /**
  * Clasifica un fallo de INSERT Cloud sin exponer detalles técnicos al usuario.
  * S1.4-C: LIMIT solo con texto de cuota; el resto FAIL CLOSED.
@@ -1613,6 +1670,7 @@ async function deleteOwnCardRepo(cardId) {
 }
 
 let currentAuthUser = null;
+let accountDeletionJustRequested = false;
 /** Perfil Cloud (S1.3); nombre para saludo según DP7. */
 let currentProfile = null;
 
@@ -2240,6 +2298,14 @@ function openLogoutOthersConfirmModal() {
   document.getElementById('modal-logout-others')?.classList.add('active');
 }
 
+function openDeleteAccountModal() {
+  closeAccountMenu();
+  setAccountMenuStatus('', false);
+  const premiumNotice = document.getElementById('delete-account-premium-notice');
+  if (premiumNotice) premiumNotice.hidden = !isPremiumPlan();
+  document.getElementById('modal-delete-account')?.classList.add('active');
+}
+
 /** P3.1: colapsa focus + visibilitychange; no es polling. */
 const SESSION_REVOKE_PROBE_THROTTLE_MS = 8000;
 let sessionRevokeProbeInFlight = false;
@@ -2421,6 +2487,67 @@ function setupSupabaseAuth() {
     logoutOthersBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       openLogoutOthersConfirmModal();
+    });
+  }
+
+  const deleteAccountBtn = document.getElementById('btn-delete-account');
+  if (deleteAccountBtn) {
+    deleteAccountBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openDeleteAccountModal();
+    });
+  }
+
+  const exportCardsBtn = document.getElementById('btn-export-cards-from-delete');
+  if (exportCardsBtn) {
+    exportCardsBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const errorEl = document.getElementById('delete-account-error');
+      if (errorEl) errorEl.hidden = true;
+      exportCardsBtn.disabled = true;
+      const originalText = exportCardsBtn.textContent;
+      exportCardsBtn.textContent = '...';
+      const result = await exportUserCardsAsJson();
+      exportCardsBtn.disabled = false;
+      exportCardsBtn.textContent = originalText;
+      if (!result.ok && errorEl) {
+        errorEl.textContent = t('account.exportError');
+        errorEl.hidden = false;
+      }
+    });
+  }
+
+  const confirmDeleteAccountBtn = document.getElementById('btn-confirm-delete-account');
+  if (confirmDeleteAccountBtn) {
+    confirmDeleteAccountBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const errorEl = document.getElementById('delete-account-error');
+      if (errorEl) errorEl.hidden = true;
+      confirmDeleteAccountBtn.disabled = true;
+      const originalText = confirmDeleteAccountBtn.textContent;
+      confirmDeleteAccountBtn.textContent = '...';
+      const result = await requestAccountDeletion();
+      if (result) {
+        accountDeletionJustRequested = true;
+      }
+      confirmDeleteAccountBtn.disabled = false;
+      confirmDeleteAccountBtn.textContent = originalText;
+      if (!result && errorEl) {
+        errorEl.textContent = t('account.deleteError');
+        errorEl.hidden = false;
+        return;
+      }
+      document.getElementById('modal-delete-account')?.classList.remove('active');
+      document.getElementById('modal-delete-account-success')?.classList.add('active');
+    });
+  }
+
+  const closeDeleteSuccessBtn = document.getElementById('btn-close-delete-success');
+  if (closeDeleteSuccessBtn) {
+    closeDeleteSuccessBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.getElementById('modal-delete-account-success')?.classList.remove('active');
+      signOutCurrentUser();
     });
   }
 
@@ -2811,6 +2938,21 @@ document.addEventListener('i18n:ready', () => {
     premiumWelcomeTimer = window.setTimeout(() => {
       toast.hidden = true;
       premiumWelcomeTimer = null;
+    }, 4500);
+  }
+
+  let accountReactivatedTimer = null;
+
+  function showAccountReactivatedToast() {
+    const toast = document.getElementById('account-reactivated-toast');
+    if (!toast) return;
+    const label = toast.querySelector('[data-i18n="account.reactivatedNotice"]');
+    if (label) label.textContent = t('account.reactivatedNotice');
+    toast.hidden = false;
+    if (accountReactivatedTimer) window.clearTimeout(accountReactivatedTimer);
+    accountReactivatedTimer = window.setTimeout(() => {
+      toast.hidden = true;
+      accountReactivatedTimer = null;
     }, 4500);
   }
 
@@ -3876,6 +4018,19 @@ document.addEventListener('i18n:ready', () => {
     if (divider) divider.hidden = !hidden;
   }
 
+  async function maybeReactivateAccount(uid) {
+    if (!uid) return;
+    if (accountDeletionJustRequested) return;
+    try {
+      const result = await reactivateAccountIfPending();
+      if (result && result.wasReactivated) {
+        document.getElementById('modal-account-reactivated')?.classList.add('active');
+      }
+    } catch (err) {
+      console.warn('[InboxZero] No se pudo comprobar el estado de eliminación de cuenta:', err);
+    }
+  }
+
   /**
    * S1.3-FIX — hidratación tras Auth (fuera del auth lock).
    * Sesión: profile + cards Cloud (fuente de verdad) + caché UID.
@@ -3906,6 +4061,8 @@ document.addEventListener('i18n:ready', () => {
         maybeOpenGuestFirstVisitHelp();
         return;
       }
+
+      void maybeReactivateAccount(uid);
 
       // S1.4-C: un GET Cloud; reentradas Offline → caché UID, sin nuevo GET.
       if (shouldSkipLibraryCloudFetch()) {
@@ -6164,6 +6321,11 @@ document.addEventListener('i18n:ready', () => {
         }
         if (overlay.id === 'modal-duplicate-url') {
           closeDuplicateUrlModal();
+          return;
+        }
+        if (overlay.id === 'modal-delete-account-success') {
+          overlay.classList.remove('active');
+          signOutCurrentUser();
           return;
         }
         overlay.classList.remove('active');
