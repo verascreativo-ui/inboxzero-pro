@@ -2836,6 +2836,11 @@ footer {
     overflow: visible;
   }
 
+  #sidebar-categories-heading,
+  #sidebar-category-list {
+    display: none !important;
+  }
+
   .main-content {
     padding: 16px;
     overflow: visible;
