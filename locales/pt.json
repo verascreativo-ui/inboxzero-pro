@@ -46,7 +46,7 @@
     "deleteAccount": "Eliminar a minha conta",
     "deleteConfirmTitle": "Tens a certeza de que queres eliminar a tua conta?",
     "deleteConfirmMessage": "A tua conta ficará suspensa durante 30 dias. Se iniciares sessão nesse período, será reativada tal como a deixaste. Depois desse prazo, tudo será eliminado permanentemente e não poderá ser recuperado.",
-    "deleteConfirmPremiumNotice": "A tua subscrição Premium será cancelada de imediato.",
+    "deleteConfirmPremiumNotice": "A tua subscrição Premium ficará cancelada, mas continuarás a ter acesso Premium até ao final do período já pago.",
     "exportCardsButton": "Exportar as minhas fichas antes de continuar",
     "exportError": "Não foi possível exportar as tuas fichas. Tenta novamente.",
     "deleteConfirmButton": "Eliminar a minha conta",
