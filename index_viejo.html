@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InboxZero.es — Muy pronto</title>
+<meta name="description" content="InboxZero.es está en construcción. Tu conocimiento en un clic, muy pronto disponible en 5 idiomas.">
+<link rel="icon" type="image/png" href="favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-deep:#101d30;
+    --navy-base:#1f3b5a;
+    --navy-glow:#5b85b0;
+    --gold:#f5b21a;
+    --gold-light:#ffd166;
+    --text-main:#f5f8fb;
+    --text-muted:#a9bbd1;
+    --line-muted:rgba(169,187,209,0.28);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    color:var(--text-main);
+    background:
+      radial-gradient(60% 55% at 50% 28%, var(--navy-glow) 0%, transparent 68%),
+      radial-gradient(90% 70% at 85% 90%, rgba(245,178,26,0.10) 0%, transparent 55%),
+      linear-gradient(180deg, var(--navy-base) 0%, var(--navy-deep) 78%);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px 20px;
+    overflow:hidden;
+    position:relative;
+  }
+  .bg-deco{position:absolute;inset:0;pointer-events:none;opacity:0.5;}
+  .bg-deco svg{position:absolute;}
+  .ring-1{width:520px;height:520px;top:-160px;right:-160px;}
+  .ring-2{width:340px;height:340px;bottom:-100px;left:-120px;}
+  .link-shape{width:120px;height:120px;top:14%;left:8%;opacity:0.6;}
+  .link-shape-2{width:90px;height:90px;bottom:12%;right:9%;opacity:0.6;}
+  @media (prefers-reduced-motion: no-preference){
+    .content{animation:rise 0.9s ease-out both;}
+    .pulse-dot{animation:pulse 2.2s ease-in-out infinite;}
+  }
+  @keyframes rise{
+    from{opacity:0;transform:translateY(14px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+  @keyframes pulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(245,178,26,0.45);}
+    50%{box-shadow:0 0 0 8px rgba(245,178,26,0);}
+  }
+  .content{
+    position:relative;
+    z-index:1;
+    width:100%;
+    max-width:560px;
+    text-align:center;
+  }
+  .logo{
+    width:min(280px, 68vw);
+    height:auto;
+    margin-bottom:40px;
