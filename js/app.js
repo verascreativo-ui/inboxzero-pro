@@ -1998,6 +1998,11 @@ function updateAuthChrome(user) {
     }
   }
 
+  const btnUnsubscribe = document.getElementById('btn-unsubscribe-side');
+  if (btnUnsubscribe) {
+    btnUnsubscribe.hidden = !(user && isPremiumPlan());
+  }
+
   refreshAccountMenuIdentity(user);
   renderDashboardGreeting(currentAuthUser);
   syncGuestStorageWarning();

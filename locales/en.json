@@ -46,7 +46,7 @@
     "deleteAccount": "Delete my account",
     "deleteConfirmTitle": "Are you sure you want to delete your account?",
     "deleteConfirmMessage": "Your account will be suspended for 30 days. If you sign in during that time, it will be reactivated exactly as you left it. After that, everything will be permanently deleted and cannot be recovered.",
-    "deleteConfirmPremiumNotice": "Your Premium subscription will be cancelled right away.",
+    "deleteConfirmPremiumNotice": "Your Premium subscription will be cancelled, but you'll keep Premium access until the end of the period already paid.",
     "exportCardsButton": "Export my cards before continuing",
     "exportError": "We couldn't export your cards. Please try again.",
     "deleteConfirmButton": "Delete my account",

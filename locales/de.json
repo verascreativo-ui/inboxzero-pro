@@ -46,7 +46,7 @@
     "deleteAccount": "Mein Konto löschen",
     "deleteConfirmTitle": "Bist du sicher, dass du dein Konto löschen möchtest?",
     "deleteConfirmMessage": "Dein Konto wird für 30 Tage gesperrt. Wenn du dich in dieser Zeit anmeldest, wird es genau so reaktiviert, wie du es verlassen hast. Danach wird alles endgültig gelöscht und kann nicht wiederhergestellt werden.",
-    "deleteConfirmPremiumNotice": "Dein Premium-Abonnement wird sofort gekündigt.",
+    "deleteConfirmPremiumNotice": "Dein Premium-Abonnement wird gekündigt, aber du behältst den Premium-Zugang bis zum Ende des bereits bezahlten Zeitraums.",
     "exportCardsButton": "Meine Karten vor dem Fortfahren exportieren",
     "exportError": "Deine Karten konnten nicht exportiert werden. Bitte versuche es erneut.",
     "deleteConfirmButton": "Mein Konto löschen",

@@ -46,7 +46,7 @@
     "deleteAccount": "Supprimer mon compte",
     "deleteConfirmTitle": "Êtes-vous sûr de vouloir supprimer votre compte ?",
     "deleteConfirmMessage": "Votre compte sera suspendu pendant 30 jours. Si vous vous reconnectez pendant ce délai, il sera réactivé tel que vous l'avez laissé. Passé ce délai, tout sera supprimé définitivement et ne pourra pas être récupéré.",
-    "deleteConfirmPremiumNotice": "Votre abonnement Premium sera annulé immédiatement.",
+    "deleteConfirmPremiumNotice": "Votre abonnement Premium sera annulé, mais vous conserverez l'accès Premium jusqu'à la fin de la période déjà payée.",
     "exportCardsButton": "Exporter mes fiches avant de continuer",
     "exportError": "Impossible d'exporter vos fiches. Veuillez réessayer.",
     "deleteConfirmButton": "Supprimer mon compte",
