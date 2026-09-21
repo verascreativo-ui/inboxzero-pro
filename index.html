@@ -78,12 +78,45 @@
     margin-bottom:38px;
     box-shadow:0 12px 26px rgba(5,10,20,0.32);
   }
-  .logo{
-    position:relative;
-    z-index:1;
-    width:min(300px, 74vw);
-    height:auto;
+  .logo-plate{
+    display:inline-flex;
+    align-items:center;
+    gap:14px;
+    background:#faf8f4;
+    border-radius:14px;
+    padding:14px 22px;
+    margin-top:14px;
+    margin-bottom:38px;
+    box-shadow:0 10px 22px rgba(5,10,20,0.30);
+  }
+  .logo-icon{
+    width:56px;
+    height:56px;
     display:block;
+    flex-shrink:0;
+  }
+  .logo-text{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    text-align:left;
+  }
+  .logo-name{
+    font-family:'Poppins',sans-serif;
+    font-weight:700;
+    font-size:1.5rem;
+    line-height:1.1;
+    white-space:nowrap;
+  }
+  .logo-name .n1{color:#4472A4;}
+  .logo-name .n2{color:var(--gold);}
+  .logo-tagline{
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:0.78rem;
+    color:var(--gold);
+    letter-spacing:0.01em;
+    white-space:nowrap;
   }
 
   h1{
@@ -191,6 +224,10 @@
   @media (max-width:480px){
     .step-label{font-size:0.7rem;}
     .step{max-width:88px;}
+    .logo-plate{gap:10px;padding:12px 16px;}
+    .logo-icon{width:44px;height:44px;}
+    .logo-name{font-size:1.15rem;}
+    .logo-tagline{font-size:0.68rem;white-space:normal;}
   }
 </style>
 </head>
@@ -205,7 +242,11 @@
 
   <div class="content">
     <div class="logo-plate">
-      <img class="logo" src="images/logo-completo.png" alt="InboxZero — Tu conocimiento en un Clic">
+      <img class="logo-icon" src="images/logo-completo.png" alt="InboxZero">
+      <div class="logo-text">
+        <span class="logo-name"><span class="n1">Inbox</span><span class="n2">Zero</span></span>
+        <span class="logo-tagline" id="logoTagline">Tu conocimiento en un Clic</span>
+      </div>
     </div>
 
     <h1 id="headline">Estamos preparando algo muy bueno.</h1>
@@ -267,35 +308,40 @@
       lead: "InboxZero.es estará disponible muy pronto. Estamos ultimando los últimos detalles para que tengas una experiencia de navegación más sencilla, rápida y sin ruido.",
       steps: ["Diseño", "Desarrollo", "Pruebas", "Lanzamiento"],
       langsLabel: "Disponible en 5 idiomas",
-      footer: "¿Alguna pregunta? Escríbenos a"
+      footer: "¿Alguna pregunta? Escríbenos a",
+      tagline: "Tu conocimiento en un Clic"
     },
     en: {
       headline: "We're getting something really good ready.",
       lead: "InboxZero.es will be available very soon. We're putting the finishing touches so you get a simpler, faster, clutter-free browsing experience.",
       steps: ["Design", "Development", "Testing", "Launch"],
       langsLabel: "Available in 5 languages",
-      footer: "Got a question? Write to us at"
+      footer: "Got a question? Write to us at",
+      tagline: "Your knowledge in one click"
     },
     fr: {
       headline: "On te prépare quelque chose de vraiment bien.",
       lead: "InboxZero.es sera bientôt disponible. Nous mettons la dernière touche pour t'offrir une navigation plus simple, plus rapide et sans bruit.",
       steps: ["Conception", "Développement", "Tests", "Lancement"],
       langsLabel: "Disponible en 5 langues",
-      footer: "Une question ? Écris-nous à"
+      footer: "Une question ? Écris-nous à",
+      tagline: "Ton savoir en un clic"
     },
     de: {
       headline: "Wir bereiten etwas richtig Gutes vor.",
       lead: "InboxZero.es ist bald verfügbar. Wir legen letzte Hand an, damit du ein einfacheres, schnelleres und aufgeräumtes Nutzererlebnis bekommst.",
       steps: ["Design", "Entwicklung", "Tests", "Start"],
       langsLabel: "Verfügbar in 5 Sprachen",
-      footer: "Fragen? Schreib uns an"
+      footer: "Fragen? Schreib uns an",
+      tagline: "Dein Wissen mit einem Klick"
     },
     pt: {
       headline: "Estamos a preparar algo muito bom.",
       lead: "O InboxZero.es estará disponível muito em breve. Estamos a dar os últimos retoques para teres uma experiência de navegação mais simples, rápida e sem ruído.",
       steps: ["Design", "Desenvolvimento", "Testes", "Lançamento"],
       langsLabel: "Disponível em 5 idiomas",
-      footer: "Alguma dúvida? Escreve-nos para"
+      footer: "Alguma dúvida? Escreve-nos para",
+      tagline: "O teu conhecimento num clique"
     }
   };
 
@@ -311,6 +357,7 @@
       });
       document.getElementById('langsLabel').textContent = t.langsLabel;
       document.getElementById('footerText').textContent = t.footer;
+      document.getElementById('logoTagline').textContent = t.tagline;
       document.documentElement.setAttribute('lang', lang);
       chips.forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
