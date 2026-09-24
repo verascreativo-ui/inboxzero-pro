@@ -216,7 +216,7 @@
   "trialLimit": {
     "title": "Limite de l'essai gratuit",
     "badge": "Essai gratuit · 20 / 20",
-    "message": "Vous avez atteint la limite de votre plan d'essai ! 🚀 Si vous voulez continuer à enregistrer et organiser tout votre savoir en un clic et sans limites, abonnez-vous à notre Plan Pro.",
+    "message": "Vous avez atteint la limite de votre plan d'essai ! 🚀 Si vous voulez continuer à enregistrer et organiser tout votre savoir en un clic et sans limites, abonnez-vous à notre plan Premium.",
     "cta": "M'abonner maintenant",
     "later": "Pas maintenant"
   },
@@ -750,7 +750,7 @@
       "q0": "Que se passe-t-il si je dépasse la limite du plan gratuit ?",
       "a0": "Vous pourrez toujours consulter vos 20 fiches enregistrées, mais pour en ajouter de nouvelles, vous devrez passer à Premium. Rien n'est supprimé de votre bibliothèque.",
       "q1": "Puis-je annuler quand je veux ?",
-      "a1": "Oui, vous pouvez annuler votre abonnement Premium à tout moment depuis votre compte, sans engagement ni pénalité.",
+      "a1": "Oui. Vous pouvez annuler à tout moment et conserver l'accès Premium jusqu'à la fin de la période déjà payée — sans pénalité ni clause cachée.",
       "q2": "Mes données sont-elles en sécurité ?",
       "a2": "Oui. Chaque utilisateur ne peut accéder qu'à ses propres données, protégées par une authentification sécurisée et une isolation au niveau de la base de données.",
       "q3": "Ça fonctionne avec Instagram ou Facebook ?",
