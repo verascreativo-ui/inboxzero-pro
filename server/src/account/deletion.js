@@ -7,6 +7,7 @@ import {
   adminDeleteBillingByUserId,
   adminDeleteProfile,
   adminDeleteAuthUser,
+  adminGetAuthUser,
 } from '../billing/supabase-admin.js';
 import { cancelSubscriptionForUser } from '../billing/cancel.js';
 import { getStripe } from '../billing/stripe-client.js';
@@ -68,6 +69,30 @@ export async function purgeExpiredAccounts() {
     const uid = row && row.id ? String(row.id) : '';
     if (!uid) continue;
     try {
+      const profile = await adminGetProfile(uid);
+      let authUser;
+      try {
+        authUser = await adminGetAuthUser(uid);
+      } catch (err) {
+        console.error('purga omitida: no se pudo leer el usuario de Auth', uid, err);
+        failedUids.push(uid);
+        continue;
+      }
+      if (authUser) {
+        const requestedAt = profile && profile.deletion_requested_at;
+        const lastSignIn = authUser.last_sign_in_at;
+        const requestedMs = requestedAt ? Date.parse(requestedAt) : NaN;
+        const lastSignInMs = lastSignIn ? Date.parse(lastSignIn) : NaN;
+        if (
+          Number.isFinite(requestedMs) &&
+          Number.isFinite(lastSignInMs) &&
+          lastSignInMs > requestedMs
+        ) {
+          await adminSetAccountDeletion(uid, { requestedAt: null, scheduledAt: null });
+          console.log('purga cancelada: el usuario inició sesión después de pedir la baja', uid);
+          continue;
+        }
+      }
       await adminDeleteCardsByUserId(uid);
       await adminDeleteBillingByUserId(uid);
       await adminDeleteAuthUser(uid);

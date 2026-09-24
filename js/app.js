@@ -927,23 +927,45 @@ async function requestAccountDeletion() {
   if (!base) return null;
   const token = await getExtractAccessToken();
   if (!token) return null;
-  const res = await fetch(`${base}/api/account/request-deletion`, {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const payload = await res.json().catch(() => null);
-  if (!payload || payload.status !== 'ok') return null;
-  return payload;
+  try {
+    const res = await fetch(`${base}/api/account/request-deletion`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const payload = await res.json().catch(() => null);
+    if (!payload || payload.status !== 'ok') return null;
+    return payload;
+  } catch (err) {
+    console.warn('[InboxZero] No se pudo solicitar la eliminación de cuenta:', err);
+    return null;
+  }
+}
+
+async function waitForExtractAccessToken(attempts = 4, delayMs = 300) {
+  for (let i = 0; i < attempts; i += 1) {
+    const token = await getExtractAccessToken();
+    if (token) return token;
+    if (i < attempts - 1) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+  return '';
 }
 
 async function reactivateAccountIfPending() {
   const base = getExtractApiBase();
-  if (!base) return null;
-  const token = await getExtractAccessToken();
-  if (!token) return null;
+  if (!base) {
+    console.warn('[InboxZero] Reactivación omitida: no hay URL del API.');
+    return null;
+  }
+  const token = await waitForExtractAccessToken();
+  if (!token) {
+    console.warn('[InboxZero] Reactivación omitida: no hubo token de sesión tras varios intentos.');
+    return null;
+  }
   const res = await fetch(`${base}/api/account/reactivate-if-pending`, {
     method: 'POST',
     headers: {
@@ -2248,10 +2270,41 @@ function syncGuestStorageWarning() {
 async function signOutCurrentUser() {
   const supabase = getSupabaseClient();
   if (!supabase) return;
+  accountDeletionJustRequested = false;
   const prevUid = currentAuthUser?.id ? String(currentAuthUser.id) : '';
   closeAccountMenu();
   notifyGuestMigrationLifecycle('SIGNED_OUT', prevUid);
   await supabase.auth.signOut({ scope: 'local' });
+  currentProfile = null;
+  updateAuthChrome(null);
+  setLoginAuthMessage('', false);
+  resetLoginForm();
+  notifyLibraryAuthSync(null);
+}
+
+/** Solo tras confirmar la baja: cierra todas las sesiones. Si falla, al menos esta. */
+async function signOutAfterAccountDeletion() {
+  const supabase = getSupabaseClient();
+  if (!supabase) return;
+  const prevUid = currentAuthUser?.id ? String(currentAuthUser.id) : '';
+  closeAccountMenu();
+  notifyGuestMigrationLifecycle('SIGNED_OUT', prevUid);
+  let signedOut = false;
+  try {
+    const { error } = await supabase.auth.signOut({ scope: 'global' });
+    if (error) throw error;
+    signedOut = true;
+  } catch (err) {
+    console.warn('[InboxZero] No se pudieron cerrar todas las sesiones; se cierra solo esta.', err);
+    try {
+      const { error: localError } = await supabase.auth.signOut({ scope: 'local' });
+      if (localError) throw localError;
+      signedOut = true;
+    } catch (localErr) {
+      console.warn('[InboxZero] Tampoco se pudo cerrar la sesión local.', localErr);
+    }
+  }
+  if (signedOut) accountDeletionJustRequested = false;
   currentProfile = null;
   updateAuthChrome(null);
   setLoginAuthMessage('', false);
@@ -2531,7 +2584,13 @@ function setupSupabaseAuth() {
       confirmDeleteAccountBtn.disabled = true;
       const originalText = confirmDeleteAccountBtn.textContent;
       confirmDeleteAccountBtn.textContent = '...';
-      const result = await requestAccountDeletion();
+      let result = null;
+      try {
+        result = await requestAccountDeletion();
+      } catch (err) {
+        console.warn('[InboxZero] No se pudo solicitar la eliminación de cuenta:', err);
+        result = null;
+      }
       if (result) {
         accountDeletionJustRequested = true;
       }
@@ -2552,7 +2611,7 @@ function setupSupabaseAuth() {
     closeDeleteSuccessBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       document.getElementById('modal-delete-account-success')?.classList.remove('active');
-      signOutCurrentUser();
+      signOutAfterAccountDeletion();
     });
   }
 
@@ -2595,6 +2654,7 @@ function setupSupabaseAuth() {
     }
     updateAuthChrome(user);
     if (event === 'SIGNED_OUT') {
+      accountDeletionJustRequested = false;
       notifyGuestMigrationLifecycle('SIGNED_OUT', prevUid);
     }
     if (
@@ -6330,7 +6390,7 @@ document.addEventListener('i18n:ready', () => {
         }
         if (overlay.id === 'modal-delete-account-success') {
           overlay.classList.remove('active');
-          signOutCurrentUser();
+          signOutAfterAccountDeletion();
           return;
         }
         overlay.classList.remove('active');
