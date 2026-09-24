@@ -747,6 +747,8 @@
     },
     "faq": {
       "title": "Frequently asked questions",
+      "q0": "What happens when I reach the free plan limit?",
+      "a0": "You can still view your 20 saved cards, but to add new ones you'll need to upgrade to Premium. Nothing is deleted from your library.",
       "q1": "Can I cancel anytime?",
       "a1": "Yes, you can cancel your Premium subscription at any time from your account, with no lock-in and no penalty.",
       "q2": "Is my data safe?",
