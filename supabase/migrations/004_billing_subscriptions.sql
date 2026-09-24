@@ -31,3 +31,6 @@ alter table public.billing_subscriptions enable row level security;
 revoke all on table public.billing_subscriptions from public;
 revoke all on table public.billing_subscriptions from anon;
 revoke all on table public.billing_subscriptions from authenticated;
+
+-- Solo el backend (service_role, webhook de Stripe) accede a esta tabla.
+grant select, insert, update, delete on table public.billing_subscriptions to service_role;
