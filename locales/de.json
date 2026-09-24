@@ -747,6 +747,8 @@
     },
     "faq": {
       "title": "Häufig gestellte Fragen",
+      "q0": "Was passiert, wenn ich das Limit des kostenlosen Plans erreiche?",
+      "a0": "Du kannst deine 20 gespeicherten Karten weiterhin ansehen, aber um neue hinzuzufügen, musst du auf Premium upgraden. Aus deiner Bibliothek wird nichts gelöscht.",
       "q1": "Kann ich jederzeit kündigen?",
       "a1": "Ja, du kannst dein Premium-Abo jederzeit über dein Konto kündigen, ohne Mindestlaufzeit und ohne Strafgebühr.",
       "q2": "Sind meine Daten sicher?",

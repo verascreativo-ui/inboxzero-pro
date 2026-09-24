@@ -747,6 +747,8 @@
     },
     "faq": {
       "title": "Questions fréquentes",
+      "q0": "Que se passe-t-il si je dépasse la limite du plan gratuit ?",
+      "a0": "Vous pourrez toujours consulter vos 20 fiches enregistrées, mais pour en ajouter de nouvelles, vous devrez passer à Premium. Rien n'est supprimé de votre bibliothèque.",
       "q1": "Puis-je annuler quand je veux ?",
       "a1": "Oui, vous pouvez annuler votre abonnement Premium à tout moment depuis votre compte, sans engagement ni pénalité.",
       "q2": "Mes données sont-elles en sécurité ?",

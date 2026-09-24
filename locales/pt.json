@@ -747,6 +747,8 @@
     },
     "faq": {
       "title": "Perguntas frequentes",
+      "q0": "O que acontece quando ultrapasso o limite do plano gratuito?",
+      "a0": "Poderá continuar a consultar as suas 20 fichas guardadas, mas para adicionar novas terá de passar para Premium. Nada é eliminado da sua biblioteca.",
       "q1": "Posso cancelar quando quiser?",
       "a1": "Sim, pode cancelar a sua subscrição Premium a qualquer momento a partir da sua conta, sem fidelização nem penalização.",
       "q2": "Os meus dados estão seguros?",
