@@ -168,6 +168,20 @@ export async function adminDeleteProfile(uid) {
   });
 }
 
+/** Usuario de Auth Admin (incluye last_sign_in_at). null si no existe. */
+export async function adminGetAuthUser(uid) {
+  const id = String(uid || '').trim();
+  if (!id) return null;
+  try {
+    const json = await adminFetch(`/auth/v1/admin/users/${encodeURIComponent(id)}`);
+    if (!json || typeof json !== 'object') return null;
+    return json.user && typeof json.user === 'object' ? json.user : json;
+  } catch (err) {
+    if (err && err.status === 404) return null;
+    throw err;
+  }
+}
+
 /** Equivalente a supabase.auth.admin.deleteUser(uid) vía Auth Admin API. */
 export async function adminDeleteAuthUser(uid) {
   const id = String(uid || '').trim();
