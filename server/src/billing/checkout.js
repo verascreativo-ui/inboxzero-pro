@@ -118,8 +118,8 @@ export async function createCheckoutSessionForUser(stripe, uid, options = {}) {
       customer: customer.id,
       client_reference_id: uid,
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${appBase}/?billing=success&checkout_session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appBase}/?billing=cancel`,
+      success_url: `${appBase}/app.html?billing=success&checkout_session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${appBase}/app.html?billing=cancel`,
       metadata: { inboxzero_user_id: uid },
       subscription_data: {
         metadata: { inboxzero_user_id: uid },
