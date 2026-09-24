@@ -216,7 +216,7 @@
   "trialLimit": {
     "title": "Limite do Plano de Teste",
     "badge": "Plano de Teste · 20 / 20",
-    "message": "Atingiu o limite do seu Plano de Teste! 🚀 Se quiser continuar a guardar e organizar todo o seu conhecimento com um clique e sem limites, subscreva o nosso Plano Pro.",
+    "message": "Atingiu o limite do seu Plano de Teste! 🚀 Se quiser continuar a guardar e organizar todo o seu conhecimento com um clique e sem limites, subscreva o nosso Plano Premium.",
     "cta": "Subscrever agora",
     "later": "Agora não"
   },
@@ -750,7 +750,7 @@
       "q0": "O que acontece quando ultrapasso o limite do plano gratuito?",
       "a0": "Poderá continuar a consultar as suas 20 fichas guardadas, mas para adicionar novas terá de passar para Premium. Nada é eliminado da sua biblioteca.",
       "q1": "Posso cancelar quando quiser?",
-      "a1": "Sim, pode cancelar a sua subscrição Premium a qualquer momento a partir da sua conta, sem fidelização nem penalização.",
+      "a1": "Sim. Pode cancelar a qualquer momento e mantém o acesso Premium até ao fim do período já pago — sem penalizações nem letras pequenas.",
       "q2": "Os meus dados estão seguros?",
       "a2": "Sim. Cada utilizador só pode aceder aos seus próprios dados, protegidos por autenticação segura e isolamento ao nível da base de dados.",
       "q3": "Funciona com o Instagram ou o Facebook?",

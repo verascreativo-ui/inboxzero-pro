@@ -216,7 +216,7 @@
   "trialLimit": {
     "title": "Free Trial Limit Reached",
     "badge": "Free Trial · 20 / 20",
-    "message": "You've reached the limit of your Free Trial Plan! 🚀 If you want to keep saving and organizing all your knowledge in one click with no limits, subscribe to our Pro Plan.",
+    "message": "You've reached the limit of your Free Trial Plan! 🚀 If you want to keep saving and organizing all your knowledge in one click with no limits, subscribe to our Premium plan.",
     "cta": "Subscribe Now",
     "later": "Not now"
   },
@@ -750,7 +750,7 @@
       "q0": "What happens when I reach the free plan limit?",
       "a0": "You can still view your 20 saved cards, but to add new ones you'll need to upgrade to Premium. Nothing is deleted from your library.",
       "q1": "Can I cancel anytime?",
-      "a1": "Yes, you can cancel your Premium subscription at any time from your account, with no lock-in and no penalty.",
+      "a1": "Yes. You can cancel at any time and keep Premium access until the end of the period you've already paid for — no penalties, no small print.",
       "q2": "Is my data safe?",
       "a2": "Yes. Each user can only access their own data, protected by secure authentication and database-level isolation.",
       "q3": "Does it work with Instagram or Facebook?",
