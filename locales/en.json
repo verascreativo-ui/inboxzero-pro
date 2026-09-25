@@ -52,6 +52,7 @@
     "deleteConfirmButton": "Delete my account",
     "deleteScheduledTitle": "Request registered",
     "deleteScheduledMessage": "Your account will be deleted in 30 days. If you sign in during that time, it will be reactivated automatically.",
+    "deleteScheduledMessageWithDate": "Your account will be deleted in 30 days, on {{fecha}}. If you sign in during that time, it will be reactivated automatically.",
     "deleteError": "We couldn't process the request. Please try again."
   },
   "dropdown": {
@@ -105,7 +106,8 @@
     "terms": "Terms and Conditions"
   },
   "cookieBanner": {
-    "message": "We use cookies to analyze site usage and improve your experience. You can accept or reject non-essential cookies.",
+    "message": "We only use the technical cookies and storage InboxZero needs to work. We don't use analytics or advertising cookies.",
+    "acknowledge": "Got it",
     "accept": "Accept",
     "reject": "Reject",
     "moreInfo": "More information",
@@ -128,7 +130,7 @@
   },
   "retention": {
     "title": "Are you sure you want to cancel your premium subscription?",
-    "message": "If you cancel, your limit will go back to a maximum of 20 cards and you will lose advanced automatic link extraction features.",
+    "message": "When your paid period ends, you'll go back to the free plan, with a maximum of 20 cards. You won't lose any cards you've already saved, but you won't be able to add new ones while you're over that limit.",
     "surveyLegend": "Could you tell us why? It helps us improve:",
     "reasons": {
       "price": "The price is too high.",
@@ -455,7 +457,7 @@
           ],
           "list": [
             "Supabase: authentication, database and library storage.",
-            "Stripe: payment processing and subscription management. You can read their privacy policy at stripe.com/privacy.",
+            "Stripe: payment processing and subscription management. You can read their privacy policy at <a href=\"https://stripe.com/privacy\" target=\"_blank\" rel=\"noopener noreferrer\">stripe.com/privacy</a>.",
             "ScrapingBee, ZenRows and Microlink: automatic extraction of metadata (title, description, image) from saved URLs; they do not store the content permanently.",
             "Cloudflare Turnstile: bot protection on sign-up and sign-in.",
             "Railway and Vercel: hosting of the backend and the frontend.",

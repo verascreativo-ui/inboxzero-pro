@@ -52,6 +52,7 @@
     "deleteConfirmButton": "Eliminar a minha conta",
     "deleteScheduledTitle": "Pedido registado",
     "deleteScheduledMessage": "A tua conta será eliminada em 30 dias. Se iniciares sessão nesse período, será reativada automaticamente.",
+    "deleteScheduledMessageWithDate": "A tua conta será eliminada em 30 dias, a {{fecha}}. Se iniciares sessão nesse período, será reativada automaticamente.",
     "deleteError": "Não foi possível processar o pedido. Tenta novamente."
   },
   "dropdown": {
@@ -105,7 +106,8 @@
     "terms": "Termos e condições"
   },
   "cookieBanner": {
-    "message": "Utilizamos cookies para analisar a utilização do site e melhorar a sua experiência. Pode aceitar ou rejeitar as que não são essenciais.",
+    "message": "Só usamos cookies e armazenamento técnico necessários para o InboxZero funcionar. Não usamos cookies de análise nem de publicidade.",
+    "acknowledge": "Entendi",
     "accept": "Aceitar",
     "reject": "Rejeitar",
     "moreInfo": "Mais informações",
@@ -128,7 +130,7 @@
   },
   "retention": {
     "title": "Tem a certeza de que deseja cancelar a sua subscrição premium?",
-    "message": "Ao cancelar, o seu limite voltará a um máximo de 20 fichas e perderá as funções de extração avançada de links automáticos.",
+    "message": "Quando o seu período pago terminar, voltará ao plano gratuito, com um máximo de 20 fichas. Não perderá nenhuma das fichas que já tem guardadas, mas não poderá adicionar novas enquanto ultrapassar esse limite.",
     "surveyLegend": "Poderia dizer-nos o motivo? Ajuda-nos a melhorar:",
     "reasons": {
       "price": "O preço é demasiado elevado.",
@@ -455,7 +457,7 @@
           ],
           "list": [
             "Supabase: autenticação, base de dados e armazenamento da biblioteca.",
-            "Stripe: processamento de pagamentos e gestão da subscrição. Pode consultar a respetiva política de privacidade em stripe.com/privacy.",
+            "Stripe: processamento de pagamentos e gestão da subscrição. Pode consultar a respetiva política de privacidade em <a href=\"https://stripe.com/privacy\" target=\"_blank\" rel=\"noopener noreferrer\">stripe.com/privacy</a>.",
             "ScrapingBee, ZenRows e Microlink: extração automática dos metadados (título, descrição, imagem) dos URLs guardados; não armazenam o conteúdo de forma permanente.",
             "Cloudflare Turnstile: proteção contra bots no registo e início de sessão.",
             "Railway e Vercel: alojamento do backend e do frontend.",

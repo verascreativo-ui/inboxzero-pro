@@ -2593,6 +2593,16 @@ function setupSupabaseAuth() {
       }
       if (result) {
         accountDeletionJustRequested = true;
+        const scheduledAt = result.scheduled_deletion_at;
+        const msgEl = document.querySelector('#modal-delete-account-success [data-i18n="account.deleteScheduledMessage"], #modal-delete-account-success [data-i18n="account.deleteScheduledMessageWithDate"]');
+        const when = scheduledAt ? new Date(scheduledAt) : null;
+        if (msgEl && when && !Number.isNaN(when.getTime())) {
+          const locale = (typeof getLocale === 'function' && getLocale()) || document.documentElement.lang || 'es';
+          const fecha = new Intl.DateTimeFormat(locale, { dateStyle: 'long' }).format(when);
+          msgEl.setAttribute('data-i18n', 'account.deleteScheduledMessageWithDate');
+          msgEl.setAttribute('data-i18n-vars', JSON.stringify({ fecha }));
+          msgEl.textContent = t('account.deleteScheduledMessageWithDate', { fecha });
+        }
       }
       confirmDeleteAccountBtn.disabled = false;
       confirmDeleteAccountBtn.textContent = originalText;

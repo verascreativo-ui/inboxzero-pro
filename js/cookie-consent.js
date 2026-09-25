@@ -87,26 +87,16 @@
       tFn('cookieBanner.moreInfo') +
       '</a></p>' +
       '<div class="cookie-consent-actions">' +
-      '<button type="button" id="cookie-consent-reject" class="cookie-consent-btn cookie-consent-reject">' +
-      tFn('cookieBanner.reject') +
-      '</button>' +
-      '<button type="button" id="cookie-consent-accept" class="cookie-consent-btn cookie-consent-accept">' +
-      tFn('cookieBanner.accept') +
+      '<button type="button" id="cookie-consent-ack" class="cookie-consent-btn cookie-consent-accept">' +
+      tFn('cookieBanner.acknowledge') +
       '</button>' +
       '</div>' +
       '</div>';
-    var acceptBtn = document.getElementById('cookie-consent-accept');
-    var rejectBtn = document.getElementById('cookie-consent-reject');
+    var ackBtn = document.getElementById('cookie-consent-ack');
     var moreLink = document.getElementById('cookie-consent-more');
-    if (acceptBtn) {
-      acceptBtn.addEventListener('click', function () {
-        storeConsent('accepted');
-        removeBanner();
-      });
-    }
-    if (rejectBtn) {
-      rejectBtn.addEventListener('click', function () {
-        storeConsent('rejected');
+    if (ackBtn) {
+      ackBtn.addEventListener('click', function () {
+        storeConsent('acknowledged');
         removeBanner();
       });
     }
