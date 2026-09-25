@@ -634,48 +634,50 @@
       <div class="modal-body modal-body-login">
         <p class="subscribe-trial-alert" data-i18n-html="subscribe.trialAlert">💡 <strong>Periodo de Uso Gratuito Limitado:</strong> Cuentas con un periodo de prueba para guardar hasta 20 fichas.</p>
         <form id="subscribe-form" class="login-form">
-          <div class="form-group">
-            <label for="subscribe-fullname" data-i18n="subscribe.fullNameLabel">Nombre y Apellidos:</label>
-            <input type="text" id="subscribe-fullname" data-i18n-placeholder="subscribe.fullNamePlaceholder" placeholder="Ej. Juan Pérez" required autocomplete="name">
-          </div>
-          <div class="form-group">
-            <label for="subscribe-email" data-i18n="subscribe.emailLabel">Correo Electrónico Válido:</label>
-            <input type="email" id="subscribe-email" data-i18n-placeholder="subscribe.emailPlaceholder" placeholder="ejemplo@dominio.com" required autocomplete="email">
-          </div>
-          <div class="form-group">
-            <label for="subscribe-captcha" data-i18n="subscribe.captchaLabel">Seguridad (Captcha): ¿Cuánto es 3 + 4?</label>
-            <input type="text" id="subscribe-captcha" data-i18n-placeholder="subscribe.captchaPlaceholder" placeholder="Respuesta numérica (7)" required inputmode="numeric">
-          </div>
-          <fieldset class="form-group subscribe-plan-fieldset">
-            <legend data-i18n="subscribe.planLegend">Elige tu plan:</legend>
-            <label class="subscribe-plan-option">
-              <input type="radio" name="subscribe-plan" value="monthly" checked>
-              <span>
-                <strong data-i18n="subscribe.planMonthlyTitle">Mensual — 3,99€/mes</strong>
-                <small data-i18n="subscribe.planMonthlySubtitle">Cancela cuando quieras</small>
-              </span>
+          <div class="subscribe-form-scroll">
+            <div class="form-group">
+              <label for="subscribe-fullname" data-i18n="subscribe.fullNameLabel">Nombre y Apellidos:</label>
+              <input type="text" id="subscribe-fullname" data-i18n-placeholder="subscribe.fullNamePlaceholder" placeholder="Ej. Juan Pérez" required autocomplete="name">
+            </div>
+            <div class="form-group">
+              <label for="subscribe-email" data-i18n="subscribe.emailLabel">Correo Electrónico Válido:</label>
+              <input type="email" id="subscribe-email" data-i18n-placeholder="subscribe.emailPlaceholder" placeholder="ejemplo@dominio.com" required autocomplete="email">
+            </div>
+            <div class="form-group">
+              <label for="subscribe-captcha" data-i18n="subscribe.captchaLabel">Seguridad (Captcha): ¿Cuánto es 3 + 4?</label>
+              <input type="text" id="subscribe-captcha" data-i18n-placeholder="subscribe.captchaPlaceholder" placeholder="Respuesta numérica (7)" required inputmode="numeric">
+            </div>
+            <fieldset class="form-group subscribe-plan-fieldset">
+              <legend data-i18n="subscribe.planLegend">Elige tu plan:</legend>
+              <label class="subscribe-plan-option">
+                <input type="radio" name="subscribe-plan" value="monthly" checked>
+                <span>
+                  <strong data-i18n="subscribe.planMonthlyTitle">Mensual — 3,99€/mes</strong>
+                  <small data-i18n="subscribe.planMonthlySubtitle">Cancela cuando quieras</small>
+                </span>
+              </label>
+              <label class="subscribe-plan-option">
+                <input type="radio" name="subscribe-plan" value="annual">
+                <span>
+                  <strong data-i18n="subscribe.planAnnualTitle">Anual — 3,99€/mes</strong>
+                  <small data-i18n="subscribe.planAnnualSubtitle">29,99€/año, facturado de una vez · Ahorra un 37%</small>
+                </span>
+              </label>
+            </fieldset>
+            <label class="check-label subscribe-terms">
+              <input type="checkbox" id="subscribe-terms" required>
+              <span data-i18n-html="subscribe.termsHtml">He leído y acepto la Política de Privacidad y los Términos.</span>
             </label>
-            <label class="subscribe-plan-option">
-              <input type="radio" name="subscribe-plan" value="annual">
-              <span>
-                <strong data-i18n="subscribe.planAnnualTitle">Anual — 3,99€/mes</strong>
-                <small data-i18n="subscribe.planAnnualSubtitle">29,99€/año, facturado de una vez · Ahorra un 37%</small>
-              </span>
+            <label class="check-label subscribe-terms subscribe-withdrawal">
+              <input type="checkbox" id="subscribe-withdrawal-waiver" required>
+              <span data-i18n="subscribe.withdrawalWaiver">Solicito el acceso inmediato al servicio y entiendo que, por ello, renuncio a mi derecho de desistimiento de 14 días.</span>
             </label>
-          </fieldset>
-          <label class="check-label subscribe-terms">
-            <input type="checkbox" id="subscribe-terms" required>
-            <span data-i18n-html="subscribe.termsHtml">He leído y acepto la Política de Privacidad y los Términos.</span>
-          </label>
-          <label class="check-label subscribe-terms subscribe-withdrawal">
-            <input type="checkbox" id="subscribe-withdrawal-waiver" required>
-            <span data-i18n="subscribe.withdrawalWaiver">Solicito el acceso inmediato al servicio y entiendo que, por ello, renuncio a mi derecho de desistimiento de 14 días.</span>
-          </label>
+            <p class="subscribe-price-notice" data-i18n="landing.pricing.priceChangeNotice">Precios sujetos a variaciones por evolución del servicio o mercado. Se notificará cualquier cambio con 30 días de antelación y podrás cancelar sin penalización.</p>
+          </div>
           <div class="login-modal-actions">
             <button type="submit" id="btn-stripe-checkout" class="btn-primary modal-action-btn" data-i18n="subscribe.stripeButton" disabled>Continuar a Stripe (Modo Pruebas) 💳</button>
             <button type="button" class="modal-action-btn modal-btn-cancel" data-close="modal-subscribe" data-i18n="modals.cancel">Cancelar</button>
           </div>
-          <p class="subscribe-price-notice" data-i18n="landing.pricing.priceChangeNotice">Precios sujetos a variaciones por evolución del servicio o mercado. Se notificará cualquier cambio con 30 días de antelación y podrás cancelar sin penalización.</p>
         </form>
       </div>
     </div>

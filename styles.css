@@ -1716,6 +1716,73 @@ footer {
   line-height: 1.45;
 }
 
+/* Modal suscripción: cabe en pantalla y el botón de Stripe queda fijo abajo.
+   Selectores con #modal-subscribe: modal-box-login y modal-body-login también los usan login y nueva contraseña. */
+#modal-subscribe.modal-overlay.active {
+  align-items: center;
+  overflow: hidden;
+  padding: 16px;
+}
+
+#modal-subscribe .modal-box-login {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  overflow: hidden;
+}
+
+#modal-subscribe .modal-body-login {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+#modal-subscribe .login-form {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+#modal-subscribe .subscribe-form-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#modal-subscribe .login-modal-actions {
+  position: sticky;
+  bottom: 0;
+  flex-shrink: 0;
+  margin-top: 0;
+  background: #ffffff;
+  z-index: 1;
+}
+
+@media (max-width: 375px) {
+  #modal-subscribe .modal-header-edit {
+    padding: 8px 10px;
+  }
+
+  #modal-subscribe .modal-body-login {
+    padding: 10px 10px 8px;
+  }
+
+  #modal-subscribe .login-modal-actions .modal-action-btn {
+    white-space: normal;
+    line-height: 1.3;
+    padding: 10px 12px;
+  }
+}
+
 .modal-header {
   display: flex;
   justify-content: space-between;
