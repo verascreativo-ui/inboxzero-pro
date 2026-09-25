@@ -52,6 +52,7 @@
     "deleteConfirmButton": "Supprimer mon compte",
     "deleteScheduledTitle": "Demande enregistrée",
     "deleteScheduledMessage": "Votre compte sera supprimé dans 30 jours. Si vous vous reconnectez pendant ce délai, il sera réactivé automatiquement.",
+    "deleteScheduledMessageWithDate": "Votre compte sera supprimé dans 30 jours, le {{fecha}}. Si vous vous reconnectez pendant ce délai, il sera réactivé automatiquement.",
     "deleteError": "Impossible de traiter la demande. Veuillez réessayer."
   },
   "dropdown": {
@@ -105,7 +106,8 @@
     "terms": "Conditions générales"
   },
   "cookieBanner": {
-    "message": "Nous utilisons des cookies pour analyser l'utilisation du site et améliorer votre expérience. Vous pouvez accepter ou refuser les cookies non essentiels.",
+    "message": "Nous n'utilisons que les cookies et le stockage technique nécessaires au fonctionnement d'InboxZero. Pas de cookies d'analyse ni de publicité.",
+    "acknowledge": "Compris",
     "accept": "Accepter",
     "reject": "Refuser",
     "moreInfo": "En savoir plus",
@@ -128,7 +130,7 @@
   },
   "retention": {
     "title": "Êtes-vous sûr de vouloir résilier votre abonnement premium ?",
-    "message": "En résiliant, votre limite reviendra à un maximum de 20 fiches et vous perdrez les fonctions d'extraction avancée de liens automatiques.",
+    "message": "À la fin de votre période payée, vous repasserez au plan gratuit, avec un maximum de 20 fiches. Vous ne perdrez aucune fiche déjà enregistrée, mais vous ne pourrez pas en ajouter tant que vous dépassez cette limite.",
     "surveyLegend": "Pourriez-vous nous dire pourquoi ? Cela nous aide à nous améliorer :",
     "reasons": {
       "price": "Le prix est trop élevé.",
@@ -455,7 +457,7 @@
           ],
           "list": [
             "Supabase : authentification, base de données et stockage de la bibliothèque.",
-            "Stripe : traitement des paiements et gestion de l’abonnement. Vous pouvez consulter sa politique de confidentialité sur stripe.com/privacy.",
+            "Stripe : traitement des paiements et gestion de l’abonnement. Vous pouvez consulter sa politique de confidentialité sur <a href=\"https://stripe.com/privacy\" target=\"_blank\" rel=\"noopener noreferrer\">stripe.com/privacy</a>.",
             "ScrapingBee, ZenRows et Microlink : extraction automatique des métadonnées (titre, description, image) des URL enregistrées ; ils ne stockent pas le contenu de façon permanente.",
             "Cloudflare Turnstile : protection contre les robots lors de l’inscription et de la connexion.",
             "Railway et Vercel : hébergement du backend et du frontend.",

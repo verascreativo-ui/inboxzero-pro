@@ -52,6 +52,7 @@
     "deleteConfirmButton": "Mein Konto löschen",
     "deleteScheduledTitle": "Anfrage registriert",
     "deleteScheduledMessage": "Dein Konto wird in 30 Tagen gelöscht. Wenn du dich in dieser Zeit anmeldest, wird es automatisch reaktiviert.",
+    "deleteScheduledMessageWithDate": "Dein Konto wird in 30 Tagen gelöscht, am {{fecha}}. Wenn du dich in dieser Zeit anmeldest, wird es automatisch reaktiviert.",
     "deleteError": "Die Anfrage konnte nicht verarbeitet werden. Bitte versuche es erneut."
   },
   "dropdown": {
@@ -105,7 +106,8 @@
     "terms": "Allgemeine Geschäftsbedingungen"
   },
   "cookieBanner": {
-    "message": "Wir verwenden Cookies, um die Nutzung der Website zu analysieren und Ihre Erfahrung zu verbessern. Sie können nicht-essenzielle Cookies akzeptieren oder ablehnen.",
+    "message": "Wir verwenden nur die technischen Cookies und den Speicher, die InboxZero zum Funktionieren braucht. Keine Analyse- oder Werbe-Cookies.",
+    "acknowledge": "Verstanden",
     "accept": "Akzeptieren",
     "reject": "Ablehnen",
     "moreInfo": "Weitere Informationen",
@@ -128,7 +130,7 @@
   },
   "retention": {
     "title": "Sind Sie sicher, dass Sie Ihr Premium-Abonnement kündigen möchten?",
-    "message": "Bei einer Kündigung sinkt Ihr Limit wieder auf maximal 20 Karten und Sie verlieren die Funktionen zur erweiterten automatischen Link-Extraktion.",
+    "message": "Nach Ablauf Ihres bezahlten Zeitraums kehren Sie zum kostenlosen Plan zurück, mit höchstens 20 Karten. Keine Ihrer gespeicherten Karten geht verloren, aber Sie können keine neuen hinzufügen, solange Sie über diesem Limit liegen.",
     "surveyLegend": "Könnten Sie uns den Grund nennen? Das hilft uns, uns zu verbessern:",
     "reasons": {
       "price": "Der Preis ist zu hoch.",
@@ -455,7 +457,7 @@
           ],
           "list": [
             "Supabase: Authentifizierung, Datenbank und Speicherung der Bibliothek.",
-            "Stripe: Zahlungsabwicklung und Abonnementverwaltung. Die Datenschutzerklärung finden Sie unter stripe.com/privacy.",
+            "Stripe: Zahlungsabwicklung und Abonnementverwaltung. Die Datenschutzerklärung finden Sie unter <a href=\"https://stripe.com/privacy\" target=\"_blank\" rel=\"noopener noreferrer\">stripe.com/privacy</a>.",
             "ScrapingBee, ZenRows und Microlink: automatische Extraktion von Metadaten (Titel, Beschreibung, Bild) gespeicherter URLs; sie speichern den Inhalt nicht dauerhaft.",
             "Cloudflare Turnstile: Schutz vor Bots bei Registrierung und Anmeldung.",
             "Railway und Vercel: Hosting von Backend und Frontend.",

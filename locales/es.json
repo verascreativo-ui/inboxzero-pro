@@ -52,6 +52,7 @@
     "deleteConfirmButton": "Eliminar mi cuenta",
     "deleteScheduledTitle": "Solicitud registrada",
     "deleteScheduledMessage": "Tu cuenta se eliminará en 30 días. Si inicias sesión en ese plazo, se reactivará automáticamente.",
+    "deleteScheduledMessageWithDate": "Tu cuenta se eliminará en 30 días, el {{fecha}}. Si inicias sesión en ese plazo, se reactivará automáticamente.",
     "deleteError": "No se pudo procesar la solicitud. Inténtalo de nuevo."
   },
   "dropdown": {
@@ -105,7 +106,8 @@
     "terms": "Términos y Condiciones"
   },
   "cookieBanner": {
-    "message": "Usamos cookies para analizar el uso de la web y mejorar tu experiencia. Puedes aceptar o rechazar las que no son esenciales.",
+    "message": "Solo usamos cookies y almacenamiento técnico necesarios para que InboxZero funcione. No usamos cookies de análisis ni de publicidad.",
+    "acknowledge": "Entendido",
     "accept": "Aceptar",
     "reject": "Rechazar",
     "moreInfo": "Más información",
@@ -128,7 +130,7 @@
   },
   "retention": {
     "title": "¿Estás seguro de que deseas cancelar tu suscripción premium?",
-    "message": "Al darte de baja, tu límite volverá a un máximo de 20 fichas y perderás las funciones de extracción avanzada de enlaces automáticos.",
+    "message": "Al terminar tu periodo pagado volverás al plan gratuito, con un máximo de 20 fichas. No perderás ninguna de las fichas que ya tienes guardadas, aunque no podrás añadir nuevas mientras superes ese límite.",
     "surveyLegend": "¿Podrías decirnos el motivo? Nos ayuda a mejorar:",
     "reasons": {
       "price": "El precio es muy elevado.",
@@ -455,7 +457,7 @@
           ],
           "list": [
             "Supabase: autenticación, base de datos y almacenamiento de la biblioteca.",
-            "Stripe: procesamiento de pagos y gestión de la suscripción. Puede consultar su política de privacidad en stripe.com/privacy.",
+            "Stripe: procesamiento de pagos y gestión de la suscripción. Puede consultar su política de privacidad en <a href=\"https://stripe.com/privacy\" target=\"_blank\" rel=\"noopener noreferrer\">stripe.com/privacy</a>.",
             "ScrapingBee, ZenRows y Microlink: extracción automática de la metadata (título, descripción, imagen) de las URLs guardadas; no almacenan el contenido de forma permanente.",
             "Cloudflare Turnstile: protección frente a bots en el registro e inicio de sesión.",
             "Railway y Vercel: alojamiento del backend y del frontend.",
