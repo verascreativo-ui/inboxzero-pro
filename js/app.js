@@ -1477,6 +1477,7 @@ async function exportUserCardsAsJson() {
   if (!result.ok || !Array.isArray(result.data)) {
     return { ok: false };
   }
+  if (result.data.length === 0) return { ok: false, empty: true };
   const payload = {
     exported_at: new Date().toISOString(),
     account_email: currentAuthUser.email || null,
@@ -1490,7 +1491,91 @@ async function exportUserCardsAsJson() {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  return { ok: true, count: result.data.length };
+}
+
+function csvSeparatorForLocale() {
+  const locale = (typeof getLocale === 'function' && getLocale()) || document.documentElement.lang || 'es';
+  return String(locale).toLowerCase().slice(0, 2) === 'en' ? ',' : ';';
+}
+
+function exportCategoryLabel(raw) {
+  if (typeof window.getCategoryLabel === 'function') return window.getCategoryLabel(raw);
+  return String(raw || '').trim();
+}
+
+function formatExportDate(value) {
+  if (value == null || value === '') return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function csvEscapeCell(value, separator) {
+  let text = value == null ? '' : String(value);
+  if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
+  if (text.includes(separator) || text.includes('"') || /[\r\n]/.test(text)) {
+    text = `"${text.replace(/"/g, '""')}"`;
+  }
+  return text;
+}
+
+function cardsToCsv(rows) {
+  const separator = csvSeparatorForLocale();
+  const headers = [
+    t('account.csvTitle'),
+    t('account.csvUrl'),
+    t('account.csvDescription'),
+    t('account.csvCategory'),
+    t('account.csvTags'),
+    t('account.csvFavorite'),
+    t('account.csvReadLater'),
+    t('account.csvNotes'),
+    t('account.csvCreated'),
+    t('account.csvImage'),
+  ];
+  const yes = t('account.csvYes');
+  const no = t('account.csvNo');
+  const lines = [headers.map((cell) => csvEscapeCell(cell, separator)).join(separator)];
+  for (const card of rows) {
+    const tags = Array.isArray(card.tags) ? card.tags.map((tag) => String(tag || '').trim()).filter(Boolean).join(', ') : '';
+    const cells = [
+      card.title,
+      card.url,
+      card.description,
+      exportCategoryLabel(card.category),
+      tags,
+      card.favorite ? yes : no,
+      card.readLater ? yes : no,
+      card.notes,
+      formatExportDate(card.creado_en),
+      card.image,
+    ];
+    lines.push(cells.map((cell) => csvEscapeCell(cell, separator)).join(separator));
+  }
+  return `\uFEFF${lines.join('\r\n')}`;
+}
+
+async function exportUserCardsAsCsv() {
+  if (!currentAuthUser || !currentAuthUser.id) return { ok: false };
+  const result = await fetchOwnCardsRepo(currentAuthUser.id);
+  if (!result.ok || !Array.isArray(result.data)) {
+    return { ok: false };
+  }
+  if (result.data.length === 0) return { ok: false, empty: true };
+  const blob = new Blob([cardsToCsv(result.data)], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `inboxzero-fichas-${formatExportDate(new Date())}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
   return { ok: true, count: result.data.length };
 }
 
@@ -2356,6 +2441,17 @@ function openLogoutOthersConfirmModal() {
   document.getElementById('modal-logout-others')?.classList.add('active');
 }
 
+function openExportCardsModal() {
+  closeAccountMenu();
+  setAccountMenuStatus('', false);
+  const errorEl = document.getElementById('export-cards-error');
+  if (errorEl) {
+    errorEl.hidden = true;
+    errorEl.textContent = '';
+  }
+  document.getElementById('modal-export-cards')?.classList.add('active');
+}
+
 function openDeleteAccountModal() {
   closeAccountMenu();
   setAccountMenuStatus('', false);
@@ -2548,6 +2644,14 @@ function setupSupabaseAuth() {
     });
   }
 
+  const exportCardsMenuBtn = document.getElementById('btn-export-cards');
+  if (exportCardsMenuBtn) {
+    exportCardsMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openExportCardsModal();
+    });
+  }
+
   const deleteAccountBtn = document.getElementById('btn-delete-account');
   if (deleteAccountBtn) {
     deleteAccountBtn.addEventListener('click', (e) => {
@@ -2555,6 +2659,31 @@ function setupSupabaseAuth() {
       openDeleteAccountModal();
     });
   }
+
+  async function runAccountCardsExport(kind) {
+    const errorEl = document.getElementById('export-cards-error');
+    const csvBtn = document.getElementById('btn-export-cards-csv');
+    const jsonBtn = document.getElementById('btn-export-cards-json');
+    if (errorEl) errorEl.hidden = true;
+    if (csvBtn) csvBtn.disabled = true;
+    if (jsonBtn) jsonBtn.disabled = true;
+    const result = kind === 'csv' ? await exportUserCardsAsCsv() : await exportUserCardsAsJson();
+    if (csvBtn) csvBtn.disabled = false;
+    if (jsonBtn) jsonBtn.disabled = false;
+    if (!result.ok && errorEl) {
+      errorEl.textContent = result.empty ? t('account.exportEmpty') : t('account.exportError');
+      errorEl.hidden = false;
+    }
+  }
+
+  document.getElementById('btn-export-cards-csv')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    runAccountCardsExport('csv');
+  });
+  document.getElementById('btn-export-cards-json')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    runAccountCardsExport('json');
+  });
 
   const exportCardsBtn = document.getElementById('btn-export-cards-from-delete');
   if (exportCardsBtn) {
@@ -2569,7 +2698,7 @@ function setupSupabaseAuth() {
       exportCardsBtn.disabled = false;
       exportCardsBtn.textContent = originalText;
       if (!result.ok && errorEl) {
-        errorEl.textContent = t('account.exportError');
+        errorEl.textContent = result.empty ? t('account.exportEmpty') : t('account.exportError');
         errorEl.hidden = false;
       }
     });
@@ -2760,6 +2889,7 @@ document.addEventListener('i18n:ready', () => {
     if (id === 'uncategorized') return t('categories.uncategorized');
     return id;
   }
+  window.getCategoryLabel = getCategoryLabel;
 
   function getWelcomeTexts() {
     return {

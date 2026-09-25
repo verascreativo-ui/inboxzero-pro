@@ -121,6 +121,7 @@
           <button type="button" id="btn-logout" class="account-menu-action" role="menuitem" data-i18n="auth.logout">Cerrar sesión</button>
           <button type="button" id="btn-logout-others" class="account-menu-action" role="menuitem" data-i18n="auth.logoutOthers">Cerrar sesión en otros dispositivos</button>
           <div class="dropdown-divider"></div>
+          <button type="button" id="btn-export-cards" class="account-menu-action" role="menuitem" data-i18n="account.exportMenu">Exportar mis fichas</button>
           <button type="button" id="btn-delete-account" class="account-menu-action account-menu-action-danger" role="menuitem" data-i18n="account.deleteAccount">Eliminar mi cuenta</button>
           <p id="account-menu-status" class="account-menu-status" hidden role="status" aria-live="polite"></p>
         </div>
@@ -751,6 +752,33 @@
       <div class="modal-footer modal-footer-confirm-delete">
         <button type="button" class="modal-action-btn modal-btn-cancel" id="btn-cancel-delete" data-close="modal-confirm-delete" data-i18n="modals.cancel">Cancelar</button>
         <button type="button" class="modal-action-btn btn-confirm-delete" id="btn-confirm-delete" data-i18n="deleteConfirm.confirm">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-export-cards" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="export-cards-title">
+    <div class="modal-box modal-box-login">
+      <div class="modal-header modal-header-edit">
+        <div class="edit-modal-brand">
+          <img src="logo.png" class="edit-modal-logo" data-i18n-alt="meta.logoAlt" alt="Logo">
+          <span class="edit-modal-brand-name" data-i18n-html="brand.name">InboxZero.es</span>
+        </div>
+        <div class="modal-title-box edit-modal-title">
+          <span class="modal-icon-badge">📤</span>
+          <div>
+            <h3 id="export-cards-title" data-i18n="account.exportTitle">Exportar mis fichas</h3>
+            <p class="modal-subtitle" data-i18n="account.exportHint">Descarga una copia de todas tus fichas.</p>
+          </div>
+        </div>
+        <button type="button" class="modal-close" data-close="modal-export-cards" data-i18n="modals.close" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="modal-body modal-body-login">
+        <p id="export-cards-error" class="field-error preview-save-error" hidden role="alert" aria-live="assertive"></p>
+        <div class="login-modal-actions">
+          <button type="button" id="btn-export-cards-csv" class="btn-primary modal-action-btn" data-i18n="account.exportCsv">Excel (CSV)</button>
+          <button type="button" id="btn-export-cards-json" class="modal-action-btn modal-btn-cancel" data-i18n="account.exportJson">JSON</button>
+          <button type="button" class="modal-action-btn modal-btn-cancel" data-close="modal-export-cards" data-i18n="modals.cancel">Cancelar</button>
+        </div>
       </div>
     </div>
   </div>
